@@ -1,0 +1,399 @@
+/* ========================================
+   Number Analytics Dashboard - Custom CSS
+   Gold/Lottery Theme with Animations
+   ======================================== */
+
+/* Import Fonts */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Urbanist:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap');
+
+/* Color Variables - Lottery Gold Theme */
+:root {
+    /* Primary Gold Colors */
+    --gold-50: #fffbeb;
+    --gold-100: #fef3c7;
+    --gold-400: #fbbf24;
+    --gold-500: #f59e0b;
+    --gold-600: #d97706;
+    --gold-700: #b45309;
+
+    /* Accent Colors */
+    --amber-900: #78350f;
+    --bronze: #cd7f32;
+    --navy: #1e293b;
+    --charcoal: #0f172a;
+
+    /* Status Colors */
+    --hot-color: #ef4444;
+    --warm-color: #f59e0b;
+    --normal-color: #10b981;
+    --cool-color: #3b82f6;
+    --cold-color: #6366f1;
+
+    /* Backgrounds */
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-dark: #0f172a;
+}
+
+/* Typography */
+.analytics-dashboard {
+    font-family: 'DM Sans', sans-serif;
+}
+
+.number-text,
+.number-display,
+.frequency-text {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.analytics-card h2,
+.analytics-card h3 {
+    font-family: 'Urbanist', sans-serif;
+}
+
+/* ========================================
+   Heat Map Styles
+   ======================================== */
+
+.heat-map-grid {
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--gold-50) 0%, var(--bg-secondary) 100%);
+    border-radius: 1rem;
+}
+
+.heat-cell {
+    position: relative;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+/* Heat Map Color Classes */
+.heat-cold {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: white;
+}
+
+.heat-cool {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+}
+
+.heat-normal {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.heat-warm {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+
+.heat-hot {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    animation: pulse-hot 2s infinite;
+}
+
+/* Heat Cell Hover Effect */
+.heat-cell:hover {
+    transform: scale(1.15);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    border-color: var(--gold-400);
+    z-index: 10;
+}
+
+/* Pulse Animation for Hot Numbers */
+@keyframes pulse-hot {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+}
+
+/* Heat Map Legend */
+.heat-map-legend {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+/* ========================================
+   Card Animations & Effects
+   ======================================== */
+
+/* Glassmorphism Card */
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    border-radius: 1rem;
+}
+
+/* Gradient Mesh Background */
+.gradient-mesh {
+    background:
+        radial-gradient(at 20% 30%, rgba(251, 191, 36, 0.3) 0px, transparent 50%),
+        radial-gradient(at 80% 70%, rgba(217, 119, 6, 0.3) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(120, 53, 15, 0.2) 0px, transparent 50%);
+}
+
+/* Page Load Animation - Staggered Card Reveals */
+.analytics-card {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.analytics-card:nth-child(1) { animation-delay: 0.1s; }
+.analytics-card:nth-child(2) { animation-delay: 0.2s; }
+.analytics-card:nth-child(3) { animation-delay: 0.3s; }
+.analytics-card:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Number Counter Animation */
+.counter-animate {
+    animation: countUp 0.8s ease-out;
+}
+
+@keyframes countUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ========================================
+   Performer Cards
+   ======================================== */
+
+.performer-card {
+    border-left: 4px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.performer-card:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.top-numbers .performer-card {
+    border-left-color: var(--hot-color);
+}
+
+.bottom-numbers .performer-card {
+    border-left-color: var(--cool-color);
+}
+
+/* Rank Badge */
+.rank-badge {
+    font-weight: 700;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Frequency Badge */
+.frequency-badge {
+    font-weight: 700;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ========================================
+   Sparklines
+   ======================================== */
+
+.sparkline-container {
+    opacity: 0.8;
+    transition: opacity 0.3s;
+}
+
+.performer-card:hover .sparkline-container {
+    opacity: 1;
+}
+
+.sparkline-path {
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke-width 0.3s;
+}
+
+.performer-card:hover .sparkline-path {
+    stroke-width: 3;
+}
+
+/* ========================================
+   Comparison Cards
+   ======================================== */
+
+.comparison-card {
+    border: 2px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.comparison-card:hover {
+    border-color: var(--gold-400);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Status Badge Colors */
+.status-badge {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ========================================
+   Chart Styles
+   ======================================== */
+
+.chart-container {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s;
+}
+
+.chart-container:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+/* Desktop: Full dashboard layout */
+@media (min-width: 1024px) {
+    .heat-map-grid {
+        grid-template-columns: repeat(10, 1fr);
+        gap: 0.75rem;
+    }
+
+    .heat-cell {
+        padding: 1.25rem;
+    }
+
+    .number-text {
+        font-size: 1.25rem;
+    }
+
+    .frequency-text {
+        font-size: 0.875rem;
+    }
+}
+
+/* Tablet: Adjusted layout */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .heat-map-grid {
+        grid-template-columns: repeat(10, 1fr);
+        gap: 0.5rem;
+    }
+
+    .heat-cell {
+        padding: 0.75rem;
+    }
+
+    .number-text {
+        font-size: 1rem;
+    }
+
+    .frequency-text {
+        font-size: 0.75rem;
+    }
+}
+
+/* Mobile: Optimized layout */
+@media (max-width: 767px) {
+    .heat-map-grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.375rem;
+    }
+
+    .heat-cell {
+        padding: 0.5rem;
+    }
+
+    .number-text {
+        font-size: 0.875rem;
+    }
+
+    .frequency-text {
+        font-size: 0.625rem;
+    }
+
+    .performer-card {
+        padding: 0.75rem !important;
+    }
+
+    .comparison-card {
+        padding: 1rem !important;
+    }
+}
+
+/* ========================================
+   Dark Mode Adjustments
+   ======================================== */
+
+.dark .heat-map-grid {
+    background: linear-gradient(135deg, rgba(120, 53, 15, 0.2) 0%, rgba(15, 23, 42, 0.5) 100%);
+}
+
+.dark .glass-card {
+    background: rgba(15, 23, 42, 0.7);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .chart-container {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+
+/* Smooth Transitions */
+.transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Gold Gradient Text */
+.text-gold-gradient {
+    background: linear-gradient(135deg, var(--gold-400) 0%, var(--gold-600) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Hover Glow Effect */
+.hover-glow:hover {
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+}
+
+/* Spinning Animation for Loading States */
+@keyframes spin-slow {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spin-slow {
+    animation: spin-slow 3s linear infinite;
+}

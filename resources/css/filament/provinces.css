@@ -1,0 +1,726 @@
+/**
+ * Provinces Management Page - Custom Styles
+ * Geographic Command Center Design
+ */
+
+/* ============================================
+   Google Fonts Import
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+/* ============================================
+   CSS Variables - Color Palette
+   ============================================ */
+:root {
+    /* Regional Identity Colors */
+    --region-north: #059669;
+    --region-central: #D97706;
+    --region-south: #0284C7;
+
+    --region-north-light: #D1FAE5;
+    --region-central-light: #FED7AA;
+    --region-south-light: #BAE6FD;
+
+    --region-north-dark: #064E3B;
+    --region-central-dark: #92400E;
+    --region-south-dark: #075985;
+
+    /* Light Mode */
+    --bg-primary: #F8FAFC;
+    --bg-card: #FFFFFF;
+    --bg-secondary: #F1F5F9;
+    --text-primary: #0F172A;
+    --text-secondary: #64748B;
+    --border: #E2E8F0;
+
+    /* Action Colors */
+    --accent-yellow: #FBBF24;
+    --success: #10B981;
+    --error: #EF4444;
+    --muted: #6B7280;
+
+    /* Typography */
+    --font-display: 'Plus Jakarta Sans', sans-serif;
+    --font-body: 'Manrope', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    /* Spacing */
+    --grid-gap: 1.5rem;
+    --card-padding: 1.5rem;
+    --region-bar-width: 6px;
+}
+
+/* Dark Mode Variables */
+.dark {
+    --bg-primary: #0F172A;
+    --bg-card: #1E293B;
+    --bg-secondary: #334155;
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --border: #334155;
+}
+
+/* ============================================
+   Filters Container
+   ============================================ */
+.filters-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+/* Filter Pills */
+.filter-pills {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.filter-pill {
+    padding: 0.625rem 1rem;
+    border-radius: 9999px;
+    border: 2px solid var(--border);
+    background: var(--bg-card);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-pill:hover {
+    border-color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.filter-pill.active {
+    background: var(--text-primary);
+    color: white;
+    border-color: var(--text-primary);
+}
+
+.filter-pill[data-region-color="north"].active {
+    background: var(--region-north);
+    border-color: var(--region-north);
+}
+
+.filter-pill[data-region-color="central"].active {
+    background: var(--region-central);
+    border-color: var(--region-central);
+}
+
+.filter-pill[data-region-color="south"].active {
+    background: var(--region-south);
+    border-color: var(--region-south);
+}
+
+.pill-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.filter-pill .count {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+/* Filters Right (Search & Sort) */
+.filters-right {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-box .icon-search {
+    position: absolute;
+    left: 0.75rem;
+    color: var(--text-secondary);
+    pointer-events: none;
+}
+
+.search-box input {
+    padding: 0.625rem 1rem 0.625rem 2.5rem;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    min-width: 250px;
+    transition: all 0.2s ease;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--text-primary);
+    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
+}
+
+.dark .search-box input:focus {
+    box-shadow: 0 0 0 3px rgba(248, 250, 252, 0.1);
+}
+
+.sort-select {
+    padding: 0.625rem 1rem;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sort-select:hover {
+    border-color: var(--text-primary);
+}
+
+.sort-select:focus {
+    outline: none;
+    border-color: var(--text-primary);
+    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
+}
+
+.dark .sort-select:focus {
+    box-shadow: 0 0 0 3px rgba(248, 250, 252, 0.1);
+}
+
+/* ============================================
+   Province Cards Grid
+   ============================================ */
+.provinces-grid {
+    display: grid;
+    gap: var(--grid-gap);
+    margin-top: 2rem;
+}
+
+/* Mobile: 1 column */
+@media (min-width: 640px) {
+    .provinces-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
+
+/* Tablet: 2 columns */
+@media (min-width: 768px) {
+    .provinces-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Desktop: 3 columns */
+@media (min-width: 1024px) {
+    .provinces-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Large Desktop: 4 columns */
+@media (min-width: 1280px) {
+    .provinces-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Extra Large: 5 columns */
+@media (min-width: 1536px) {
+    .provinces-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+/* ============================================
+   Province Card
+   ============================================ */
+.province-card {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: var(--card-padding);
+    padding-left: calc(var(--card-padding) + var(--region-bar-width) + 0.75rem);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+
+    /* Subtle texture (lottery ticket pattern) */
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.01) 2px,
+            rgba(0, 0, 0, 0.01) 4px
+        );
+}
+
+.province-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border-color: var(--text-secondary);
+}
+
+/* Dark Mode Card */
+.dark .province-card {
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(255, 255, 255, 0.02) 2px,
+            rgba(255, 255, 255, 0.02) 4px
+        );
+}
+
+.dark .province-card:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4),
+        0 10px 10px -5px rgba(0, 0, 0, 0.3);
+}
+
+/* Regional Accent Bar */
+.region-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--region-bar-width);
+    transition: width 0.3s ease;
+}
+
+.province-card[data-region="north"] .region-bar {
+    background: linear-gradient(to bottom, var(--region-north), var(--region-north-dark));
+}
+
+.province-card[data-region="central"] .region-bar {
+    background: linear-gradient(to bottom, var(--region-central), var(--region-central-dark));
+}
+
+.province-card[data-region="south"] .region-bar {
+    background: linear-gradient(to bottom, var(--region-south), var(--region-south-dark));
+}
+
+.province-card:hover .region-bar {
+    width: 8px;
+}
+
+/* ============================================
+   Card Header
+   ============================================ */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.header-left {
+    flex: 1;
+}
+
+.province-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    margin: 0 0 0.25rem 0;
+    letter-spacing: -0.02em;
+}
+
+.province-code {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.05em;
+    padding: 0.25rem 0.5rem;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ============================================
+   Action Buttons
+   ============================================ */
+.btn-fetch,
+.btn-settings {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.btn-fetch {
+    background: var(--accent-yellow);
+    color: white;
+}
+
+.btn-fetch:hover:not(:disabled) {
+    background: #F59E0B;
+    transform: rotate(90deg);
+}
+
+.btn-fetch:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-fetch.loading .icon-refresh {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.btn-settings {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.btn-settings:hover {
+    background: var(--text-primary);
+    color: white;
+}
+
+/* Active/Inactive Toggle */
+.toggle-active {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px;
+    background: var(--bg-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toggle-active:hover {
+    background: var(--region-north-light);
+}
+
+.dark .toggle-active:hover {
+    background: rgba(5, 150, 105, 0.2);
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.status-dot.inactive {
+    background: var(--muted);
+    box-shadow: none;
+    animation: none;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+/* ============================================
+   Region Badge
+   ============================================ */
+.region-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.75rem;
+    margin-bottom: 1rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.province-card[data-region="north"] .region-badge {
+    background: var(--region-north-light);
+    color: var(--region-north-dark);
+}
+
+.province-card[data-region="central"] .region-badge {
+    background: var(--region-central-light);
+    color: var(--region-central-dark);
+}
+
+.province-card[data-region="south"] .region-badge {
+    background: var(--region-south-light);
+    color: var(--region-south-dark);
+}
+
+/* ============================================
+   Schedule Section
+   ============================================ */
+.schedule-section {
+    margin-bottom: 1rem;
+}
+
+.section-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.schedule-text {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 1rem;
+    color: var(--text-primary);
+    padding-left: 1.75rem;
+}
+
+/* ============================================
+   Metrics Section
+   ============================================ */
+.metrics-section {
+    margin-bottom: 1rem;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    padding-left: 1.75rem;
+}
+
+.metric {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.metric-value {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--text-primary);
+}
+
+.metric-label {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   Card Footer
+   ============================================ */
+.card-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1rem 0;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-edit {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-edit:hover {
+    background: var(--text-primary);
+    color: white;
+}
+
+.sort-order {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.order-number {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.btn-drag {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    cursor: grab;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+}
+
+.btn-drag:hover {
+    color: var(--text-primary);
+}
+
+.btn-drag:active {
+    cursor: grabbing;
+}
+
+/* ============================================
+   Drag & Drop States
+   ============================================ */
+.province-card-ghost {
+    opacity: 0.4;
+}
+
+.province-card-dragging {
+    opacity: 0.8;
+    transform: rotate(2deg);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.empty-icon {
+    stroke: var(--text-secondary);
+    opacity: 0.3;
+    margin-bottom: 1.5rem;
+}
+
+.empty-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+}
+
+.empty-description {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.btn-reset-filters {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    background: var(--text-primary);
+    color: white;
+    font-family: var(--font-body);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-reset-filters:hover {
+    background: var(--text-secondary);
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   Responsive Adjustments
+   ============================================ */
+@media (max-width: 768px) {
+    .filters-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-pills {
+        justify-content: center;
+    }
+
+    .filters-right {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .search-box input {
+        width: 100%;
+    }
+
+    .sort-select {
+        width: 100%;
+    }
+
+    .card-header {
+        flex-wrap: wrap;
+    }
+
+    .header-right {
+        margin-top: 0.5rem;
+    }
+
+    .card-footer {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+}
