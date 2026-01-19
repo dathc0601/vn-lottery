@@ -16,11 +16,14 @@ class Province extends Model
         'draw_time',
         'sort_order',
         'is_active',
+        'show_in_left_sidebar',
+        'left_sidebar_order',
     ];
 
     protected $casts = [
         'draw_days' => 'array',
         'is_active' => 'boolean',
+        'show_in_left_sidebar' => 'boolean',
     ];
 
     public function lotteryResults()

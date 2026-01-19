@@ -52,4 +52,13 @@ return [
         'saturday' => 'Thứ Bảy',
         'sunday' => 'Chủ Nhật',
     ],
+
+    // Sidebar Settings
+    'sidebar_settings' => [
+        'title' => 'Cài đặt Sidebar',
+        'description' => 'Chọn các tỉnh hiển thị trong sidebar trái',
+        'show_in_sidebar' => 'Hiển thị trong Sidebar',
+        'order' => 'Thứ tự',
+        'saved' => 'Đã lưu cài đặt sidebar!',
+    ],
 ];

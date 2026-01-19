@@ -9,7 +9,7 @@
 @endsection
 
 @section('left-sidebar')
-    @include('components.left-sidebar')
+    <x-left-sidebar />
 @endsection
 
 @section('page-content')
