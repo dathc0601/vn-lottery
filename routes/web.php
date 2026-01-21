@@ -45,7 +45,18 @@ Route::get('/{region}/{slug}', [LotteryController::class, 'provinceDetail'])
 
 // Other pages
 Route::get('/so-ket-qua', [ResultsBookController::class, 'index'])->name('results.book');
-Route::get('/thong-ke', [StatisticsController::class, 'index'])->name('statistics');
+// Statistics pages
+Route::prefix('thong-ke')->group(function () {
+    Route::get('/', [StatisticsController::class, 'index'])->name('statistics');
+    Route::get('/tan-suat-loto', [StatisticsController::class, 'frequency'])->name('statistics.frequency');
+    Route::get('/loto-gan', [StatisticsController::class, 'overdue'])->name('statistics.overdue');
+    Route::get('/dau-duoi-loto', [StatisticsController::class, 'headTail'])->name('statistics.head-tail');
+    Route::get('/thong-ke-nhanh', [StatisticsController::class, 'quick'])->name('statistics.quick');
+    Route::get('/theo-tong', [StatisticsController::class, 'bySum'])->name('statistics.by-sum');
+    Route::get('/quan-trong', [StatisticsController::class, 'important'])->name('statistics.important');
+    Route::get('/dac-biet-tuan', [StatisticsController::class, 'weeklySpecial'])->name('statistics.weekly-special');
+    Route::get('/dac-biet-thang', [StatisticsController::class, 'monthlySpecial'])->name('statistics.monthly-special');
+});
 Route::get('/do-ve-so', [TicketController::class, 'verify'])->name('ticket.verify');
 Route::post('/do-ve-so', [TicketController::class, 'verify']);
 Route::get('/lich-mo-thuong', [ScheduleController::class, 'index'])->name('schedule');

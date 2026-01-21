@@ -7,7 +7,7 @@
     'region' => 'xsmb',  // Add region prop
 ])
 
-<div class="space-y-3">
+<div class="space-y-3 w-full lg:w-[250px]">
     <!-- Calendar Widget -->
     @if($showCalendar)
         <x-calendar-widget :region="$region" />
@@ -183,22 +183,22 @@
         <div class="sidebar-header">Thống kê loto</div>
         <ul class="text-sm">
             <li class="border-b border-gray-200">
-                <a href="#" class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors">Thống kê loto gan</a>
+                <a href="{{ route('statistics.overdue') }}" class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors">Thống kê loto gan</a>
             </li>
             <li class="border-b border-gray-200">
                 <a href="#" class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors">Thống kê chu kỳ dàn loto</a>
             </li>
             <li class="border-b border-gray-200">
-                <a href="#" class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors">Soi cầu loto miền Bắc</a>
+                <a href="#" class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors">Thống kê nhanh</a>
             </li>
             <li class="border-b border-gray-200">
-                <a href="#" class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors">Soi cầu loto miền Nam</a>
+                <a href="{{ route('statistics.head-tail') }}" class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors">Thống kê đầu đuôi loto</a>
             </li>
             <li class="border-b border-gray-200">
-                <a href="#" class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors">Soi cầu loto miền Trung</a>
+                <a href="{{ route('statistics.frequency') }}" class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors">Thống kê tần suất loto</a>
             </li>
             <li>
-                <a href="#" class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors">Dự đoán kết quả xổ số</a>
+                <a href="#" class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors">Thống kê chu kỳ đặc biệt</a>
             </li>
         </ul>
     </div>

@@ -8,7 +8,7 @@
     <div class="flex flex-col lg:flex-row gap-4">
 
         <!-- Main Content (65%) -->
-        <div class="flex-1 lg:w-2/3">
+        <div class="flex-1 lg:w-[100% - 275px]">
 
             <!-- Quick Region Links Tabs -->
             <div class="grid md:grid-cols-3 gap-3 mb-4">

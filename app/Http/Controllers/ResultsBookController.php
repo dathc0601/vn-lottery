@@ -11,9 +11,13 @@ class ResultsBookController extends Controller
 {
     public function index(Request $request)
     {
+        // Get Hanoi province for default
+        $hanoiProvince = Province::where('slug', 'ha-noi')->first();
+        $defaultProvinceId = $hanoiProvince ? $hanoiProvince->id : null;
+
         // Get filter parameters
-        $period = $request->input('period', '30'); // Default to 30 days
-        $provinceId = $request->input('province_id');
+        $period = $request->input('period', '10'); // Default to 10 days
+        $provinceId = $request->input('province_id') ?? $defaultProvinceId;
         $region = $request->input('region');
         $dateFrom = $request->input('date_from');
         $dateTo = $request->input('date_to');
@@ -53,9 +57,10 @@ class ResultsBookController extends Controller
             ->orderBy('name')
             ->get();
 
-        // Calculate statistics
-        $totalResults = $query->count();
-        $provinceCount = $query->distinct('province_id')->count('province_id');
+        // Get provinces grouped by region for sidebar
+        $northProvinces = Province::where('region', 'north')->where('is_active', true)->orderBy('name')->get();
+        $centralProvinces = Province::where('region', 'central')->where('is_active', true)->orderBy('name')->get();
+        $southProvinces = Province::where('region', 'south')->where('is_active', true)->orderBy('name')->get();
 
         return view('results-book', compact(
             'results',
@@ -67,8 +72,9 @@ class ResultsBookController extends Controller
             'dateTo',
             'startDate',
             'endDate',
-            'totalResults',
-            'provinceCount'
+            'northProvinces',
+            'centralProvinces',
+            'southProvinces'
         ));
     }
 }
