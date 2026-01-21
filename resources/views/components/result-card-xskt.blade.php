@@ -32,7 +32,7 @@
     <!-- Draw Code -->
     @if($result->turn_num)
     <div class="px-4 py-3 bg-white text-center text-sm font-medium border-b border-gray-200">
-        <span class="text-gray-600">Mã:</span> {{ $result->turn_num }}
+        <span class="text-gray-600">Ngày</span> {{ $result->turn_num }}
     </div>
     @endif
 
@@ -203,7 +203,7 @@ document.querySelectorAll('input[name="digit-display-{{ $result->id }}"]').forEa
     radio.addEventListener('change', function() {
         const resultCard = document.getElementById('result-{{ $result->id }}');
         const displayType = this.value;
-        const numbers = resultCard.querySelectorAll('.number');
+        const numbers = resultCard.querySelectorAll('.result-table-xskt .number');
 
         numbers.forEach(numberSpan => {
             const originalNumber = numberSpan.getAttribute('data-original') || numberSpan.textContent.trim();

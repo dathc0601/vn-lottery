@@ -25,6 +25,19 @@ Route::get('/xsmn/{date?}', [LotteryController::class, 'xsmn'])
     ->name('xsmn')
     ->where('date', '\d{2}-\d{2}-\d{4}');
 
+// Load more results API
+Route::get('/api/load-more/{region}/{date}', [LotteryController::class, 'loadMoreResults'])
+    ->where(['region' => 'xsmb|xsmt|xsmn', 'date' => '\d{2}-\d{2}-\d{4}'])
+    ->name('lottery.loadMore');
+
+// Day of week routes (must be before province routes)
+Route::get('/{region}/{day}', [LotteryController::class, 'resultsByDayOfWeek'])
+    ->where([
+        'region' => 'xsmb|xsmt|xsmn',
+        'day' => 'thu-2|thu-3|thu-4|thu-5|thu-6|thu-7|chu-nhat'
+    ])
+    ->name('lottery.byDayOfWeek');
+
 // Individual province pages
 Route::get('/{region}/{slug}', [LotteryController::class, 'provinceDetail'])
     ->where(['region' => 'xsmb|xsmt|xsmn'])
@@ -37,6 +50,9 @@ Route::get('/do-ve-so', [TicketController::class, 'verify'])->name('ticket.verif
 Route::post('/do-ve-so', [TicketController::class, 'verify']);
 Route::get('/lich-mo-thuong', [ScheduleController::class, 'index'])->name('schedule');
 Route::get('/quay-thu-xo-so-hom-nay', [TrialDrawController::class, 'index'])->name('trial.draw');
+Route::get('/quay-thu-xsmb', [TrialDrawController::class, 'xsmb'])->name('trial.xsmb');
+Route::get('/quay-thu-xsmt', [TrialDrawController::class, 'xsmt'])->name('trial.xsmt');
+Route::get('/quay-thu-xsmn', [TrialDrawController::class, 'xsmn'])->name('trial.xsmn');
 Route::get('/xo-so-vietlott', [VietlottController::class, 'index'])->name('vietlott');
 
 // Admin authentication routes
