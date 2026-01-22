@@ -24,6 +24,7 @@ return new class extends Migration
             // Indexes
             $table->index('game_type');
             $table->index('draw_date');
+            $table->unique(['game_type', 'draw_number']);
         });
     }
 

@@ -36,7 +36,7 @@
     </div>
 
     <!-- Results Info -->
-    @if($provinces->count() > 0)
+    @if($provinces->count() > 0 && isset($isSpecificDate) && $isSpecificDate)
         <div class="bg-blue-50 border border-blue-200 p-3 mb-4 rounded">
             <p class="text-sm text-blue-800">
                 <strong>{{ $provinces->count() }} tỉnh</strong> quay ngày {{ $date->format('d/m/Y') }}:
@@ -46,12 +46,10 @@
     @endif
 
     <!-- Results Display -->
-    @if(count($results) > 0)
+    @if(count($groupedResults) > 0)
         <!-- Results Container -->
         <div id="results-container">
-            @foreach($results as $result)
-                <x-result-card-xskt :result="$result" region="xsmt" />
-            @endforeach
+            @include('partials.xsmt-grouped-results-list', ['groupedResults' => $groupedResults, 'region' => 'xsmt'])
         </div>
 
         <!-- Load More Button -->
@@ -59,7 +57,7 @@
             <button
                 id="load-more-btn"
                 data-region="xsmt"
-                data-next-date="{{ $date->copy()->subDay()->format('d-m-Y') }}"
+                data-next-date="{{ $nextDate->format('d-m-Y') }}"
                 class="bg-[#ff6600] text-white px-8 py-3 rounded hover:bg-[#ff7700] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed">
                 <svg class="w-5 h-5 inline-block mr-2 load-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />

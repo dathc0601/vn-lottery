@@ -421,3 +421,56 @@ input:focus, select:focus, textarea:focus {
         display: none;
     }
 }
+
+/* XSMT Grouped Result Card Styles */
+.result-card-grouped {
+    background: white;
+    border: 1px solid var(--color-table-border);
+    margin-bottom: 20px;
+}
+
+.result-table-xsmt-grouped {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.result-table-xsmt-grouped th,
+.result-table-xsmt-grouped td {
+    border: 1px solid var(--color-table-border);
+    padding: 8px 12px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.result-table-xsmt-grouped thead th {
+    background-color: var(--color-table-gray);
+    font-weight: 600;
+}
+
+.result-table-xsmt-grouped tbody tr:nth-child(even) {
+    background-color: var(--color-table-gray);
+}
+
+/* Mobile responsive for XSMT grouped tables */
+@media (max-width: 640px) {
+    .result-card-grouped .overflow-x-auto {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .result-table-xsmt-grouped th,
+    .result-table-xsmt-grouped td {
+        padding: 6px 8px;
+        font-size: 13px;
+        min-width: 100px;
+    }
+
+    .result-table-xsmt-grouped th:first-child,
+    .result-table-xsmt-grouped td:first-child {
+        position: sticky;
+        left: 0;
+        background: var(--color-table-gray);
+        z-index: 1;
+        min-width: 50px;
+    }
+}

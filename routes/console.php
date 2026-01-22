@@ -63,3 +63,16 @@ Schedule::job(new GenerateStatisticsJob())
 //     ->name('generate-statistics-daily')
 //     ->onOneServer()
 //     ->withoutOverlapping();
+
+// ============================================
+// Vietlott Scheduler Configuration
+// ============================================
+// Vietlott Drawing Time: 18:00 daily
+// ============================================
+
+// Fetch Vietlott results - Daily at 19:00 (1 hour after draw completion)
+Schedule::command('vietlott:fetch')
+    ->dailyAt('19:00')
+    ->name('fetch-vietlott-daily')
+    ->onOneServer()
+    ->withoutOverlapping();

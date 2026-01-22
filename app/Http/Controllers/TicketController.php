@@ -16,6 +16,11 @@ class TicketController extends Controller
             ->orderBy('name')
             ->get();
 
+        // Get grouped provinces for sidebars
+        $northProvinces = Province::where('region', 'north')->where('is_active', true)->orderBy('name')->get();
+        $centralProvinces = Province::where('region', 'central')->where('is_active', true)->orderBy('name')->get();
+        $southProvinces = Province::where('region', 'south')->where('is_active', true)->orderBy('name')->get();
+
         $result = null;
         $matchedPrizes = [];
         $ticketNumber = null;
@@ -86,6 +91,9 @@ class TicketController extends Controller
 
         return view('ticket-verify', compact(
             'provinces',
+            'northProvinces',
+            'centralProvinces',
+            'southProvinces',
             'result',
             'matchedPrizes',
             'ticketNumber',

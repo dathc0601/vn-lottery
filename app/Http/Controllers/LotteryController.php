@@ -95,6 +95,83 @@ class LotteryController extends Controller
     }
 
     /**
+     * Fetch grouped results for a single date (all provinces for that day)
+     *
+     * @param string $dbRegion The region (north, central, south)
+     * @param Carbon $date The date to fetch results for
+     * @return array|null Returns array with date, dayOfWeek, provinces, results or null if no results
+     */
+    private function fetchGroupedResultsForDate($dbRegion, Carbon $date)
+    {
+        $dayOfWeek = $date->dayOfWeek == 0 ? 7 : $date->dayOfWeek;
+
+        // Get provinces that draw on this day
+        $provinces = Province::where('region', $dbRegion)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get()
+            ->filter(function ($province) use ($dayOfWeek) {
+                return in_array($dayOfWeek, $province->draw_days ?? []);
+            });
+
+        if ($provinces->isEmpty()) {
+            return null;
+        }
+
+        // Fetch results for all provinces on this date
+        $results = [];
+        foreach ($provinces as $province) {
+            $result = LotteryResult::where('province_id', $province->id)
+                ->whereDate('draw_date', $date)
+                ->first();
+            if ($result) {
+                $results[$province->id] = $result;
+            }
+        }
+
+        if (empty($results)) {
+            return null;
+        }
+
+        return [
+            'date' => $date->copy(),
+            'dayOfWeek' => $dayOfWeek,
+            'provinces' => $provinces,
+            'results' => $results,
+        ];
+    }
+
+    /**
+     * Fetch multiple days of grouped results going back from a starting date
+     *
+     * @param string $dbRegion The region (north, central, south)
+     * @param Carbon $startDate The starting date to fetch from
+     * @param int $count Number of days with results to fetch
+     * @return array Contains 'groupedResults' array and 'nextDate' Carbon instance
+     */
+    private function fetchMultipleGroupedResults($dbRegion, Carbon $startDate, $count = 5)
+    {
+        $groupedResults = [];
+        $currentDate = $startDate->copy();
+        $thirtyDaysAgo = Carbon::today()->subDays(30);
+
+        while (count($groupedResults) < $count && $currentDate->gte($thirtyDaysAgo)) {
+            $dayGroup = $this->fetchGroupedResultsForDate($dbRegion, $currentDate);
+
+            if ($dayGroup !== null) {
+                $groupedResults[] = $dayGroup;
+            }
+
+            $currentDate->subDay();
+        }
+
+        return [
+            'groupedResults' => $groupedResults,
+            'nextDate' => $currentDate,
+        ];
+    }
+
+    /**
      * Fetch multiple result cards going back from a starting date
      *
      * @param string $dbRegion The region (north, central, south)
@@ -158,42 +235,78 @@ class LotteryController extends Controller
 
     public function xsmt(Request $request, $date = null)
     {
+        $isSpecificDate = false;
+
         // Priority: route parameter > query string > today
         if ($date) {
             // Parse from route parameter (DD-MM-YYYY format)
             try {
                 $date = Carbon::createFromFormat('d-m-Y', $date);
+                $isSpecificDate = true;
             } catch (\Exception $e) {
                 abort(404, 'Ngày không hợp lệ');
             }
         } else if ($request->has('date')) {
             // Backward compatibility: query string (Y-m-d format)
             $date = Carbon::parse($request->get('date'));
+            $isSpecificDate = true;
         } else {
             // Default to today
             $date = Carbon::today();
         }
-        $dayOfWeek = $date->dayOfWeek == 0 ? 7 : $date->dayOfWeek; // Convert Sunday from 0 to 7
 
-        // Get provinces that draw on this day
+        $dayOfWeek = $date->dayOfWeek == 0 ? 7 : $date->dayOfWeek;
+
+        // Get provinces that draw on the selected day (for display purposes)
         $provinces = Province::where('region', 'central')
             ->where('is_active', true)
+            ->orderBy('sort_order')
             ->get()
             ->filter(function ($province) use ($dayOfWeek) {
                 return in_array($dayOfWeek, $province->draw_days ?? []);
             });
 
-        $results = [];
-        foreach ($provinces as $province) {
-            $result = LotteryResult::where('province_id', $province->id)
-                ->whereDate('draw_date', $date)
-                ->first();
-            if ($result) {
-                $results[] = $result;
-            }
+        if ($isSpecificDate) {
+            // Specific date: show only that day's grouped results
+            $dayGroup = $this->fetchGroupedResultsForDate('central', $date);
+            $groupedResults = $dayGroup ? [$dayGroup] : [];
+            $nextDate = $date->copy()->subDay();
+        } else {
+            // Default page: fetch 5 days of grouped results
+            $fetchResult = $this->fetchMultipleGroupedResults('central', $date, 5);
+            $groupedResults = $fetchResult['groupedResults'];
+            $nextDate = $fetchResult['nextDate'];
         }
 
-        return view('xsmt', compact('results', 'date', 'provinces'));
+        // Add province lists for sidebar
+        $northProvinces = Province::where('region', 'north')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        $centralProvinces = Province::where('region', 'central')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        $southProvinces = Province::where('region', 'south')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        return view('xsmt', compact(
+            'groupedResults',
+            'date',
+            'provinces',
+            'northProvinces',
+            'centralProvinces',
+            'southProvinces',
+            'nextDate',
+            'isSpecificDate'
+        ));
     }
 
     public function xsmn(Request $request, $date = null)
@@ -370,6 +483,34 @@ class LotteryController extends Controller
 
         $dbRegion = $regionMap[$region];
 
+        // Special handling for XSMT - use grouped results
+        if ($region === 'xsmt') {
+            // Fetch 5 days of grouped results
+            $fetchResult = $this->fetchMultipleGroupedResults($dbRegion, $date, 5);
+            $groupedResults = $fetchResult['groupedResults'];
+            $nextDate = $fetchResult['nextDate'];
+
+            // Check if there are more results available
+            $hasMore = $nextDate->gte($thirtyDaysAgo);
+
+            // Render HTML
+            $html = '';
+            if (!empty($groupedResults)) {
+                $html = view('partials.xsmt-grouped-results-list', [
+                    'groupedResults' => $groupedResults,
+                    'region' => $region
+                ])->render();
+            }
+
+            return response()->json([
+                'html' => $html,
+                'nextDate' => $nextDate->format('d-m-Y'),
+                'hasMore' => $hasMore,
+                'resultsCount' => count($groupedResults),
+                'currentDate' => $date->format('d-m-Y')
+            ]);
+        }
+
         // For XSMB (north), only fetch Hà Nội results to avoid duplicates
         $provinceSlug = ($region === 'xsmb') ? 'ha-noi' : null;
 
@@ -394,7 +535,8 @@ class LotteryController extends Controller
             'html' => $html,
             'nextDate' => $nextDate->format('d-m-Y'),
             'hasMore' => $hasMore,
-            'resultsCount' => count($results)
+            'resultsCount' => count($results),
+            'currentDate' => $date->format('d-m-Y')
         ]);
     }
 }

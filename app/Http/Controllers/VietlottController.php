@@ -2,39 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\VietlottResult;
+use App\Services\VietlottDataService;
 
 class VietlottController extends Controller
 {
     public function index()
     {
-        // Games information
-        $games = [
-            [
-                'name' => 'Mega 6/45',
-                'code' => 'mega645',
-                'description' => 'Chọn 6 số từ 01-45',
-                'jackpot' => ''  // To be fetched from API
-            ],
-            [
-                'name' => 'Power 6/55',
-                'code' => 'power655',
-                'description' => 'Chọn 6 số từ 01-55',
-                'jackpot' => '' // To be fetched from API
-            ],
-            [
-                'name' => 'Max 3D',
-                'code' => 'max3d',
-                'description' => 'Chọn 3 số từ 000-999',
-                'jackpot' => '' // To be fetched from API
-            ],
-            [
-                'name' => 'Max 3D Pro',
-                'code' => 'max3dpro',
-                'description' => 'Chọn 3 số từ 000-999 (Nâng cao)',
-                'jackpot' => '' // To be fetched from API
-            ],
-        ];
+        $gameTypes = VietlottDataService::getGameTypes();
+        $games = [];
+
+        foreach ($gameTypes as $gameType) {
+            $gameInfo = VietlottDataService::getGameInfo($gameType);
+            $latestResult = VietlottResult::where('game_type', $gameType)
+                ->orderBy('draw_date', 'desc')
+                ->first();
+
+            $results = VietlottResult::where('game_type', $gameType)
+                ->orderBy('draw_date', 'desc')
+                ->take(10)
+                ->get();
+
+            $games[$gameType] = [
+                'code' => $gameType,
+                'name' => $gameInfo['name'],
+                'description' => $gameInfo['description'],
+                'schedule' => $gameInfo['schedule'],
+                'draw_time' => $gameInfo['draw_time'],
+                'ticket_price' => $gameInfo['ticket_price'],
+                'latest' => $latestResult,
+                'results' => $results,
+                'has_data' => $results->count() > 0,
+            ];
+        }
 
         return view('vietlott', compact('games'));
     }
