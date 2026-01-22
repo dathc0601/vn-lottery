@@ -30,6 +30,11 @@ Route::get('/api/load-more/{region}/{date}', [LotteryController::class, 'loadMor
     ->where(['region' => 'xsmb|xsmt|xsmn', 'date' => '\d{2}-\d{2}-\d{4}'])
     ->name('lottery.loadMore');
 
+// Load more province results API
+Route::get('/api/load-more-province/{region}/{slug}/{page}', [LotteryController::class, 'loadMoreProvinceResults'])
+    ->where(['region' => 'xsmb|xsmt|xsmn', 'page' => '\d+'])
+    ->name('province.loadMore');
+
 // Day of week routes (must be before province routes)
 Route::get('/{region}/{day}', [LotteryController::class, 'resultsByDayOfWeek'])
     ->where([
@@ -56,6 +61,12 @@ Route::prefix('thong-ke')->group(function () {
     Route::get('/quan-trong', [StatisticsController::class, 'important'])->name('statistics.important');
     Route::get('/dac-biet-tuan', [StatisticsController::class, 'weeklySpecial'])->name('statistics.weekly-special');
     Route::get('/dac-biet-thang', [StatisticsController::class, 'monthlySpecial'])->name('statistics.monthly-special');
+    Route::get('/cang-loto', [StatisticsController::class, 'cangLoto'])->name('statistics.cang-loto');
+    Route::get('/chu-ky-gan-theo-tinh', [StatisticsController::class, 'overdueCyclesByProvince'])->name('statistics.overdue-cycles-province');
+    Route::get('/chu-ky-dan-loto', [StatisticsController::class, 'danLotoCycles'])->name('statistics.dan-loto-cycles');
+    Route::get('/chu-ky-dac-biet', [StatisticsController::class, 'specialPrizeCycle'])->name('statistics.special-prize-cycle');
+    Route::get('/dai-nhat', [StatisticsController::class, 'longestCycle'])->name('statistics.longest-cycle');
+    Route::get('/tan-so-nhip-loto', [StatisticsController::class, 'rhythmFrequency'])->name('statistics.rhythm-frequency');
 });
 Route::get('/do-ve-so', [TicketController::class, 'verify'])->name('ticket.verify');
 Route::post('/do-ve-so', [TicketController::class, 'verify']);

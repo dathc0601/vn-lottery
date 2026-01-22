@@ -2,200 +2,436 @@
 
 @section('title', $province->name . ' - Kết quả xổ số')
 
-@section('page-content')
-<div class="space-y-6">
-    <!-- Breadcrumb -->
-    <nav class="flex text-sm text-gray-600">
-        <a href="{{ route('home') }}" class="hover:text-[#4a7c2c]">Trang chủ</a>
-        <span class="mx-2">/</span>
-        @if($province->region == 'north')
-            <a href="{{ route('xsmb') }}" class="hover:text-[#4a7c2c]">XSMB</a>
-        @elseif($province->region == 'central')
-            <a href="{{ route('xsmt') }}" class="hover:text-[#4a7c2c]">XSMT</a>
-        @else
-            <a href="{{ route('xsmn') }}" class="hover:text-[#4a7c2c]">XSMN</a>
-        @endif
-        <span class="mx-2">/</span>
-        <span class="text-gray-800 font-medium">{{ $province->name }}</span>
-    </nav>
+@section('breadcrumb')
+    <a href="{{ route('home') }}" class="text-[#0066cc] hover:underline">Trang chủ</a>
+    <span class="mx-1">/</span>
+    @if($province->region == 'north')
+        <a href="{{ route('xsmb') }}" class="text-[#0066cc] hover:underline">XSMB</a>
+    @elseif($province->region == 'central')
+        <a href="{{ route('xsmt') }}" class="text-[#0066cc] hover:underline">XSMT</a>
+    @else
+        <a href="{{ route('xsmn') }}" class="text-[#0066cc] hover:underline">XSMN</a>
+    @endif
+    <span class="mx-1">/</span>
+    <span class="text-gray-800 font-medium">{{ $province->name }}</span>
+@endsection
 
-    <!-- Page Header -->
-    <div class="bg-gradient-to-r from-[#2d5016] to-[#4a7c2c] text-white rounded-xl p-6 shadow-lg">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-3xl font-bold mb-2">{{ $province->name }}</h1>
-                <div class="flex items-center gap-4 text-sm">
-                    <span class="bg-white/20 px-3 py-1 rounded-full">
-                        {{ $province->region == 'north' ? 'Miền Bắc' : ($province->region == 'central' ? 'Miền Trung' : 'Miền Nam') }}
-                    </span>
-                    <span>Mã: <strong>{{ strtoupper($province->code) }}</strong></span>
-                    <span>Giờ quay: <strong>{{ \Carbon\Carbon::parse($province->draw_time)->format('H:i') }}</strong></span>
+@section('page-content')
+<div>
+    <!-- Two-Column Layout -->
+    <div class="flex flex-col lg:flex-row gap-4">
+
+        <!-- Main Content -->
+        <div class="flex-1 min-w-0">
+
+            <!-- Page Header (Orange bar) -->
+            <div class="bg-white rounded shadow overflow-hidden mb-4">
+                <div class="bg-[#ff6600] text-white px-4 py-2 font-medium">
+                    @if($province->region == 'north')
+                        XSMB - Kết quả xổ số {{ $province->name }} - Xổ Số Miền Bắc
+                    @elseif($province->region == 'central')
+                        XSMT - Kết quả xổ số {{ $province->name }} - Xổ Số Miền Trung
+                    @else
+                        XSMN - Kết quả xổ số {{ $province->name }} - Xổ Số Miền Nam
+                    @endif
                 </div>
             </div>
-            <div class="hidden md:block">
-                <svg class="w-16 h-16 text-white/30" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                </svg>
-            </div>
-        </div>
-    </div>
 
-    <!-- Draw Days Info -->
-    @if($province->draw_days && count($province->draw_days) > 0)
-    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div class="flex items-start">
-            <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-            </svg>
-            <div>
-                <p class="text-sm font-medium text-blue-900">Lịch quay xổ số:</p>
-                <p class="text-sm text-blue-800 mt-1">
+            <!-- Draw Days Info -->
+            @if($province->draw_days && count($province->draw_days) > 0)
+            <div class="bg-blue-50 border border-blue-200 p-3 mb-4 rounded">
+                <p class="text-sm text-blue-800">
                     @php
                         $days = ['', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ Nhật'];
                         $drawDays = array_map(fn($d) => $days[$d], $province->draw_days);
                     @endphp
-                    <strong>{{ implode(', ', $drawDays) }}</strong>
+                    <strong>Lịch quay số:</strong> {{ implode(', ', $drawDays) }} - Mở thưởng lúc <strong>{{ \Carbon\Carbon::parse($province->draw_time)->format('H:i') }}</strong>
                 </p>
             </div>
-        </div>
-    </div>
-    @endif
+            @endif
 
-    <!-- Statistics Cards -->
-    <div class="grid md:grid-cols-3 gap-4">
-        <div class="bg-white rounded-lg p-4 border-l-4 border-green-500 shadow">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600">Tổng kết quả</p>
-                    <p class="text-2xl font-bold text-gray-800">{{ $results->total() }}</p>
+            <!-- Results Display (using existing component) -->
+            @if($results->count() > 0)
+                <div id="province-results-container">
+                    @foreach($results as $result)
+                        <x-result-card-xskt :result="$result" :region="$region" />
+                    @endforeach
                 </div>
-                <div class="bg-green-100 rounded-full p-3">
-                    <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-            </div>
-        </div>
 
-        <div class="bg-white rounded-lg p-4 border-l-4 border-blue-500 shadow">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600">Kết quả mới nhất</p>
-                    <p class="text-lg font-bold text-gray-800">
-                        {{ $results->first() ? $results->first()->draw_date->format('d/m/Y') : 'Chưa có' }}
+                <!-- Load More Button -->
+                @if($results->hasMorePages())
+                <div class="text-center mt-6 mb-4" id="load-more-province-container">
+                    <button
+                        id="load-more-province-btn"
+                        data-region="{{ $region }}"
+                        data-slug="{{ $province->slug }}"
+                        data-next-page="2"
+                        class="bg-[#ff6600] text-white px-8 py-3 rounded hover:bg-[#ff7700] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg class="w-5 h-5 inline-block mr-2 load-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <svg class="w-5 h-5 inline-block mr-2 loading-spinner hidden animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span id="load-more-province-text">Xem thêm kết quả XS{{ strtoupper(substr($province->name, 0, 2)) }}</span>
+                    </button>
+                </div>
+                @endif
+            @else
+                <div class="border border-yellow-400 bg-yellow-50 px-4 py-3 rounded mb-4">
+                    <p class="font-semibold text-yellow-800">Chưa có kết quả</p>
+                    <p class="text-sm text-yellow-700 mt-1">
+                        Không tìm thấy kết quả xổ số cho {{ $province->name }}.
                     </p>
                 </div>
-                <div class="bg-blue-100 rounded-full p-3">
-                    <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                    </svg>
+            @endif
+
+            <!-- Province Information Section -->
+            <div class="bg-white rounded shadow overflow-hidden mt-4">
+                <div class="bg-[#ff6600] text-white px-4 py-2 font-medium">
+                    Những thông tin chính về {{ $province->name }}
+                </div>
+                <div class="p-4 text-sm text-gray-700 space-y-3">
+                    @if($province->region == 'north')
+                        <p>Xổ số {{ $province->name }} là một trong những đài xổ số thuộc khu vực miền Bắc Việt Nam. Kết quả xổ số được mở thưởng và công bố trực tiếp trên các phương tiện truyền thông chính thức.</p>
+                        <p>Xổ số miền Bắc có cơ cấu giải thưởng đặc biệt với 27 lần quay số, mang đến cơ hội trúng thưởng cao cho người chơi. Giải đặc biệt có giá trị lên đến 200 triệu đồng.</p>
+                    @elseif($province->region == 'central')
+                        <p>Xổ số {{ $province->name }} là một trong những đài xổ số thuộc khu vực miền Trung Việt Nam. Kết quả xổ số được mở thưởng và công bố trực tiếp vào các ngày quay số theo lịch cố định.</p>
+                        <p>Xổ số miền Trung có cơ cấu giải thưởng hấp dẫn với giải đặc biệt lên đến 2 tỷ đồng. Kết quả được công bố lúc 17h15 hàng ngày.</p>
+                    @else
+                        <p>Xổ số {{ $province->name }} là một trong những đài xổ số thuộc khu vực miền Nam Việt Nam. Kết quả xổ số được mở thưởng và công bố trực tiếp vào các ngày quay số theo lịch cố định.</p>
+                        <p>Xổ số miền Nam có cơ cấu giải thưởng hấp dẫn với giải đặc biệt lên đến 2 tỷ đồng. Kết quả được công bố lúc 16h15 hàng ngày.</p>
+                    @endif
+                    <p>Trang web cập nhật kết quả xổ số {{ $province->name }} nhanh chóng, chính xác ngay sau khi có kết quả chính thức từ đài. Người chơi có thể tra cứu kết quả, dò vé số và xem thống kê các kỳ quay trước đây một cách dễ dàng.</p>
                 </div>
             </div>
-        </div>
 
-        <div class="bg-white rounded-lg p-4 border-l-4 border-red-500 shadow">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600">Giải ĐB gần nhất</p>
-                    <p class="text-lg font-bold text-red-600">
-                        {{ $results->first()->prize_special ?? 'N/A' }}
-                    </p>
+            <!-- Prize Structure Table -->
+            <div class="bg-white rounded shadow overflow-hidden mt-4">
+                <div class="bg-[#ff6600] text-white px-4 py-2 font-medium">
+                    Cơ cấu giải thưởng xổ số {{ $province->name }}
                 </div>
-                <div class="bg-red-100 rounded-full p-3">
-                    <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
+                <div class="p-4">
+                    @if($province->region == 'north')
+                        @include('partials.prize-structure-xsmb')
+                    @else
+                        @include('partials.prize-structure-xsmn')
+                    @endif
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Results List -->
-    <div>
-        <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-            <svg class="w-6 h-6 mr-2 text-[#4a7c2c]" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" />
-            </svg>
-            Lịch sử kết quả
-        </h2>
+            <!-- FAQ Section -->
+            <div class="bg-white rounded shadow overflow-hidden mt-4">
+                <div class="bg-[#ff6600] text-white px-4 py-2 font-medium">
+                    Câu hỏi thường gặp
+                </div>
+                <div class="p-4 text-sm space-y-3">
+                    <details class="pb-3 border-b border-gray-200">
+                        <summary class="cursor-pointer font-medium text-gray-800 hover:text-[#ff6600]">
+                            Xổ số {{ $province->name }} mở thưởng ngày nào?
+                        </summary>
+                        <p class="mt-2 text-gray-700 pl-4">
+                            @if($province->draw_days && count($province->draw_days) > 0)
+                                @php
+                                    $days = ['', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ Nhật'];
+                                    $drawDays = array_map(fn($d) => $days[$d], $province->draw_days);
+                                @endphp
+                                Xổ số {{ $province->name }} mở thưởng vào các ngày: {{ implode(', ', $drawDays) }} hàng tuần.
+                            @else
+                                Vui lòng liên hệ đài xổ số để biết lịch quay số cụ thể.
+                            @endif
+                        </p>
+                    </details>
 
-        @if($results->count() > 0)
-            <div class="space-y-4">
-                @foreach($results as $result)
-                    <div class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                        <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-3 border-b border-gray-200">
-                            <div class="flex justify-between items-center">
-                                <h3 class="font-bold text-gray-800">
-                                    {{ $result->draw_date->format('d/m/Y') }} - {{ $result->turn_num }}
-                                </h3>
-                                <span class="text-sm text-gray-600">
-                                    {{ $result->draw_time->format('H:i') }}
-                                </span>
-                            </div>
+                    <details class="pb-3 border-b border-gray-200">
+                        <summary class="cursor-pointer font-medium text-gray-800 hover:text-[#ff6600]">
+                            Mấy giờ có kết quả xổ số {{ $province->name }}?
+                        </summary>
+                        <p class="mt-2 text-gray-700 pl-4">
+                            Kết quả xổ số {{ $province->name }} được mở thưởng lúc {{ \Carbon\Carbon::parse($province->draw_time)->format('H:i') }} vào các ngày quay số. Kết quả được cập nhật trực tiếp trên trang web ngay sau khi có thông tin chính thức từ đài.
+                        </p>
+                    </details>
+
+                    <details class="pb-3 border-b border-gray-200">
+                        <summary class="cursor-pointer font-medium text-gray-800 hover:text-[#ff6600]">
+                            Làm sao để tra cứu kết quả xổ số {{ $province->name }} theo ngày?
+                        </summary>
+                        <p class="mt-2 text-gray-700 pl-4">
+                            Bạn có thể sử dụng trang này để xem kết quả xổ số {{ $province->name }} theo ngày. Kết quả được sắp xếp theo thứ tự từ mới nhất đến cũ nhất. Bạn cũng có thể sử dụng phân trang ở cuối trang để xem các kết quả cũ hơn.
+                        </p>
+                    </details>
+
+                    <details>
+                        <summary class="cursor-pointer font-medium text-gray-800 hover:text-[#ff6600]">
+                            Giải đặc biệt xổ số {{ $province->name }} có giá trị bao nhiêu?
+                        </summary>
+                        <p class="mt-2 text-gray-700 pl-4">
+                            @if($province->region == 'north')
+                                Giải đặc biệt xổ số {{ $province->name }} có giá trị 200 triệu đồng cho mỗi giải. Với 15 giải đặc biệt được quay mỗi kỳ, tổng giá trị giải đặc biệt lên đến 3 tỷ đồng.
+                            @else
+                                Giải đặc biệt xổ số {{ $province->name }} có giá trị 2 tỷ đồng. Đây là giải thưởng cao nhất trong cơ cấu giải thưởng xổ số kiến thiết miền {{ $province->region == 'central' ? 'Trung' : 'Nam' }}.
+                            @endif
+                        </p>
+                    </details>
+                </div>
+            </div>
+
+            <!-- Draw Schedule Table -->
+            <div class="bg-white rounded shadow overflow-hidden mt-4">
+                <div class="bg-[#ff6600] text-white px-4 py-2 font-medium">
+                    Lịch quay và phát sóng xổ số {{ $province->name }}
+                </div>
+                <div class="p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Schedule Column -->
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Lịch quay số</h4>
+                            <table class="w-full border-collapse text-sm">
+                                <tbody>
+                                    @if($province->draw_days && count($province->draw_days) > 0)
+                                        @php
+                                            $days = ['', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ Nhật'];
+                                        @endphp
+                                        @foreach($province->draw_days as $day)
+                                            <tr class="{{ $loop->even ? 'bg-gray-50' : '' }}">
+                                                <td class="border border-gray-300 py-2 px-3 font-medium">{{ $days[$day] }}</td>
+                                                <td class="border border-gray-300 py-2 px-3">{{ \Carbon\Carbon::parse($province->draw_time)->format('H:i') }}</td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td class="border border-gray-300 py-2 px-3 text-gray-500" colspan="2">Chưa có thông tin lịch quay</td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
                         </div>
 
-                        <div class="p-6">
-                            <table class="result-table w-full">
+                        <!-- Broadcast Column -->
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Kênh phát sóng</h4>
+                            <table class="w-full border-collapse text-sm">
                                 <tbody>
-                                    <tr class="bg-red-50">
-                                        <td class="prize-label w-1/4">Giải ĐB</td>
-                                        <td class="prize-special text-2xl">{{ $result->prize_special }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="prize-label">Giải Nhất</td>
-                                        <td class="text-lg font-bold text-blue-700">{{ $result->prize_1 }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="prize-label">Giải Nhì</td>
-                                        <td class="font-semibold">{{ str_replace(',', ' - ', $result->prize_2) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="prize-label">Giải Ba</td>
-                                        <td class="text-sm">{{ str_replace(',', ' - ', $result->prize_3) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="prize-label">Giải Tư</td>
-                                        <td class="text-sm">{{ str_replace(',', ' - ', $result->prize_4) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="prize-label">Giải Năm</td>
-                                        <td class="text-sm">{{ str_replace(',', ' - ', $result->prize_5) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="prize-label">Giải Sáu</td>
-                                        <td class="text-sm">{{ str_replace(',', ' - ', $result->prize_6) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="prize-label">Giải Bảy</td>
-                                        <td class="text-sm">{{ str_replace(',', ' - ', $result->prize_7) }}</td>
-                                    </tr>
-                                    @if($result->prize_8)
-                                    <tr>
-                                        <td class="prize-label">Giải Tám</td>
-                                        <td class="text-sm">{{ $result->prize_8 }}</td>
-                                    </tr>
+                                    @if($province->region == 'north')
+                                        <tr>
+                                            <td class="border border-gray-300 py-2 px-3 font-medium">VTV1</td>
+                                            <td class="border border-gray-300 py-2 px-3">18:15</td>
+                                        </tr>
+                                        <tr class="bg-gray-50">
+                                            <td class="border border-gray-300 py-2 px-3 font-medium">Đài PTTH Hà Nội</td>
+                                            <td class="border border-gray-300 py-2 px-3">18:15</td>
+                                        </tr>
+                                    @elseif($province->region == 'central')
+                                        <tr>
+                                            <td class="border border-gray-300 py-2 px-3 font-medium">VTV5</td>
+                                            <td class="border border-gray-300 py-2 px-3">17:15</td>
+                                        </tr>
+                                        <tr class="bg-gray-50">
+                                            <td class="border border-gray-300 py-2 px-3 font-medium">Đài PTTH địa phương</td>
+                                            <td class="border border-gray-300 py-2 px-3">17:15</td>
+                                        </tr>
+                                    @else
+                                        <tr>
+                                            <td class="border border-gray-300 py-2 px-3 font-medium">HTV9</td>
+                                            <td class="border border-gray-300 py-2 px-3">16:15</td>
+                                        </tr>
+                                        <tr class="bg-gray-50">
+                                            <td class="border border-gray-300 py-2 px-3 font-medium">Đài PTTH địa phương</td>
+                                            <td class="border border-gray-300 py-2 px-3">16:15</td>
+                                        </tr>
                                     @endif
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                @endforeach
+                </div>
             </div>
 
-            <!-- Pagination -->
-            <div class="mt-6">
-                {{ $results->links() }}
-            </div>
-        @else
-            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
-                <svg class="w-12 h-12 text-yellow-500 mx-auto mb-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                </svg>
-                <p class="text-yellow-800 font-medium">Chưa có kết quả cho tỉnh này</p>
-            </div>
-        @endif
+        </div>
+
+        <!-- Right Sidebar -->
+        <x-lottery-sidebar
+            :northProvinces="$northProvinces"
+            :centralProvinces="$centralProvinces"
+            :southProvinces="$southProvinces"
+            :showCalendar="true"
+            :showProvinces="true"
+            :region="$region"
+        />
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loadMoreBtn = document.getElementById('load-more-province-btn');
+    const resultsContainer = document.getElementById('province-results-container');
+    const loadMoreContainer = document.getElementById('load-more-province-container');
+
+    if (!loadMoreBtn || !resultsContainer) {
+        return;
+    }
+
+    let isLoading = false;
+
+    loadMoreBtn.addEventListener('click', async function() {
+        if (isLoading) return;
+
+        const region = this.dataset.region;
+        const slug = this.dataset.slug;
+        const nextPage = this.dataset.nextPage;
+
+        if (!region || !slug || !nextPage) {
+            console.error('Missing region, slug or page');
+            return;
+        }
+
+        isLoading = true;
+        setLoadingState(true);
+
+        try {
+            const response = await fetch(`/api/load-more-province/${region}/${slug}/${nextPage}`);
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+
+            if (data.error) {
+                showError(data.error);
+                return;
+            }
+
+            if (data.html && data.resultsCount > 0) {
+                // Append new results using DOMParser for safer HTML insertion
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data.html, 'text/html');
+                const newElements = doc.body.children;
+
+                // Move all children from parsed document to results container
+                while (newElements.length > 0) {
+                    resultsContainer.appendChild(newElements[0]);
+                }
+
+                // Re-initialize digit display radios for new cards
+                initializeDigitDisplayRadios();
+
+                // Update button with next page
+                if (data.hasMore && data.nextPage) {
+                    loadMoreBtn.dataset.nextPage = data.nextPage;
+                } else {
+                    // No more results, show message and disable button
+                    showNoMoreResults();
+                }
+            } else if (!data.hasMore) {
+                showNoMoreResults();
+            }
+
+        } catch (error) {
+            console.error('Error loading more results:', error);
+            showError('Có lỗi xảy ra. Vui lòng thử lại.');
+        } finally {
+            isLoading = false;
+            setLoadingState(false);
+        }
+    });
+
+    function setLoadingState(loading) {
+        const loadIcon = loadMoreBtn.querySelector('.load-icon');
+        const loadingSpinner = loadMoreBtn.querySelector('.loading-spinner');
+        const loadMoreText = document.getElementById('load-more-province-text');
+
+        if (loading) {
+            loadMoreBtn.disabled = true;
+            if (loadIcon) loadIcon.classList.add('hidden');
+            if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+            if (loadMoreText) loadMoreText.textContent = 'Đang tải...';
+        } else {
+            loadMoreBtn.disabled = false;
+            if (loadIcon) loadIcon.classList.remove('hidden');
+            if (loadingSpinner) loadingSpinner.classList.add('hidden');
+            if (loadMoreText) loadMoreText.textContent = 'Xem thêm kết quả XS{{ strtoupper(substr($province->name, 0, 2)) }}';
+        }
+    }
+
+    function showNoMoreResults() {
+        loadMoreBtn.disabled = true;
+        loadMoreBtn.classList.remove('bg-[#ff6600]', 'hover:bg-[#ff7700]');
+        loadMoreBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+
+        const loadIcon = loadMoreBtn.querySelector('.load-icon');
+        const loadMoreText = document.getElementById('load-more-province-text');
+
+        if (loadIcon) loadIcon.classList.add('hidden');
+        if (loadMoreText) loadMoreText.textContent = 'Đã hiển thị tất cả kết quả';
+    }
+
+    function showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4 text-center';
+
+        const messagePara = document.createElement('p');
+        messagePara.textContent = message;
+        errorDiv.appendChild(messagePara);
+
+        const retryBtn = document.createElement('button');
+        retryBtn.className = 'mt-2 text-sm underline hover:no-underline retry-btn';
+        retryBtn.textContent = 'Thử lại';
+        retryBtn.addEventListener('click', function() {
+            errorDiv.remove();
+            loadMoreBtn.click();
+        });
+        errorDiv.appendChild(retryBtn);
+
+        loadMoreContainer.insertBefore(errorDiv, loadMoreBtn);
+    }
+
+    function initializeDigitDisplayRadios() {
+        // Find all result cards and re-initialize their digit display radios
+        const resultCards = resultsContainer.querySelectorAll('.result-card');
+
+        resultCards.forEach(card => {
+            const cardId = card.id.replace('result-', '');
+            const radios = card.querySelectorAll(`input[name="digit-display-${cardId}"]`);
+
+            radios.forEach(radio => {
+                // Remove existing listeners by cloning
+                const newRadio = radio.cloneNode(true);
+                radio.parentNode.replaceChild(newRadio, radio);
+
+                newRadio.addEventListener('change', function() {
+                    const displayType = this.value;
+                    const numbers = card.querySelectorAll('.result-table-xskt .number');
+
+                    numbers.forEach(numberSpan => {
+                        const originalNumber = numberSpan.getAttribute('data-original') || numberSpan.textContent.trim();
+
+                        // Store original if not stored yet
+                        if (!numberSpan.getAttribute('data-original')) {
+                            numberSpan.setAttribute('data-original', originalNumber);
+                        }
+
+                        if (displayType === 'all') {
+                            numberSpan.textContent = originalNumber;
+                        } else if (displayType === '2') {
+                            // Show last 2 digits
+                            if (originalNumber.length >= 2) {
+                                numberSpan.textContent = originalNumber.slice(-2);
+                            }
+                        } else if (displayType === '3') {
+                            // Show last 3 digits
+                            if (originalNumber.length >= 3) {
+                                numberSpan.textContent = originalNumber.slice(-3);
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    }
+});
+</script>
 @endsection

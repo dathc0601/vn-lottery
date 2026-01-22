@@ -50,16 +50,16 @@
                                     <span class="text-[#ff6600] mr-2">▸</span>
                                     Thống kê tần suất loto
                                 </a>
-                                <a href="#" class="flex items-center text-gray-500 cursor-not-allowed">
-                                    <span class="text-gray-400 mr-2">▸</span>
-                                    Tìm cầu loto
+                                <a href="{{ route('statistics.cang-loto') }}" class="flex items-center text-gray-700 hover:text-[#ff6600] transition-colors">
+                                    <span class="text-[#ff6600] mr-2">▸</span>
+                                    Tìm càng loto
                                 </a>
                                 <a href="{{ route('statistics.important') }}" class="flex items-center text-gray-700 hover:text-[#ff6600] transition-colors">
                                     <span class="text-[#ff6600] mr-2">▸</span>
                                     Thống kê quan trọng
                                 </a>
-                                <a href="#" class="flex items-center text-gray-500 cursor-not-allowed">
-                                    <span class="text-gray-400 mr-2">▸</span>
+                                <a href="{{ route('statistics.overdue-cycles-province') }}" class="flex items-center text-gray-700 hover:text-[#ff6600] transition-colors">
+                                    <span class="text-[#ff6600] mr-2">▸</span>
                                     Thống kê chu kỳ gan theo tỉnh
                                 </a>
                                 <a href="{{ route('statistics.weekly-special') }}" class="flex items-center text-gray-700 hover:text-[#ff6600] transition-colors">
@@ -70,28 +70,28 @@
 
                             <!-- Right Column -->
                             <div class="space-y-2">
-                                <a href="#" class="flex items-center text-gray-500 cursor-not-allowed">
-                                    <span class="text-gray-400 mr-2">▸</span>
+                                <a href="{{ route('statistics.dan-loto-cycles') }}" class="flex items-center text-gray-700 hover:text-[#ff6600] transition-colors">
+                                    <span class="text-[#ff6600] mr-2">▸</span>
                                     Thống kê chu kỳ dàn loto
                                 </a>
                                 <a href="{{ route('statistics.head-tail') }}" class="flex items-center text-gray-700 hover:text-[#ff6600] transition-colors">
                                     <span class="text-[#ff6600] mr-2">▸</span>
                                     Thống kê đầu đuôi loto
                                 </a>
-                                <a href="#" class="flex items-center text-gray-500 cursor-not-allowed">
-                                    <span class="text-gray-400 mr-2">▸</span>
+                                <a href="{{ route('statistics.special-prize-cycle') }}" class="flex items-center text-gray-700 hover:text-[#ff6600] transition-colors">
+                                    <span class="text-[#ff6600] mr-2">▸</span>
                                     Thống kê chu kỳ đặc biệt
                                 </a>
                                 <a href="{{ route('statistics.by-sum') }}" class="flex items-center text-gray-700 hover:text-[#ff6600] transition-colors">
                                     <span class="text-[#ff6600] mr-2">▸</span>
                                     Thống kê theo tổng
                                 </a>
-                                <a href="#" class="flex items-center text-gray-500 cursor-not-allowed">
-                                    <span class="text-gray-400 mr-2">▸</span>
+                                <a href="{{ route('statistics.longest-cycle') }}" class="flex items-center text-gray-700 hover:text-[#ff6600] transition-colors">
+                                    <span class="text-[#ff6600] mr-2">▸</span>
                                     Thống kê chu kỳ dài nhất
                                 </a>
-                                <a href="#" class="flex items-center text-gray-500 cursor-not-allowed">
-                                    <span class="text-gray-400 mr-2">▸</span>
+                                <a href="{{ route('statistics.rhythm-frequency') }}" class="flex items-center text-gray-700 hover:text-[#ff6600] transition-colors">
+                                    <span class="text-[#ff6600] mr-2">▸</span>
                                     Thống kê tần số nhịp loto
                                 </a>
                                 <a href="{{ route('statistics.monthly-special') }}" class="flex items-center text-gray-700 hover:text-[#ff6600] transition-colors">
