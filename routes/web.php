@@ -75,7 +75,19 @@ Route::get('/quay-thu-xo-so-hom-nay', [TrialDrawController::class, 'index'])->na
 Route::get('/quay-thu-xsmb', [TrialDrawController::class, 'xsmb'])->name('trial.xsmb');
 Route::get('/quay-thu-xsmt', [TrialDrawController::class, 'xsmt'])->name('trial.xsmt');
 Route::get('/quay-thu-xsmn', [TrialDrawController::class, 'xsmn'])->name('trial.xsmn');
-Route::get('/xo-so-vietlott', [VietlottController::class, 'index'])->name('vietlott');
+// Vietlott routes
+Route::prefix('xo-so-vietlott')->group(function () {
+    Route::get('/', [VietlottController::class, 'index'])->name('vietlott');
+    Route::get('/mega-645', [VietlottController::class, 'mega645'])->name('vietlott.mega645');
+    Route::get('/power-655', [VietlottController::class, 'power655'])->name('vietlott.power655');
+    Route::get('/max-3d', [VietlottController::class, 'max3d'])->name('vietlott.max3d');
+    Route::get('/max-3d-pro', [VietlottController::class, 'max3dpro'])->name('vietlott.max3dpro');
+});
+
+// Vietlott load more API
+Route::get('/api/vietlott/load-more/{gameType}/{page}', [VietlottController::class, 'loadMore'])
+    ->where(['gameType' => 'mega645|power655|max3d|max3dpro', 'page' => '\d+'])
+    ->name('vietlott.loadMore');
 
 // Admin authentication routes
 Route::get('/dashboard', function () {

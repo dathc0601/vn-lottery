@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LotteryResult;
 use App\Models\Province;
+use App\Models\VietlottResult;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -37,13 +38,22 @@ class HomeController extends Controller
             ->orderBy('name')
             ->get();
 
+        // Get latest Vietlott results for each game type
+        $vietlottResults = [
+            'mega645' => VietlottResult::where('game_type', 'mega645')->orderBy('draw_date', 'desc')->first(),
+            'power655' => VietlottResult::where('game_type', 'power655')->orderBy('draw_date', 'desc')->first(),
+            'max3d' => VietlottResult::where('game_type', 'max3d')->orderBy('draw_date', 'desc')->first(),
+            'max3dpro' => VietlottResult::where('game_type', 'max3dpro')->orderBy('draw_date', 'desc')->first(),
+        ];
+
         return view('home', compact(
             'northResults',
             'centralResults',
             'southResults',
             'northProvinces',
             'centralProvinces',
-            'southProvinces'
+            'southProvinces',
+            'vietlottResults'
         ));
     }
 

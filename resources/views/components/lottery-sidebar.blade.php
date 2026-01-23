@@ -123,16 +123,16 @@
             <div class="sidebar-header">Xổ Số Vietlott</div>
             <ul class="text-sm">
                 <li class="border-b border-gray-200">
-                    <a href="{{ route('vietlott') }}" class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors">Max 3D</a>
+                    <a href="{{ route('vietlott.mega645') }}" class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors">Mega 6/45</a>
                 </li>
                 <li class="border-b border-gray-200">
-                    <a href="{{ route('vietlott') }}" class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors">Max 3D Pro</a>
+                    <a href="{{ route('vietlott.power655') }}" class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors">Power 6/55</a>
                 </li>
                 <li class="border-b border-gray-200">
-                    <a href="{{ route('vietlott') }}" class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors">Mega 6/45</a>
+                    <a href="{{ route('vietlott.max3d') }}" class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors">Max 3D</a>
                 </li>
                 <li>
-                    <a href="{{ route('vietlott') }}" class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors">Power 6/55</a>
+                    <a href="{{ route('vietlott.max3dpro') }}" class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors">Max 3D Pro</a>
                 </li>
             </ul>
         </div>

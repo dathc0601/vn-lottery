@@ -277,4 +277,38 @@ class LotteryHelper
 
         return $analysis;
     }
+
+    /**
+     * Format currency value in Vietnamese readable format
+     * e.g., 1.000.000 → 1 triệu, 350.000 → 350k, 2.000.000.000 → 2 tỷ
+     *
+     * @param int|float|string $value The value to format (can be numeric or dot-separated string like "1.000.000")
+     * @return string
+     */
+    public static function formatVietnameseCurrency($value): string
+    {
+        // If value is a string with dots (e.g., "1.000.000"), convert to numeric
+        if (is_string($value)) {
+            $value = (float) str_replace('.', '', $value);
+        }
+
+        if ($value >= 1000000000) {
+            // Tỷ (billion)
+            $formatted = $value / 1000000000;
+            $formatted = fmod($formatted, 1) == 0 ? (int)$formatted : round($formatted, 1);
+            return $formatted . ' tỷ';
+        } elseif ($value >= 1000000) {
+            // Triệu (million)
+            $formatted = $value / 1000000;
+            $formatted = fmod($formatted, 1) == 0 ? (int)$formatted : round($formatted, 1);
+            return $formatted . ' triệu';
+        } elseif ($value >= 1000) {
+            // K (thousand)
+            $formatted = $value / 1000;
+            $formatted = fmod($formatted, 1) == 0 ? (int)$formatted : round($formatted, 1);
+            return $formatted . 'k';
+        }
+
+        return (string) $value;
+    }
 }

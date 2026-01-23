@@ -311,42 +311,78 @@ class LotteryController extends Controller
 
     public function xsmn(Request $request, $date = null)
     {
+        $isSpecificDate = false;
+
         // Priority: route parameter > query string > today
         if ($date) {
             // Parse from route parameter (DD-MM-YYYY format)
             try {
                 $date = Carbon::createFromFormat('d-m-Y', $date);
+                $isSpecificDate = true;
             } catch (\Exception $e) {
                 abort(404, 'Ngày không hợp lệ');
             }
         } else if ($request->has('date')) {
             // Backward compatibility: query string (Y-m-d format)
             $date = Carbon::parse($request->get('date'));
+            $isSpecificDate = true;
         } else {
             // Default to today
             $date = Carbon::today();
         }
+
         $dayOfWeek = $date->dayOfWeek == 0 ? 7 : $date->dayOfWeek;
 
-        // Get provinces that draw on this day
+        // Get provinces that draw on the selected day (for display purposes)
         $provinces = Province::where('region', 'south')
             ->where('is_active', true)
+            ->orderBy('sort_order')
             ->get()
             ->filter(function ($province) use ($dayOfWeek) {
                 return in_array($dayOfWeek, $province->draw_days ?? []);
             });
 
-        $results = [];
-        foreach ($provinces as $province) {
-            $result = LotteryResult::where('province_id', $province->id)
-                ->whereDate('draw_date', $date)
-                ->first();
-            if ($result) {
-                $results[] = $result;
-            }
+        if ($isSpecificDate) {
+            // Specific date: show only that day's grouped results
+            $dayGroup = $this->fetchGroupedResultsForDate('south', $date);
+            $groupedResults = $dayGroup ? [$dayGroup] : [];
+            $nextDate = $date->copy()->subDay();
+        } else {
+            // Default page: fetch 5 days of grouped results
+            $fetchResult = $this->fetchMultipleGroupedResults('south', $date, 5);
+            $groupedResults = $fetchResult['groupedResults'];
+            $nextDate = $fetchResult['nextDate'];
         }
 
-        return view('xsmn', compact('results', 'date', 'provinces'));
+        // Add province lists for sidebar
+        $northProvinces = Province::where('region', 'north')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        $centralProvinces = Province::where('region', 'central')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        $southProvinces = Province::where('region', 'south')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        return view('xsmn', compact(
+            'groupedResults',
+            'date',
+            'provinces',
+            'northProvinces',
+            'centralProvinces',
+            'southProvinces',
+            'nextDate',
+            'isSpecificDate'
+        ));
     }
 
     public function resultsByDayOfWeek($region, $day)
@@ -483,8 +519,8 @@ class LotteryController extends Controller
 
         $dbRegion = $regionMap[$region];
 
-        // Special handling for XSMT - use grouped results
-        if ($region === 'xsmt') {
+        // Special handling for XSMT and XSMN - use grouped results
+        if ($region === 'xsmt' || $region === 'xsmn') {
             // Fetch 5 days of grouped results
             $fetchResult = $this->fetchMultipleGroupedResults($dbRegion, $date, 5);
             $groupedResults = $fetchResult['groupedResults'];
@@ -493,10 +529,11 @@ class LotteryController extends Controller
             // Check if there are more results available
             $hasMore = $nextDate->gte($thirtyDaysAgo);
 
-            // Render HTML
+            // Render HTML with appropriate partial
             $html = '';
             if (!empty($groupedResults)) {
-                $html = view('partials.xsmt-grouped-results-list', [
+                $partialName = $region === 'xsmt' ? 'partials.xsmt-grouped-results-list' : 'partials.xsmn-grouped-results-list';
+                $html = view($partialName, [
                     'groupedResults' => $groupedResults,
                     'region' => $region
                 ])->render();

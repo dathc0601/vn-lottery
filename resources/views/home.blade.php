@@ -327,6 +327,66 @@
             </div>
             @endif
 
+            <!-- Xổ số Mega 6/45 Section -->
+            @if($vietlottResults['mega645'])
+            <div class="mb-6">
+                <div class="bg-[#FFF9E6] border border-gray-300 px-4 py-2 mb-3">
+                    <h2 class="font-bold text-gray-800 text-base inline-block">
+                        Xổ số Mega 6/45
+                    </h2>
+                    <a href="{{ route('vietlott.mega645') }}" class="text-blue-600 hover:underline text-sm ml-3">
+                        Xem thêm »
+                    </a>
+                </div>
+                <x-vietlott.mega-result-card :result="$vietlottResults['mega645']" />
+            </div>
+            @endif
+
+            <!-- Xổ số Power 6/55 Section -->
+            @if($vietlottResults['power655'])
+            <div class="mb-6">
+                <div class="bg-[#FFF9E6] border border-gray-300 px-4 py-2 mb-3">
+                    <h2 class="font-bold text-gray-800 text-base inline-block">
+                        Xổ số Power 6/55
+                    </h2>
+                    <a href="{{ route('vietlott.power655') }}" class="text-blue-600 hover:underline text-sm ml-3">
+                        Xem thêm »
+                    </a>
+                </div>
+                <x-vietlott.power-result-card :result="$vietlottResults['power655']" />
+            </div>
+            @endif
+
+            <!-- Xổ số Max 3D Section -->
+            @if($vietlottResults['max3d'])
+            <div class="mb-6">
+                <div class="bg-[#FFF9E6] border border-gray-300 px-4 py-2 mb-3">
+                    <h2 class="font-bold text-gray-800 text-base inline-block">
+                        Xổ số Max 3D
+                    </h2>
+                    <a href="{{ route('vietlott.max3d') }}" class="text-blue-600 hover:underline text-sm ml-3">
+                        Xem thêm »
+                    </a>
+                </div>
+                <x-vietlott.max3d-result-card :result="$vietlottResults['max3d']" />
+            </div>
+            @endif
+
+            <!-- Xổ số Max 3D Pro Section -->
+            @if($vietlottResults['max3dpro'])
+            <div class="mb-6">
+                <div class="bg-[#FFF9E6] border border-gray-300 px-4 py-2 mb-3">
+                    <h2 class="font-bold text-gray-800 text-base inline-block">
+                        Xổ số Max 3D Pro
+                    </h2>
+                    <a href="{{ route('vietlott.max3dpro') }}" class="text-blue-600 hover:underline text-sm ml-3">
+                        Xem thêm »
+                    </a>
+                </div>
+                <x-vietlott.max3dpro-result-card :result="$vietlottResults['max3dpro']" />
+            </div>
+            @endif
+
             <!-- Information Section -->
             <div class="bg-white border border-gray-300 p-4 mb-6">
                 <h2 class="font-bold text-gray-800 text-lg mb-3">Thông tin về xổ số kiến thiết</h2>

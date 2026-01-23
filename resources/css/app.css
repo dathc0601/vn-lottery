@@ -474,3 +474,149 @@ input:focus, select:focus, textarea:focus {
         min-width: 50px;
     }
 }
+
+/* Vietlott Styles */
+.vietlott-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    background: #f5f5f5;
+    border: 1px solid var(--color-table-border);
+    margin-bottom: 16px;
+}
+
+.vietlott-tab {
+    padding: 12px 20px;
+    color: var(--color-text);
+    font-weight: 500;
+    text-decoration: none;
+    border-right: 1px solid var(--color-table-border);
+    transition: all 0.2s;
+}
+
+.vietlott-tab:last-child {
+    border-right: none;
+}
+
+.vietlott-tab:hover {
+    background: #fff;
+    color: var(--color-primary);
+}
+
+.vietlott-tab.active {
+    background: var(--color-primary);
+    color: white;
+}
+
+.vietlott-info-box {
+    background: #fff8dc;
+    border: 1px solid var(--color-table-border);
+    padding: 12px 16px;
+}
+
+.vietlott-result-card {
+    background: white;
+    border: 1px solid var(--color-table-border);
+    margin-bottom: 16px;
+}
+
+.vietlott-card-header {
+    background: #f5f5f5;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--color-table-border);
+}
+
+.vietlott-ball {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 2px solid var(--color-primary);
+    background: white;
+    font-family: var(--font-numbers);
+    font-weight: 700;
+}
+
+.vietlott-jackpot-box {
+    background: var(--color-primary);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.vietlott-jackpot-box-secondary {
+    background: #e8e8e8;
+    color: var(--color-text);
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.vietlott-prize-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.vietlott-prize-table th,
+.vietlott-prize-table td {
+    border: 1px solid var(--color-table-border);
+    padding: 8px 12px;
+    text-align: center;
+}
+
+.vietlott-prize-table th {
+    background: #f5f5f5;
+    font-weight: 600;
+}
+
+.vietlott-prize-table tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+.vietlott-3d-number {
+    display: inline-block;
+    padding: 4px 8px;
+    background: var(--color-primary);
+    color: white;
+    border-radius: 4px;
+    font-family: var(--font-numbers);
+    font-weight: 700;
+    font-size: 14px;
+    margin: 2px;
+}
+
+/* Responsive Vietlott Tabs */
+@media (max-width: 640px) {
+    .vietlott-tabs {
+        flex-direction: column;
+    }
+
+    .vietlott-tab {
+        border-right: none;
+        border-bottom: 1px solid var(--color-table-border);
+        text-align: center;
+    }
+
+    .vietlott-tab:last-child {
+        border-bottom: none;
+    }
+
+    .vietlott-ball {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 13px !important;
+    }
+
+    .vietlott-prize-table th,
+    .vietlott-prize-table td {
+        padding: 6px 8px;
+        font-size: 12px;
+    }
+
+    .vietlott-3d-number {
+        padding: 3px 6px;
+        font-size: 12px;
+    }
+}
