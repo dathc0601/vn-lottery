@@ -14,7 +14,9 @@ class FetchAllCommand extends Command
      */
     protected $signature = 'lottery:fetch-all
                             {--limit=5 : Number of results to fetch per province}
-                            {--region= : Filter by region (north, central, south)}';
+                            {--region= : Filter by region (north, central, south)}
+                            {--fill-gaps : Detect and fill missing dates}
+                            {--days=30 : Days to look back when filling gaps}';
 
     /**
      * The console command description.
@@ -30,6 +32,8 @@ class FetchAllCommand extends Command
     {
         $limit = (int) $this->option('limit');
         $region = $this->option('region');
+        $fillGaps = (bool) $this->option('fill-gaps');
+        $daysBack = (int) $this->option('days');
 
         if ($region && !in_array($region, ['north', 'central', 'south'])) {
             $this->error('Invalid region. Must be: north, central, or south');
@@ -42,10 +46,14 @@ class FetchAllCommand extends Command
             $this->info("Region filter: {$region}");
         }
 
-        $this->info("Limit per province: {$limit}");
+        if ($fillGaps) {
+            $this->info("Mode: Fill gaps (looking back {$daysBack} days)");
+        } else {
+            $this->info("Limit per province: {$limit}");
+        }
 
         // Dispatch the job
-        FetchAllProvincesJob::dispatch($limit, $region);
+        FetchAllProvincesJob::dispatch($limit, $region, $fillGaps, $daysBack);
 
         $this->info('✓ Fetch jobs dispatched successfully!');
         $this->info('Run "php artisan queue:work" to process the jobs.');

@@ -245,6 +245,90 @@ class LotteryApiService
     }
 
     /**
+     * Get expected draw dates for a province based on its draw_days schedule
+     *
+     * @param Province $province
+     * @param int $daysBack Number of days to look back
+     * @return array Array of date strings (Y-m-d format)
+     */
+    public function getExpectedDrawDates(Province $province, int $daysBack = 30): array
+    {
+        $dates = [];
+        $today = Carbon::today();
+
+        for ($i = 0; $i < $daysBack; $i++) {
+            $date = $today->copy()->subDays($i);
+            $dayOfWeek = $date->dayOfWeekIso; // 1=Monday, 7=Sunday
+
+            if (in_array($dayOfWeek, $province->draw_days ?? [])) {
+                $dates[] = $date->format('Y-m-d');
+            }
+        }
+
+        return $dates;
+    }
+
+    /**
+     * Fetch and store only missing results for a province
+     *
+     * @param Province $province
+     * @param int $daysBack Number of days to look back for missing results
+     * @return int Number of results stored
+     */
+    public function fetchMissingResults(Province $province, int $daysBack = 30): int
+    {
+        // 1. Get expected draw dates
+        $expectedDates = $this->getExpectedDrawDates($province, $daysBack);
+
+        if (empty($expectedDates)) {
+            Log::info("No expected draw dates for province: {$province->name}");
+            return 0;
+        }
+
+        // 2. Get existing dates from database
+        $existingDates = LotteryResult::where('province_id', $province->id)
+            ->whereIn('draw_date', $expectedDates)
+            ->pluck('draw_date')
+            ->map(fn($d) => $d instanceof Carbon ? $d->format('Y-m-d') : $d)
+            ->toArray();
+
+        // 3. Calculate missing dates
+        $missingDates = array_diff($expectedDates, $existingDates);
+
+        if (empty($missingDates)) {
+            Log::info("No missing dates for province: {$province->name}");
+            return 0;
+        }
+
+        Log::info("Found missing dates for province: {$province->name}", [
+            'missing_count' => count($missingDates),
+            'missing_dates' => array_values($missingDates),
+        ]);
+
+        // 4. Fetch enough results to cover the gap
+        $data = $this->fetchResults($province->code, $daysBack);
+
+        if (!$data || !isset($data['t']['issueList'])) {
+            Log::warning("No data from API for province: {$province->name}");
+            return 0;
+        }
+
+        // 5. Store only results for missing dates
+        $stored = 0;
+        foreach ($data['t']['issueList'] as $issue) {
+            $drawDate = Carbon::createFromFormat('d/m/Y', $issue['turnNum'])->format('Y-m-d');
+
+            if (in_array($drawDate, $missingDates)) {
+                if ($this->storeResult($province, $issue)) {
+                    $stored++;
+                }
+            }
+        }
+
+        return $stored;
+    }
+
+    /**
      * Fetch today's XSMB Hà Nội results from the new real-time API
      *
      * @return array|null Returns parsed results or null on failure

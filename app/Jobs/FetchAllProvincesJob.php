@@ -13,14 +13,18 @@ class FetchAllProvincesJob implements ShouldQueue
 
     protected int $limitNum;
     protected ?string $region;
+    protected bool $fillGaps;
+    protected int $daysBack;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(int $limitNum = 5, ?string $region = null)
+    public function __construct(int $limitNum = 5, ?string $region = null, bool $fillGaps = false, int $daysBack = 30)
     {
         $this->limitNum = $limitNum;
         $this->region = $region;
+        $this->fillGaps = $fillGaps;
+        $this->daysBack = $daysBack;
     }
 
     /**
@@ -31,6 +35,8 @@ class FetchAllProvincesJob implements ShouldQueue
         Log::info('FetchAllProvincesJob started', [
             'limit_num' => $this->limitNum,
             'region' => $this->region ?? 'all',
+            'fill_gaps' => $this->fillGaps,
+            'days_back' => $this->daysBack,
         ]);
 
         // Get active provinces
@@ -50,7 +56,7 @@ class FetchAllProvincesJob implements ShouldQueue
         // Dispatch individual fetch jobs for each province
         $dispatchedCount = 0;
         foreach ($provinces as $province) {
-            FetchLotteryResultsJob::dispatch($province, $this->limitNum);
+            FetchLotteryResultsJob::dispatch($province, $this->limitNum, $this->fillGaps, $this->daysBack);
             $dispatchedCount++;
         }
 

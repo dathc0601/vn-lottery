@@ -22,6 +22,13 @@ class VietlottDataService
         'max3dpro' => 'https://raw.githubusercontent.com/vietvudanh/vietlott-data/main/data/3d_pro.jsonl',
     ];
 
+    private const DRAW_DAYS = [
+        'mega645' => [3, 5, 7],           // Wed, Fri, Sun
+        'power655' => [2, 4, 6],          // Tue, Thu, Sat
+        'max3d' => [1, 2, 3, 4, 5, 6, 7], // Daily
+        'max3dpro' => [1, 3, 5],          // Mon, Wed, Fri
+    ];
+
     private const GAME_INFO = [
         'mega645' => [
             'name' => 'Mega 6/45',
@@ -75,6 +82,33 @@ class VietlottDataService
     public static function getAllGameInfo(): array
     {
         return self::GAME_INFO;
+    }
+
+    /**
+     * Get draw days (ISO day format) for a game type
+     */
+    public static function getDrawDays(string $gameType): array
+    {
+        return self::DRAW_DAYS[$gameType] ?? [];
+    }
+
+    /**
+     * Get expected draw dates for a game type within a lookback period
+     */
+    public function getExpectedDrawDates(string $gameType, int $daysBack = 30): array
+    {
+        $drawDays = self::getDrawDays($gameType);
+        $dates = [];
+        $today = Carbon::today();
+
+        for ($i = 0; $i < $daysBack; $i++) {
+            $date = $today->copy()->subDays($i);
+            if (in_array($date->dayOfWeekIso, $drawDays)) {
+                $dates[] = $date->format('Y-m-d');
+            }
+        }
+
+        return $dates;
     }
 
     /**
@@ -178,6 +212,122 @@ class VietlottDataService
         foreach (array_keys(self::DATA_URLS) as $gameType) {
             try {
                 $results[$gameType] = $this->syncGame($gameType, $force);
+            } catch (\Exception $e) {
+                $results[$gameType] = [
+                    'new' => 0,
+                    'skipped' => 0,
+                    'errors' => 0,
+                    'error_message' => $e->getMessage(),
+                ];
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Sync missing results for a specific game by detecting date gaps
+     *
+     * @param string $gameType Game type to sync
+     * @param int $daysBack Number of days to look back for missing dates
+     * @return array Stats: ['new' => int, 'skipped' => int, 'errors' => int]
+     */
+    public function syncMissingResults(string $gameType, int $daysBack = 30): array
+    {
+        if (!isset(self::DATA_URLS[$gameType])) {
+            throw new \InvalidArgumentException("Unknown game type: {$gameType}");
+        }
+
+        $stats = ['new' => 0, 'skipped' => 0, 'errors' => 0];
+
+        // 1. Get expected draw dates
+        $expectedDates = $this->getExpectedDrawDates($gameType, $daysBack);
+
+        if (empty($expectedDates)) {
+            return $stats;
+        }
+
+        // 2. Get existing dates from database
+        $existingDates = VietlottResult::where('game_type', $gameType)
+            ->whereIn('draw_date', $expectedDates)
+            ->pluck('draw_date')
+            ->map(fn($d) => $d instanceof Carbon ? $d->format('Y-m-d') : $d)
+            ->toArray();
+
+        // 3. Calculate missing dates
+        $missingDates = array_diff($expectedDates, $existingDates);
+
+        if (empty($missingDates)) {
+            Log::info("No missing dates for game: {$gameType}");
+            return $stats;
+        }
+
+        Log::info("Found missing dates for game: {$gameType}", [
+            'missing_count' => count($missingDates),
+            'missing_dates' => array_values($missingDates),
+        ]);
+
+        // 4. Fetch data from GitHub
+        $url = self::DATA_URLS[$gameType];
+        $response = Http::timeout(60)->get($url);
+
+        if (!$response->successful()) {
+            throw new \RuntimeException("HTTP {$response->status()} fetching {$gameType} data");
+        }
+
+        $lines = array_filter(explode("\n", $response->body()));
+
+        // 5. Store only results for missing dates
+        foreach ($lines as $line) {
+            $data = json_decode($line, true);
+            if (!$data || !isset($data['date'], $data['id'], $data['result'])) {
+                continue;
+            }
+
+            $drawDate = Carbon::parse($data['date'])->format('Y-m-d');
+
+            if (!in_array($drawDate, $missingDates)) {
+                $stats['skipped']++;
+                continue;
+            }
+
+            try {
+                VietlottResult::updateOrCreate(
+                    ['game_type' => $gameType, 'draw_number' => (int) $data['id']],
+                    [
+                        'draw_date' => Carbon::parse($data['date']),
+                        'winning_numbers' => $data['result'],
+                        'jackpot_amount' => 0,
+                        'prize_breakdown' => null,
+                    ]
+                );
+                $stats['new']++;
+            } catch (\Exception $e) {
+                Log::warning("Failed to store Vietlott result", [
+                    'game' => $gameType,
+                    'id' => $data['id'],
+                    'error' => $e->getMessage(),
+                ]);
+                $stats['errors']++;
+            }
+        }
+
+        return $stats;
+    }
+
+    /**
+     * Sync missing results for all games
+     *
+     * @param int $daysBack Number of days to look back for missing dates
+     * @return array Stats per game type
+     */
+    public function syncAllMissingResults(int $daysBack = 30): array
+    {
+        $results = [];
+
+        foreach (array_keys(self::DATA_URLS) as $gameType) {
+            try {
+                $results[$gameType] = $this->syncMissingResults($gameType, $daysBack);
             } catch (\Exception $e) {
                 $results[$gameType] = [
                     'new' => 0,
