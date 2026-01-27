@@ -45,20 +45,18 @@ class FetchLotteryResultsJob implements ShouldQueue
             return;
         }
 
-        // Check if this is XSMB Hà Nội and we're fetching today's result
-        if ($this->province->code === 'miba' && $this->limitNum === 1) {
-            // Use new API for today's XSMB
-            $success = $apiService->fetchAndStoreXSMBToday($this->province);
-
-            if ($success) {
-                Log::info("✓ Fetched today's XSMB from new API: {$this->province->name}");
-            } else {
-                Log::info("✗ Failed to fetch XSMB from new API, fallback completed: {$this->province->name}");
-            }
+        // XSMB (miba): use GitHub CSV source
+        if ($this->province->code === 'miba') {
+            $stored = $apiService->fetchAndStoreXSMBResults($this->province, $this->limitNum);
+            Log::info("✓ Fetched {$stored} XSMB results from GitHub: {$this->province->name}");
+        } elseif ($this->province->region === 'central') {
+            // XSMT: use RSS feed
+            $stored = $apiService->fetchAndStoreXSMTResults($this->province, $this->limitNum);
+            Log::info("✓ Fetched {$stored} XSMT results from RSS: {$this->province->name}");
         } else {
-            // Use old API for historical data or other provinces
-            $stored = $apiService->fetchAndStoreResults($this->province, $this->limitNum);
-            Log::info("✓ Fetched {$stored} results for: {$this->province->name}");
+            // XSMN: use RSS feed
+            $stored = $apiService->fetchAndStoreXSMNResults($this->province, $this->limitNum);
+            Log::info("✓ Fetched {$stored} XSMN results from RSS: {$this->province->name}");
         }
     }
 }

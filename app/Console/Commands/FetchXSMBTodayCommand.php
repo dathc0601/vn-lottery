@@ -20,7 +20,7 @@ class FetchXSMBTodayCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Fetch today\'s XSMB Hà Nội result from the new real-time API';
+    protected $description = 'Fetch today\'s XSMB Hà Nội result from GitHub CSV';
 
     /**
      * Execute the console command.
@@ -34,15 +34,15 @@ class FetchXSMBTodayCommand extends Command
             return self::FAILURE;
         }
 
-        $this->info('Fetching today\'s XSMB from new API...');
+        $this->info('Fetching today\'s XSMB from GitHub CSV...');
 
-        $success = $service->fetchAndStoreXSMBToday($province);
+        $stored = $service->fetchAndStoreXSMBResults($province, 1);
 
-        if ($success) {
-            $this->info('✓ Successfully fetched and stored XSMB result');
+        if ($stored > 0) {
+            $this->info("✓ Successfully fetched and stored {$stored} XSMB result(s)");
             return self::SUCCESS;
         } else {
-            $this->error('✗ Failed to fetch XSMB result');
+            $this->error('✗ Failed to fetch XSMB result from GitHub');
             return self::FAILURE;
         }
     }
