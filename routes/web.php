@@ -11,6 +11,12 @@ use App\Http\Controllers\VietlottController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
+// Dynamic robots.txt
+Route::get('/robots.txt', function () {
+    $content = \App\Models\SiteSetting::getValue('advanced', 'robots_txt', "User-agent: *\nDisallow:");
+    return response($content, 200, ['Content-Type' => 'text/plain']);
+});
+
 // Homepage
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
