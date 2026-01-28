@@ -2,10 +2,26 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class LotteryResult extends Model
 {
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::saved(function (LotteryResult $result) {
+            Cache::forget('sitemap_index');
+            // Clear current month results cache
+            if ($result->draw_date) {
+                $yearMonth = Carbon::parse($result->draw_date)->format('Y-m');
+                Cache::forget("sitemap_results_{$yearMonth}");
+            }
+        });
+    }
+
     protected $fillable = [
         'province_id',
         'turn_num',

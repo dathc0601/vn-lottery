@@ -3,6 +3,8 @@
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LotteryController;
 use App\Http\Controllers\ResultsBookController;
+use App\Http\Controllers\RssFeedController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\ScheduleController;
@@ -94,6 +96,28 @@ Route::prefix('xo-so-vietlott')->group(function () {
 Route::get('/api/vietlott/load-more/{gameType}/{page}', [VietlottController::class, 'loadMore'])
     ->where(['gameType' => 'mega645|power655|max3d|max3dpro', 'page' => '\d+'])
     ->name('vietlott.loadMore');
+
+// RSS Feed Routes
+Route::get('/rss', [RssFeedController::class, 'index'])->name('rss.index');
+
+// Sitemap Routes
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap.index');
+Route::get('/sitemap-static.xml', [SitemapController::class, 'static'])->name('sitemap.static');
+Route::get('/sitemap-provinces.xml', [SitemapController::class, 'provinces'])->name('sitemap.provinces');
+Route::get('/sitemap-days.xml', [SitemapController::class, 'days'])->name('sitemap.days');
+Route::get('/sitemap-vietlott.xml', [SitemapController::class, 'vietlott'])->name('sitemap.vietlott');
+Route::get('/sitemap-results-{yearMonth}.xml', [SitemapController::class, 'results'])
+    ->where('yearMonth', '\d{4}-\d{2}')
+    ->name('sitemap.results');
+
+Route::prefix('rssfeed')->group(function () {
+    Route::get('/xsmn.rss', [RssFeedController::class, 'xsmn'])->name('rssfeed.xsmn');
+    Route::get('/xsmt.rss', [RssFeedController::class, 'xsmt'])->name('rssfeed.xsmt');
+    Route::get('/xsMB.rss', [RssFeedController::class, 'xsmb'])->name('rssfeed.xsmb');
+    Route::get('/xs{code}.rss', [RssFeedController::class, 'province'])
+        ->name('rssfeed.province')
+        ->where('code', '[A-Za-z0-9]+');
+});
 
 // Admin authentication routes
 Route::get('/dashboard', function () {

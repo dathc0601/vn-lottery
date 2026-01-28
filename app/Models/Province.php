@@ -33,6 +33,8 @@ class Province extends Model
 
         static::saved(function () {
             Cache::forget('footer_schedule_data');
+            Cache::forget('sitemap_index');
+            Cache::forget('sitemap_provinces');
         });
     }
 
