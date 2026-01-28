@@ -6,8 +6,9 @@ return [
     // Navigation Groups
     'nav' => [
         'lottery_data' => 'Dữ liệu xổ số',
+        'appearance' => 'Giao diện',
+        'seo' => 'SEO',
         'system' => 'Hệ thống',
-        'settings' => 'Cài đặt',
     ],
 
     // Common Terms
@@ -84,6 +85,8 @@ return [
         // General
         'site_name' => 'Tên website',
         'tagline' => 'Slogan / Tagline',
+        'header_subtitle' => 'Phụ đề header (SEO)',
+        'header_subtitle_help' => 'Dòng phụ đề hiển thị dưới tên website ở header. Để trống sẽ dùng tagline.',
         'site_logo' => 'Logo website',
         'favicon' => 'Favicon',
         'favicon_help' => 'Chấp nhận .ico, .png, .svg',
@@ -176,6 +179,28 @@ return [
         'confirm_delete' => 'Bạn có chắc chắn muốn xóa?',
         'text_settings' => 'Cài đặt nội dung Footer',
         'text_settings_saved' => 'Đã lưu cài đặt nội dung footer!',
+        'extended_settings' => 'Cài đặt Footer mở rộng',
+        'extended_settings_saved' => 'Đã lưu cài đặt footer mở rộng!',
+        'extended' => [
+            'intro_section' => 'Phần giới thiệu',
+            'intro_title' => 'Tiêu đề giới thiệu',
+            'intro_text' => 'Nội dung giới thiệu',
+            'info_table_section' => 'Bảng thông tin',
+            'info_table_rows' => 'Các dòng thông tin',
+            'info_label' => 'Nhãn',
+            'info_value' => 'Giá trị',
+            'notes_section' => 'Ghi chú',
+            'notes' => 'Danh sách ghi chú',
+            'note_text' => 'Nội dung ghi chú',
+            'reference_links_section' => 'Liên kết tham khảo',
+            'reference_links' => 'Danh sách liên kết',
+            'link_label' => 'Nhãn hiển thị',
+            'link_url' => 'URL',
+            'link_new_tab' => 'Mở tab mới',
+            'display_section' => 'Hiển thị',
+            'show_schedule' => 'Hiển thị bảng lịch mở thưởng',
+            'show_bottom_nav' => 'Hiển thị thanh navigation dưới',
+        ],
         'fields' => [
             'title' => 'Tiêu đề',
             'type' => 'Loại cột',

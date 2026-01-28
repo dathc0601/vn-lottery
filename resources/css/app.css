@@ -587,6 +587,36 @@ input:focus, select:focus, textarea:focus {
     margin: 2px;
 }
 
+/* Footer Schedule Table */
+.footer-schedule-wrapper {
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 640px) {
+    .footer-schedule-table {
+        min-width: 600px;
+    }
+
+    .footer-schedule-table th:first-child,
+    .footer-schedule-table td:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+    }
+
+    .footer-schedule-table th:first-child {
+        background: #ff6600;
+    }
+
+    .footer-schedule-table tr:nth-child(odd) td:first-child {
+        background: #ffffff;
+    }
+
+    .footer-schedule-table tr:nth-child(even) td:first-child {
+        background: #f9fafb;
+    }
+}
+
 /* Responsive Vietlott Tabs */
 @media (max-width: 640px) {
     .vietlott-tabs {

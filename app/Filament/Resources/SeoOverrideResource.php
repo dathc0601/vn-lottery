@@ -16,11 +16,11 @@ class SeoOverrideResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-magnifying-glass';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 2;
 
     public static function getNavigationGroup(): ?string
     {
-        return __('admin.nav.settings');
+        return __('admin.nav.seo');
     }
 
     public static function getNavigationLabel(): string

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Cache;
 
 class Province extends Model
 {
@@ -25,6 +26,15 @@ class Province extends Model
         'is_active' => 'boolean',
         'show_in_left_sidebar' => 'boolean',
     ];
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::saved(function () {
+            Cache::forget('footer_schedule_data');
+        });
+    }
 
     public function lotteryResults()
     {

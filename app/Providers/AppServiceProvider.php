@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(FooterService::class, function ($app) {
-            return new FooterService();
+            return new FooterService($app->make(SiteSettingsService::class));
         });
 
         $this->app->singleton(SeoOverrideService::class, function ($app) {

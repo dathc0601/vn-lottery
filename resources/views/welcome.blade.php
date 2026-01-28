@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="bg-gray-50 py-8">
-    <div class="container mx-auto px-4" style="max-width: 1400px;">
+    <div class="container mx-auto px-4" style="max-width: 1040px;">
         <div class="max-w-4xl mx-auto">
             <!-- Laravel Welcome Content -->
             <div class="bg-white border border-gray-300 rounded-lg p-8 shadow-sm">

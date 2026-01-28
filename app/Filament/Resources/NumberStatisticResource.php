@@ -26,6 +26,11 @@ class NumberStatisticResource extends Resource
         return __('admin.nav.lottery_data');
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return 'Thống kê số';
+    }
+
     public static function form(Form $form): Form
     {
         return $form

@@ -23,7 +23,12 @@ class UserResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('admin.nav.settings');
+        return __('admin.nav.system');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return 'Người dùng';
     }
 
     public static function form(Form $form): Form

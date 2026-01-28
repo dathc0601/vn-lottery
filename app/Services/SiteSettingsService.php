@@ -16,6 +16,22 @@ class SiteSettingsService
     }
 
     /**
+     * Get a JSON-encoded setting value as an array
+     */
+    public function getJson(string $group, string $key, array $default = []): array
+    {
+        $value = $this->get($group, $key);
+
+        if (!$value) {
+            return $default;
+        }
+
+        $decoded = json_decode($value, true);
+
+        return is_array($decoded) ? $decoded : $default;
+    }
+
+    /**
      * Get all settings for a group
      */
     public function group(string $group): array

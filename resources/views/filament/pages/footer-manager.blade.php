@@ -310,4 +310,23 @@
             @endif
         </div>
     </div>
+
+    {{-- Extended Footer Settings --}}
+    <div class="mt-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                {{ __('admin.footer_manager.extended_settings') }}
+            </h3>
+
+            <form wire:submit="saveExtendedSettings">
+                {{ $this->extendedForm }}
+
+                <div class="mt-6">
+                    <x-filament::button type="submit">
+                        {{ __('admin.common.save') }}
+                    </x-filament::button>
+                </div>
+            </form>
+        </div>
+    </div>
 </x-filament-panels::page>

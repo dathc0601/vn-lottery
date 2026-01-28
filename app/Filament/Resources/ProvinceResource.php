@@ -26,6 +26,11 @@ class ProvinceResource extends Resource
         return __('admin.nav.lottery_data');
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return 'Tỉnh thành';
+    }
+
     public static function form(Form $form): Form
     {
         return $form

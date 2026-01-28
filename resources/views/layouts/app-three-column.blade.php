@@ -3,7 +3,7 @@
 @section('content')
 <!-- Three Column Layout -->
 <div class="bg-gray-50 py-4">
-    <div class="three-column-container" style="max-width: 1400px;">
+    <div class="three-column-container" style="max-width: 1040px;">
         <!-- Main Content -->
         <main>
             @yield('page-content')

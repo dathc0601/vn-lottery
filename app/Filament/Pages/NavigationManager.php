@@ -29,7 +29,7 @@ class NavigationManager extends Page implements HasForms
 
     public static function getNavigationGroup(): ?string
     {
-        return __('admin.nav.settings');
+        return __('admin.nav.appearance');
     }
 
     public static function getNavigationLabel(): string

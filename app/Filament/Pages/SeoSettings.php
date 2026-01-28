@@ -17,7 +17,7 @@ class SeoSettings extends Page implements HasForms
 
     protected static ?string $navigationIcon = 'heroicon-o-magnifying-glass-circle';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 1;
 
     protected static string $view = 'filament.pages.seo-settings';
 
@@ -25,7 +25,7 @@ class SeoSettings extends Page implements HasForms
 
     public static function getNavigationGroup(): ?string
     {
-        return __('admin.nav.settings');
+        return __('admin.nav.seo');
     }
 
     public static function getNavigationLabel(): string
@@ -83,6 +83,12 @@ class SeoSettings extends Page implements HasForms
                 Forms\Components\TextInput::make('general__tagline')
                     ->label(__('admin.seo_settings.tagline'))
                     ->maxLength(255),
+
+                Forms\Components\Textarea::make('general__header_subtitle')
+                    ->label(__('admin.seo_settings.header_subtitle'))
+                    ->helperText(__('admin.seo_settings.header_subtitle_help'))
+                    ->rows(2)
+                    ->maxLength(500),
 
                 Forms\Components\FileUpload::make('general__site_logo')
                     ->label(__('admin.seo_settings.site_logo'))

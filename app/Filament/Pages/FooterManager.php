@@ -21,7 +21,7 @@ class FooterManager extends Page implements HasForms
 
     protected static ?string $navigationIcon = 'heroicon-o-bars-3-bottom-right';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 3;
 
     protected static string $view = 'filament.pages.footer-manager';
 
@@ -35,13 +35,16 @@ class FooterManager extends Page implements HasForms
     // Text settings form
     public ?array $textData = [];
 
+    // Extended footer settings form
+    public ?array $extendedData = [];
+
     // UI state
     public bool $showPreview = false;
     public Collection $columns;
 
     public static function getNavigationGroup(): ?string
     {
-        return __('admin.nav.settings');
+        return __('admin.nav.appearance');
     }
 
     public static function getNavigationLabel(): string
@@ -59,6 +62,7 @@ class FooterManager extends Page implements HasForms
         $this->loadColumns();
         $this->resetForm();
         $this->loadTextSettings();
+        $this->loadExtendedSettings();
     }
 
     public function loadColumns(): void
@@ -423,6 +427,140 @@ class FooterManager extends Page implements HasForms
 
         Notification::make()
             ->title(__('admin.footer_manager.text_settings_saved'))
+            ->success()
+            ->send();
+    }
+
+    // --- Extended Footer Settings ---
+
+    public function extendedForm(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\Section::make(__('admin.footer_manager.extended.intro_section'))
+                    ->schema([
+                        Forms\Components\TextInput::make('intro_title')
+                            ->label(__('admin.footer_manager.extended.intro_title'))
+                            ->maxLength(255),
+
+                        Forms\Components\Textarea::make('intro_text')
+                            ->label(__('admin.footer_manager.extended.intro_text'))
+                            ->rows(4),
+                    ]),
+
+                Forms\Components\Section::make(__('admin.footer_manager.extended.info_table_section'))
+                    ->schema([
+                        Forms\Components\Repeater::make('info_table_rows')
+                            ->label(__('admin.footer_manager.extended.info_table_rows'))
+                            ->schema([
+                                Forms\Components\TextInput::make('label')
+                                    ->label(__('admin.footer_manager.extended.info_label'))
+                                    ->required()
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('value')
+                                    ->label(__('admin.footer_manager.extended.info_value'))
+                                    ->required()
+                                    ->maxLength(500),
+                            ])
+                            ->columns(2)
+                            ->defaultItems(0)
+                            ->reorderable()
+                            ->collapsible(),
+                    ]),
+
+                Forms\Components\Section::make(__('admin.footer_manager.extended.notes_section'))
+                    ->schema([
+                        Forms\Components\Repeater::make('notes')
+                            ->label(__('admin.footer_manager.extended.notes'))
+                            ->schema([
+                                Forms\Components\TextInput::make('text')
+                                    ->label(__('admin.footer_manager.extended.note_text'))
+                                    ->required()
+                                    ->maxLength(500),
+                            ])
+                            ->defaultItems(0)
+                            ->reorderable()
+                            ->collapsible(),
+                    ]),
+
+                Forms\Components\Section::make(__('admin.footer_manager.extended.reference_links_section'))
+                    ->schema([
+                        Forms\Components\Repeater::make('reference_links')
+                            ->label(__('admin.footer_manager.extended.reference_links'))
+                            ->schema([
+                                Forms\Components\TextInput::make('label')
+                                    ->label(__('admin.footer_manager.extended.link_label'))
+                                    ->required()
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('url')
+                                    ->label(__('admin.footer_manager.extended.link_url'))
+                                    ->required()
+                                    ->url()
+                                    ->maxLength(500),
+                                Forms\Components\Toggle::make('new_tab')
+                                    ->label(__('admin.footer_manager.extended.link_new_tab'))
+                                    ->default(false),
+                            ])
+                            ->columns(3)
+                            ->defaultItems(0)
+                            ->reorderable()
+                            ->collapsible(),
+                    ]),
+
+                Forms\Components\Section::make(__('admin.footer_manager.extended.display_section'))
+                    ->schema([
+                        Forms\Components\Toggle::make('show_schedule')
+                            ->label(__('admin.footer_manager.extended.show_schedule'))
+                            ->default(true),
+
+                        Forms\Components\Toggle::make('show_bottom_nav')
+                            ->label(__('admin.footer_manager.extended.show_bottom_nav'))
+                            ->default(true),
+                    ])
+                    ->columns(2),
+            ])
+            ->statePath('extendedData');
+    }
+
+    protected function getForms(): array
+    {
+        return [
+            'form',
+            'extendedForm',
+        ];
+    }
+
+    public function loadExtendedSettings(): void
+    {
+        $settings = app(SiteSettingsService::class);
+
+        $this->extendedData = [
+            'intro_title' => $settings->get('footer', 'intro_title', ''),
+            'intro_text' => $settings->get('footer', 'intro_text', ''),
+            'info_table_rows' => $settings->getJson('footer', 'info_table_rows', []),
+            'notes' => $settings->getJson('footer', 'notes', []),
+            'reference_links' => $settings->getJson('footer', 'reference_links', []),
+            'show_schedule' => (bool) $settings->get('footer', 'show_schedule', '1'),
+            'show_bottom_nav' => (bool) $settings->get('footer', 'show_bottom_nav', '1'),
+        ];
+
+        $this->extendedForm->fill($this->extendedData);
+    }
+
+    public function saveExtendedSettings(): void
+    {
+        $data = $this->extendedForm->getState();
+
+        SiteSetting::setValue('footer', 'intro_title', $data['intro_title'] ?? '');
+        SiteSetting::setValue('footer', 'intro_text', $data['intro_text'] ?? '');
+        SiteSetting::setValue('footer', 'info_table_rows', json_encode($data['info_table_rows'] ?? [], JSON_UNESCAPED_UNICODE));
+        SiteSetting::setValue('footer', 'notes', json_encode($data['notes'] ?? [], JSON_UNESCAPED_UNICODE));
+        SiteSetting::setValue('footer', 'reference_links', json_encode($data['reference_links'] ?? [], JSON_UNESCAPED_UNICODE));
+        SiteSetting::setValue('footer', 'show_schedule', ($data['show_schedule'] ?? true) ? '1' : '0');
+        SiteSetting::setValue('footer', 'show_bottom_nav', ($data['show_bottom_nav'] ?? true) ? '1' : '0');
+
+        Notification::make()
+            ->title(__('admin.footer_manager.extended_settings_saved'))
             ->success()
             ->send();
     }
