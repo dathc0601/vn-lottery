@@ -19,31 +19,10 @@ Artisan::command('inspire', function () {
 // - North (Miền Bắc): 18:15 → 18:35
 // ============================================
 
-// Fetch South region - Daily at 16:45 (10 min after 16:35 draw completion)
-Schedule::job(new FetchAllProvincesJob(limitNum: 1, region: 'south'))
-    ->dailyAt('16:45')
-    ->name('fetch-xsmn-daily')
-    ->onOneServer()
-    ->withoutOverlapping();
-
-// Fetch Central region - Daily at 17:45 (10 min after 17:35 draw completion)
-Schedule::job(new FetchAllProvincesJob(limitNum: 1, region: 'central'))
-    ->dailyAt('17:45')
-    ->name('fetch-xsmt-daily')
-    ->onOneServer()
-    ->withoutOverlapping();
-
-// Fetch North region - Daily at 18:45 (10 min after 18:35 draw completion)
-Schedule::job(new FetchAllProvincesJob(limitNum: 1, region: 'north'))
-    ->dailyAt('18:45')
-    ->name('fetch-xsmb-daily')
-    ->onOneServer()
-    ->withoutOverlapping();
-
-// Backup fetch all regions - Daily at 21:00 to catch any missed results
-Schedule::job(new FetchAllProvincesJob(limitNum: 2, region: null))
-    ->dailyAt('21:00')
-    ->name('fetch-all-backup')
+// Fetch lottery results hourly
+Schedule::command('lottery:fetch-all')
+    ->hourly()
+    ->name('fetch-all-lottery-results-hourly')
     ->onOneServer()
     ->withoutOverlapping();
 
@@ -55,14 +34,6 @@ Schedule::job(new GenerateStatisticsJob())
     ->name('generate-statistics-weekly')
     ->onOneServer()
     ->withoutOverlapping();
-
-// Optional: Daily statistics generation (commented out by default)
-// Uncomment if you want daily statistics updates instead of weekly
-// Schedule::job(new GenerateStatisticsJob())
-//     ->dailyAt('01:00')
-//     ->name('generate-statistics-daily')
-//     ->onOneServer()
-//     ->withoutOverlapping();
 
 // ============================================
 // Vietlott Scheduler Configuration

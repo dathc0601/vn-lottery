@@ -151,8 +151,7 @@ class FooterManager extends Page implements HasForms
 
                 Forms\Components\TextInput::make('url')
                     ->label(__('admin.footer_manager.fields.url'))
-                    ->visible(fn (callable $get) => $this->formMode === 'link' && $get('link_type') === 'url')
-                    ->url(),
+                    ->visible(fn (callable $get) => $this->formMode === 'link' && $get('link_type') === 'url'),
 
                 Forms\Components\Toggle::make('open_in_new_tab')
                     ->label(__('admin.footer_manager.fields.open_in_new_tab'))
@@ -495,7 +494,6 @@ class FooterManager extends Page implements HasForms
                                 Forms\Components\TextInput::make('url')
                                     ->label(__('admin.footer_manager.extended.link_url'))
                                     ->required()
-                                    ->url()
                                     ->maxLength(500),
                                 Forms\Components\Toggle::make('new_tab')
                                     ->label(__('admin.footer_manager.extended.link_new_tab'))
