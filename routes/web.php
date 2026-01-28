@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LotteryController;
+use App\Http\Controllers\NewsController;
 use App\Http\Controllers\ResultsBookController;
 use App\Http\Controllers\RssFeedController;
 use App\Http\Controllers\SitemapController;
@@ -96,6 +97,15 @@ Route::prefix('xo-so-vietlott')->group(function () {
 Route::get('/api/vietlott/load-more/{gameType}/{page}', [VietlottController::class, 'loadMore'])
     ->where(['gameType' => 'mega645|power655|max3d|max3dpro', 'page' => '\d+'])
     ->name('vietlott.loadMore');
+
+// News/Articles Routes
+Route::get('/tin-tuc', [NewsController::class, 'index'])->name('news.index');
+Route::get('/tin-tuc/{categorySlug}', [NewsController::class, 'category'])
+    ->where('categorySlug', '[a-z0-9\-]+')
+    ->name('news.category');
+Route::get('/tin-tuc/{slug}.html', [NewsController::class, 'show'])
+    ->where('slug', '[a-z0-9\-]+')
+    ->name('news.show');
 
 // RSS Feed Routes
 Route::get('/rss', [RssFeedController::class, 'index'])->name('rss.index');

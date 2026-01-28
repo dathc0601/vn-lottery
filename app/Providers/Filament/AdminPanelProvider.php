@@ -39,6 +39,7 @@ class AdminPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/admin.css')
             ->navigationGroups([
                 __('admin.nav.lottery_data'),
+                __('admin.nav.content'),
                 __('admin.nav.appearance'),
                 __('admin.nav.seo'),
                 __('admin.nav.system'),

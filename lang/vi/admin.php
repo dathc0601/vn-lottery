@@ -6,6 +6,7 @@ return [
     // Navigation Groups
     'nav' => [
         'lottery_data' => 'Dữ liệu xổ số',
+        'content' => 'Nội dung',
         'appearance' => 'Giao diện',
         'seo' => 'SEO',
         'system' => 'Hệ thống',
