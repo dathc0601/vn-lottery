@@ -1,4 +1,4 @@
-@props(['item'])
+@props(['item', 'index' => null])
 
 @php
     $url = $item->getUrl();
@@ -6,7 +6,13 @@
     $target = $item->open_in_new_tab ? '_blank' : '_self';
 @endphp
 
-<li>
+<li class="shrink-0"
+    @if($index !== null)
+        data-nav-item="{{ $index }}"
+        x-show="isVisible({{ $index }})"
+        x-cloak
+    @endif
+>
     <a href="{{ $url }}"
        target="{{ $target }}"
        class="block px-4 text-white font-medium transition-colors duration-200 text-sm

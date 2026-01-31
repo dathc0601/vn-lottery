@@ -11,6 +11,7 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\TrialDrawController;
 use App\Http\Controllers\VietlottController;
+use App\Http\Controllers\PredictionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -98,6 +99,29 @@ Route::get('/api/vietlott/load-more/{gameType}/{page}', [VietlottController::cla
     ->where(['gameType' => 'mega645|power655|max3d|max3dpro', 'page' => '\d+'])
     ->name('vietlott.loadMore');
 
+// Prediction Routes
+Route::prefix('du-doan')->group(function () {
+    // Main prediction hub page (all regions)
+    Route::get('/', [PredictionController::class, 'indexAll'])->name('prediction.index');
+
+    // List pages (paginated list of all predictions per region)
+    Route::get('/xsmb', [PredictionController::class, 'indexXsmb'])->name('prediction.xsmb.index');
+    Route::get('/xsmt', [PredictionController::class, 'indexXsmt'])->name('prediction.xsmt.index');
+    Route::get('/xsmn', [PredictionController::class, 'indexXsmn'])->name('prediction.xsmn.index');
+
+    // Detail pages (individual prediction article)
+    // URL format: du-doan-xsmb-{date}-soi-cau-xo-so-mien-bac-{date}.html
+    Route::get('/du-doan-xsmb-{date}-soi-cau-xo-so-mien-bac-{date2}.html', [PredictionController::class, 'showXsmb'])
+        ->where(['date' => '\d{2}-\d{2}-\d{4}', 'date2' => '\d{2}-\d{2}-\d{4}'])
+        ->name('prediction.xsmb.show');
+    Route::get('/du-doan-xsmt-{date}-soi-cau-xo-so-mien-trung-{date2}.html', [PredictionController::class, 'showXsmt'])
+        ->where(['date' => '\d{2}-\d{2}-\d{4}', 'date2' => '\d{2}-\d{2}-\d{4}'])
+        ->name('prediction.xsmt.show');
+    Route::get('/du-doan-xsmn-{date}-soi-cau-xo-so-mien-nam-{date2}.html', [PredictionController::class, 'showXsmn'])
+        ->where(['date' => '\d{2}-\d{2}-\d{4}', 'date2' => '\d{2}-\d{2}-\d{4}'])
+        ->name('prediction.xsmn.show');
+});
+
 // News/Articles Routes
 Route::get('/tin-tuc', [NewsController::class, 'index'])->name('news.index');
 Route::get('/tin-tuc/{categorySlug}', [NewsController::class, 'category'])
@@ -119,6 +143,7 @@ Route::get('/sitemap-vietlott.xml', [SitemapController::class, 'vietlott'])->nam
 Route::get('/sitemap-results-{yearMonth}.xml', [SitemapController::class, 'results'])
     ->where('yearMonth', '\d{4}-\d{2}')
     ->name('sitemap.results');
+Route::get('/sitemap-predictions.xml', [SitemapController::class, 'predictions'])->name('sitemap.predictions');
 
 Route::prefix('rssfeed')->group(function () {
     Route::get('/xsmn.rss', [RssFeedController::class, 'xsmn'])->name('rssfeed.xsmn');

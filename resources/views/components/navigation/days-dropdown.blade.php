@@ -1,4 +1,4 @@
-@props(['item'])
+@props(['item', 'index' => null])
 
 @inject('navService', 'App\Services\NavigationService')
 
@@ -18,7 +18,16 @@
     };
 @endphp
 
-<li class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
+<li class="relative shrink-0"
+    x-data="{ open: false }"
+    @mouseenter="open = true"
+    @mouseleave="open = false"
+    @if($index !== null)
+        data-nav-item="{{ $index }}"
+        x-show="isVisible({{ $index }})"
+        x-cloak
+    @endif
+>
     <a href="{{ route($mainRoute) }}"
        class="flex items-center px-4 text-white font-medium transition-colors duration-200 text-sm
               {{ $isActive ? 'bg-black bg-opacity-15' : '' }}"

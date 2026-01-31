@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\LotteryResult;
+use App\Models\Prediction;
 use App\Models\Province;
 use App\Models\VietlottResult;
 use Carbon\Carbon;
@@ -44,6 +45,9 @@ class SitemapService
 
             // Vietlott sitemap
             $xml .= $this->buildSitemapEntry("{$baseUrl}/sitemap-vietlott.xml", $now);
+
+            // Predictions sitemap
+            $xml .= $this->buildSitemapEntry("{$baseUrl}/sitemap-predictions.xml", $now);
 
             // Monthly results sitemaps (rolling 2 months)
             $currentMonth = Carbon::now();
@@ -115,7 +119,51 @@ class SitemapService
 
                 // RSS
                 ['loc' => '/rss', 'priority' => '0.3', 'changefreq' => 'weekly'],
+
+                // Prediction pages
+                ['loc' => '/du-doan', 'priority' => '0.8', 'changefreq' => 'daily'],
+                ['loc' => '/du-doan/xsmb', 'priority' => '0.8', 'changefreq' => 'daily'],
+                ['loc' => '/du-doan/xsmt', 'priority' => '0.8', 'changefreq' => 'daily'],
+                ['loc' => '/du-doan/xsmn', 'priority' => '0.8', 'changefreq' => 'daily'],
             ];
+
+            return $this->buildUrlsetXml($urls, $baseUrl, $now);
+        });
+    }
+
+    /**
+     * Generate predictions sitemap
+     */
+    public function generatePredictionsSitemap(): string
+    {
+        return Cache::remember('sitemap_predictions', self::CACHE_TTL_DYNAMIC, function () {
+            $baseUrl = $this->getBaseUrl();
+            $now = Carbon::now()->toW3cString();
+
+            $predictions = Prediction::where('status', 'published')
+                ->orderBy('prediction_date', 'desc')
+                ->take(100) // Limit to recent 100 predictions per region
+                ->get();
+
+            $regionSlugs = [
+                'xsmb' => 'mien-bac',
+                'xsmt' => 'mien-trung',
+                'xsmn' => 'mien-nam',
+            ];
+
+            $urls = [];
+            foreach ($predictions as $prediction) {
+                $regionSlug = $prediction->region_slug;
+                $dateSlug = $prediction->date_slug;
+                $regionFullSlug = $regionSlugs[$regionSlug] ?? $regionSlug;
+
+                $urls[] = [
+                    'loc' => "/du-doan/du-doan-{$regionSlug}-{$dateSlug}-soi-cau-xo-so-{$regionFullSlug}-{$dateSlug}.html",
+                    'priority' => '0.7',
+                    'changefreq' => 'never',
+                    'lastmod' => $prediction->published_at?->toW3cString() ?? $now,
+                ];
+            }
 
             return $this->buildUrlsetXml($urls, $baseUrl, $now);
         });
@@ -294,6 +342,7 @@ class SitemapService
         Cache::forget('sitemap_provinces');
         Cache::forget('sitemap_days');
         Cache::forget('sitemap_vietlott');
+        Cache::forget('sitemap_predictions');
         $this->clearResultsCaches();
     }
 

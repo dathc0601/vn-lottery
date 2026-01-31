@@ -72,6 +72,16 @@ class SitemapController extends Controller
     }
 
     /**
+     * Predictions sitemap
+     */
+    public function predictions(): Response
+    {
+        $xml = $this->sitemapService->generatePredictionsSitemap();
+
+        return $this->xmlResponse($xml);
+    }
+
+    /**
      * Return XML response with proper headers
      */
     protected function xmlResponse(string $xml): Response

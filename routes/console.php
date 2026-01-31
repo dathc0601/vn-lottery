@@ -1,6 +1,7 @@
 <?php
 
 use App\Jobs\FetchAllProvincesJob;
+use App\Jobs\GeneratePredictionsJob;
 use App\Jobs\GenerateStatisticsJob;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -45,5 +46,19 @@ Schedule::job(new GenerateStatisticsJob())
 Schedule::command('vietlott:fetch')
     ->dailyAt('19:00')
     ->name('fetch-vietlott-daily')
+    ->onOneServer()
+    ->withoutOverlapping();
+
+// ============================================
+// Prediction Scheduler Configuration
+// ============================================
+// Predictions are generated daily at 02:00 AM
+// based on previous day's lottery results
+// ============================================
+
+// Generate daily predictions at 2 AM
+Schedule::job(new GeneratePredictionsJob())
+    ->dailyAt('02:00')
+    ->name('generate-daily-predictions')
     ->onOneServer()
     ->withoutOverlapping();
