@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Models\Prediction;
-use App\Services\PredictionArticleService;
 use App\Services\PredictionService;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -32,7 +31,7 @@ class GeneratePredictionsJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(PredictionService $predictionService, PredictionArticleService $articleService): void
+    public function handle(PredictionService $predictionService): void
     {
         $predictionDate = $this->targetDate ?? Carbon::today();
         $regions = $this->targetRegion
@@ -53,23 +52,13 @@ class GeneratePredictionsJob implements ShouldQueue
                     continue;
                 }
 
-                // Generate article
-                $article = $articleService->generateArticle($prediction);
-
-                if ($article) {
-                    // Publish prediction
-                    $predictionService->publishPrediction($prediction);
-                    Log::info("Successfully generated and published prediction", [
-                        'region' => $region,
-                        'date' => $predictionDate->format('Y-m-d'),
-                        'prediction_id' => $prediction->id,
-                        'article_id' => $article->id,
-                    ]);
-                } else {
-                    Log::warning("Failed to generate article for prediction", [
-                        'prediction_id' => $prediction->id,
-                    ]);
-                }
+                // Publish prediction
+                $predictionService->publishPrediction($prediction);
+                Log::info("Successfully generated and published prediction", [
+                    'region' => $region,
+                    'date' => $predictionDate->format('Y-m-d'),
+                    'prediction_id' => $prediction->id,
+                ]);
             } catch (\Exception $e) {
                 Log::error("Error generating prediction for region: {$region}", [
                     'error' => $e->getMessage(),
