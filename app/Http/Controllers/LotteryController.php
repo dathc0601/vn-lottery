@@ -6,6 +6,9 @@ use App\Models\LotteryResult;
 use App\Models\Province;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class LotteryController extends Controller
 {
@@ -575,5 +578,732 @@ class LotteryController extends Controller
             'resultsCount' => count($results),
             'currentDate' => $date->format('d-m-Y')
         ]);
+    }
+
+    public function xsmbLive()
+    {
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+        $startTime = $now->copy()->setTime(18, 15, 0);
+        $endTime = $now->copy()->setTime(18, 50, 0);
+
+        if ($now->lt($startTime)) {
+            $sessionState = 'before';
+        } elseif ($now->lte($endTime)) {
+            $sessionState = 'live';
+        } else {
+            $sessionState = 'after';
+        }
+
+        $northProvinces = Province::where('region', 'north')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        $centralProvinces = Province::where('region', 'central')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        $southProvinces = Province::where('region', 'south')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        return view('xsmb-live', compact(
+            'sessionState',
+            'northProvinces',
+            'centralProvinces',
+            'southProvinces'
+        ));
+    }
+
+    public function fetchLiveResults()
+    {
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+        $date = $now->format('Y-m-d');
+        $cacheKey = 'xsmb_live_results_' . $date;
+
+        $data = Cache::remember($cacheKey, 30, function () use ($now) {
+            try {
+                $response = Http::timeout(10)->get('https://xskt.com.vn/hom-nay/');
+
+                if (!$response->successful()) {
+                    return [
+                        'status' => 'error',
+                        'prizes' => $this->emptyPrizes(),
+                        'timestamp' => $now->toIso8601String(),
+                        'is_previous_day' => false,
+                    ];
+                }
+
+                $parsed = $this->parseXsmbLiveHtml($response->body());
+
+                $todayStr = $now->format('d-m-Y');
+                $resultsDate = $parsed['results_date']; // dd-mm-yyyy
+                $isPreviousDay = $resultsDate && $resultsDate !== $todayStr;
+
+                // Build display strings for the frontend note
+                $resultsDateDisplay = null;
+                $todayDateDisplay = null;
+                if ($isPreviousDay && $resultsDate) {
+                    $resultsCarbon = Carbon::createFromFormat('d-m-Y', $resultsDate, 'Asia/Ho_Chi_Minh');
+                    $todayCarbon = $now->copy();
+
+                    $dayNames = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+                    $resultsDateDisplay = $dayNames[$resultsCarbon->dayOfWeek] . ' ngày ' . $resultsCarbon->format('d/m');
+                    $todayDateDisplay = $dayNames[$todayCarbon->dayOfWeek] . ' ngày ' . $todayCarbon->format('d/m');
+                }
+
+                return [
+                    'status' => $parsed['complete'] ? 'complete' : 'in_progress',
+                    'prizes' => $parsed['prizes'],
+                    'timestamp' => $now->toIso8601String(),
+                    'results_date' => $resultsDate,
+                    'is_previous_day' => $isPreviousDay,
+                    'results_date_display' => $resultsDateDisplay,
+                    'today_date_display' => $todayDateDisplay,
+                ];
+            } catch (\Exception $e) {
+                Log::warning('Live XSMB scrape failed: ' . $e->getMessage());
+
+                return [
+                    'status' => 'error',
+                    'prizes' => $this->emptyPrizes(),
+                    'timestamp' => $now->toIso8601String(),
+                    'is_previous_day' => false,
+                ];
+            }
+        });
+
+        return response()->json($data);
+    }
+
+    private function parseXsmbLiveHtml(string $html): array
+    {
+        $prizes = $this->emptyPrizes();
+        $complete = false;
+
+        libxml_use_internal_errors(true);
+        $dom = new \DOMDocument();
+        $dom->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_NOWARNING);
+        libxml_clear_errors();
+
+        $xpath = new \DOMXPath($dom);
+
+        // Find the first table.result inside .box-ketqua
+        $tables = $xpath->query("//*[contains(@class, 'box-ketqua')]//table[contains(@class, 'result')]");
+        if ($tables->length === 0) {
+            // Fallback: try just table.result
+            $tables = $xpath->query("//table[contains(@class, 'result')]");
+        }
+
+        if ($tables->length === 0) {
+            return ['prizes' => $prizes, 'complete' => false];
+        }
+
+        $table = $tables->item(0);
+        $rows = $xpath->query('.//tr', $table);
+
+        $prizeMap = [
+            'ĐB' => 'prize_special',
+            'DB' => 'prize_special',
+            'Đ.Biệt' => 'prize_special',
+            'G.1' => 'prize_1',
+            'G1' => 'prize_1',
+            'Giải nhất' => 'prize_1',
+            'G.2' => 'prize_2',
+            'G2' => 'prize_2',
+            'Giải nhì' => 'prize_2',
+            'G.3' => 'prize_3',
+            'G3' => 'prize_3',
+            'Giải ba' => 'prize_3',
+            'G.4' => 'prize_4',
+            'G4' => 'prize_4',
+            'Giải tư' => 'prize_4',
+            'G.5' => 'prize_5',
+            'G5' => 'prize_5',
+            'Giải năm' => 'prize_5',
+            'G.6' => 'prize_6',
+            'G6' => 'prize_6',
+            'Giải sáu' => 'prize_6',
+            'G.7' => 'prize_7',
+            'G7' => 'prize_7',
+            'Giải bảy' => 'prize_7',
+        ];
+
+        foreach ($rows as $row) {
+            $cells = $xpath->query('.//td', $row);
+            if ($cells->length < 2) continue;
+
+            $label = trim($cells->item(0)->textContent);
+            $prizeKey = $prizeMap[$label] ?? null;
+            // Skip rows without a recognized prize label (e.g. continuation rows from rowspan,
+            // which only contain Đầu/Đuôi columns, or the footer row with mã ĐB)
+            if (!$prizeKey) continue;
+
+            // Only read cell at index 1 (the prize numbers cell).
+            // Cells at index 2+ are Đầu/Đuôi loto summary columns — skip them.
+            // Get innerHTML and replace <br> with space so numbers aren't concatenated.
+            $cell = $cells->item(1);
+            $innerHtml = '';
+            foreach ($cell->childNodes as $child) {
+                $innerHtml .= $dom->saveHTML($child);
+            }
+            $cellText = trim(strip_tags(str_replace(['<br>', '<br/>', '<br />'], ' ', $innerHtml)));
+            $numbers = [];
+            $parts = preg_split('/[\s,;]+/', $cellText);
+            foreach ($parts as $part) {
+                $part = trim($part);
+                if ($part === '' || $part === '...' || $part === '---' || $part === '____') {
+                    continue;
+                }
+                if (preg_match('/^\d+$/', $part)) {
+                    $numbers[] = $part;
+                }
+            }
+
+            if (!empty($numbers)) {
+                if ($prizes[$prizeKey] !== null) {
+                    $prizes[$prizeKey] .= ',' . implode(',', $numbers);
+                } else {
+                    $prizes[$prizeKey] = implode(',', $numbers);
+                }
+            }
+        }
+
+        // Check completion: all prizes must be non-null
+        $complete = true;
+        foreach ($prizes as $value) {
+            if ($value === null) {
+                $complete = false;
+                break;
+            }
+        }
+
+        // Extract XSMB result date from the link "/xsmb/ngay-D-M-YYYY" in the box-ketqua h2
+        $resultsDate = null;
+        preg_match('/\/xsmb\/ngay-(\d{1,2})-(\d{1,2})-(\d{4})/', $html, $dateMatch);
+        if ($dateMatch) {
+            $resultsDate = sprintf('%s-%s-%s',
+                str_pad($dateMatch[1], 2, '0', STR_PAD_LEFT),
+                str_pad($dateMatch[2], 2, '0', STR_PAD_LEFT),
+                $dateMatch[3]
+            );
+        }
+
+        return ['prizes' => $prizes, 'complete' => $complete, 'results_date' => $resultsDate];
+    }
+
+    private function emptyPrizes(): array
+    {
+        return [
+            'prize_special' => null,
+            'prize_1' => null,
+            'prize_2' => null,
+            'prize_3' => null,
+            'prize_4' => null,
+            'prize_5' => null,
+            'prize_6' => null,
+            'prize_7' => null,
+        ];
+    }
+
+    private function emptyXsmnPrizes(): array
+    {
+        return [
+            'prize_8' => null,
+            'prize_7' => null,
+            'prize_6' => null,
+            'prize_5' => null,
+            'prize_4' => null,
+            'prize_3' => null,
+            'prize_2' => null,
+            'prize_1' => null,
+            'prize_special' => null,
+        ];
+    }
+
+    public function xsmnLive()
+    {
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+        $startTime = $now->copy()->setTime(16, 15, 0);
+        $endTime = $now->copy()->setTime(16, 50, 0);
+
+        if ($now->lt($startTime)) {
+            $sessionState = 'before';
+        } elseif ($now->lte($endTime)) {
+            $sessionState = 'live';
+        } else {
+            $sessionState = 'after';
+        }
+
+        $northProvinces = Province::where('region', 'north')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        $centralProvinces = Province::where('region', 'central')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        $southProvinces = Province::where('region', 'south')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        return view('xsmn-live', compact(
+            'sessionState',
+            'northProvinces',
+            'centralProvinces',
+            'southProvinces'
+        ));
+    }
+
+    public function fetchXsmnLiveResults()
+    {
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+        $date = $now->format('Y-m-d');
+        $cacheKey = 'xsmn_live_results_' . $date;
+
+        $data = Cache::remember($cacheKey, 30, function () use ($now) {
+            try {
+                $response = Http::timeout(10)->get('https://xskt.com.vn/hom-nay/');
+
+                if (!$response->successful()) {
+                    return [
+                        'status' => 'error',
+                        'provinces' => [],
+                        'timestamp' => $now->toIso8601String(),
+                        'is_previous_day' => false,
+                    ];
+                }
+
+                $parsed = $this->parseXsmnLiveHtml($response->body());
+
+                $todayStr = $now->format('d-m-Y');
+                $resultsDate = $parsed['results_date'];
+                $isPreviousDay = $resultsDate && $resultsDate !== $todayStr;
+
+                $resultsDateDisplay = null;
+                $todayDateDisplay = null;
+                if ($isPreviousDay && $resultsDate) {
+                    $resultsCarbon = Carbon::createFromFormat('d-m-Y', $resultsDate, 'Asia/Ho_Chi_Minh');
+                    $todayCarbon = $now->copy();
+
+                    $dayNames = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+                    $resultsDateDisplay = $dayNames[$resultsCarbon->dayOfWeek] . ' ngày ' . $resultsCarbon->format('d/m');
+                    $todayDateDisplay = $dayNames[$todayCarbon->dayOfWeek] . ' ngày ' . $todayCarbon->format('d/m');
+                }
+
+                return [
+                    'status' => $parsed['complete'] ? 'complete' : 'in_progress',
+                    'provinces' => $parsed['provinces'],
+                    'timestamp' => $now->toIso8601String(),
+                    'results_date' => $resultsDate,
+                    'is_previous_day' => $isPreviousDay,
+                    'results_date_display' => $resultsDateDisplay,
+                    'today_date_display' => $todayDateDisplay,
+                ];
+            } catch (\Exception $e) {
+                Log::warning('Live XSMN scrape failed: ' . $e->getMessage());
+
+                return [
+                    'status' => 'error',
+                    'provinces' => [],
+                    'timestamp' => $now->toIso8601String(),
+                    'is_previous_day' => false,
+                ];
+            }
+        });
+
+        return response()->json($data);
+    }
+
+    public function xsmtLive()
+    {
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+        $startTime = $now->copy()->setTime(17, 15, 0);
+        $endTime = $now->copy()->setTime(17, 50, 0);
+
+        if ($now->lt($startTime)) {
+            $sessionState = 'before';
+        } elseif ($now->lte($endTime)) {
+            $sessionState = 'live';
+        } else {
+            $sessionState = 'after';
+        }
+
+        $northProvinces = Province::where('region', 'north')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        $centralProvinces = Province::where('region', 'central')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        $southProvinces = Province::where('region', 'south')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        return view('xsmt-live', compact(
+            'sessionState',
+            'northProvinces',
+            'centralProvinces',
+            'southProvinces'
+        ));
+    }
+
+    public function fetchXsmtLiveResults()
+    {
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+        $date = $now->format('Y-m-d');
+        $cacheKey = 'xsmt_live_results_' . $date;
+
+        $data = Cache::remember($cacheKey, 30, function () use ($now) {
+            try {
+                $response = Http::timeout(10)->get('https://xskt.com.vn/hom-nay/');
+
+                if (!$response->successful()) {
+                    return [
+                        'status' => 'error',
+                        'provinces' => [],
+                        'timestamp' => $now->toIso8601String(),
+                        'is_previous_day' => false,
+                    ];
+                }
+
+                $parsed = $this->parseXsmtLiveHtml($response->body());
+
+                $todayStr = $now->format('d-m-Y');
+                $resultsDate = $parsed['results_date'];
+                $isPreviousDay = $resultsDate && $resultsDate !== $todayStr;
+
+                $resultsDateDisplay = null;
+                $todayDateDisplay = null;
+                if ($isPreviousDay && $resultsDate) {
+                    $resultsCarbon = Carbon::createFromFormat('d-m-Y', $resultsDate, 'Asia/Ho_Chi_Minh');
+                    $todayCarbon = $now->copy();
+
+                    $dayNames = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+                    $resultsDateDisplay = $dayNames[$resultsCarbon->dayOfWeek] . ' ngày ' . $resultsCarbon->format('d/m');
+                    $todayDateDisplay = $dayNames[$todayCarbon->dayOfWeek] . ' ngày ' . $todayCarbon->format('d/m');
+                }
+
+                return [
+                    'status' => $parsed['complete'] ? 'complete' : 'in_progress',
+                    'provinces' => $parsed['provinces'],
+                    'timestamp' => $now->toIso8601String(),
+                    'results_date' => $resultsDate,
+                    'is_previous_day' => $isPreviousDay,
+                    'results_date_display' => $resultsDateDisplay,
+                    'today_date_display' => $todayDateDisplay,
+                ];
+            } catch (\Exception $e) {
+                Log::warning('Live XSMT scrape failed: ' . $e->getMessage());
+
+                return [
+                    'status' => 'error',
+                    'provinces' => [],
+                    'timestamp' => $now->toIso8601String(),
+                    'is_previous_day' => false,
+                ];
+            }
+        });
+
+        return response()->json($data);
+    }
+
+    private function parseXsmtLiveHtml(string $html): array
+    {
+        $provinces = [];
+        $complete = false;
+
+        libxml_use_internal_errors(true);
+        $dom = new \DOMDocument();
+        $dom->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_NOWARNING);
+        libxml_clear_errors();
+
+        $xpath = new \DOMXPath($dom);
+
+        // Find the XSMT table: use id starting with MT (NOT class tbl-xsmn which matches both regions)
+        $tables = $xpath->query("//table[starts-with(@id, 'MT')]");
+        if ($tables->length === 0) {
+            // Fallback: find table inside div whose id starts with MT
+            $tables = $xpath->query("//*[starts-with(@id, 'MT')]//table");
+        }
+
+        if ($tables->length === 0) {
+            return ['provinces' => [], 'complete' => false, 'results_date' => null];
+        }
+
+        $table = $tables->item(0);
+
+        // Extract province names from header row <th> elements
+        $headerRow = $xpath->query('.//thead/tr | .//tr', $table);
+        $provinceNames = [];
+
+        if ($headerRow->length > 0) {
+            $ths = $xpath->query('.//th', $headerRow->item(0));
+            // Skip the first <th> (day/date label), rest are province names
+            for ($i = 1; $i < $ths->length; $i++) {
+                $name = trim($ths->item($i)->textContent);
+                if ($name !== '') {
+                    $slug = \Illuminate\Support\Str::slug($name);
+                    $provinceNames[] = ['name' => $name, 'slug' => $slug];
+                }
+            }
+        }
+
+        if (empty($provinceNames)) {
+            return ['provinces' => [], 'complete' => false, 'results_date' => null];
+        }
+
+        // Initialize prizes for each province
+        foreach ($provinceNames as &$prov) {
+            $prov['prizes'] = $this->emptyXsmnPrizes();
+        }
+        unset($prov);
+
+        // Map row labels to prize keys
+        $prizeMap = [
+            'G.8' => 'prize_8',
+            'G8' => 'prize_8',
+            'G.7' => 'prize_7',
+            'G7' => 'prize_7',
+            'G.6' => 'prize_6',
+            'G6' => 'prize_6',
+            'G.5' => 'prize_5',
+            'G5' => 'prize_5',
+            'G.4' => 'prize_4',
+            'G4' => 'prize_4',
+            'G.3' => 'prize_3',
+            'G3' => 'prize_3',
+            'G.2' => 'prize_2',
+            'G2' => 'prize_2',
+            'G.1' => 'prize_1',
+            'G1' => 'prize_1',
+            'ĐB' => 'prize_special',
+            'DB' => 'prize_special',
+            'Đ.Biệt' => 'prize_special',
+        ];
+
+        // Parse rows
+        $rows = $xpath->query('.//tr', $table);
+        foreach ($rows as $row) {
+            $cells = $xpath->query('.//td', $row);
+            if ($cells->length < 2) continue;
+
+            $label = trim($cells->item(0)->textContent);
+            $prizeKey = $prizeMap[$label] ?? null;
+            if (!$prizeKey) continue;
+
+            // Each subsequent cell corresponds to a province
+            $provinceCount = count($provinceNames);
+            for ($i = 0; $i < $provinceCount; $i++) {
+                $cellIndex = $i + 1;
+                if ($cellIndex >= $cells->length) break;
+
+                $cell = $cells->item($cellIndex);
+                $innerHtml = '';
+                foreach ($cell->childNodes as $child) {
+                    $innerHtml .= $dom->saveHTML($child);
+                }
+                $cellText = trim(strip_tags(str_replace(['<br>', '<br/>', '<br />'], ' ', $innerHtml)));
+
+                $numbers = [];
+                $parts = preg_split('/[\s,;]+/', $cellText);
+                foreach ($parts as $part) {
+                    $part = trim($part);
+                    if ($part === '' || $part === '...' || $part === '---' || $part === '____') {
+                        continue;
+                    }
+                    if (preg_match('/^\d+$/', $part)) {
+                        $numbers[] = $part;
+                    }
+                }
+
+                if (!empty($numbers)) {
+                    $provinceNames[$i]['prizes'][$prizeKey] = implode(',', $numbers);
+                }
+            }
+        }
+
+        // Check completion: all prizes for all provinces must be non-null
+        $complete = true;
+        foreach ($provinceNames as $prov) {
+            foreach ($prov['prizes'] as $value) {
+                if ($value === null) {
+                    $complete = false;
+                    break 2;
+                }
+            }
+        }
+
+        // Extract XSMT result date from the link "/xsmt/ngay-D-M-YYYY"
+        $resultsDate = null;
+        preg_match('/\/xsmt\/ngay-(\d{1,2})-(\d{1,2})-(\d{4})/', $html, $dateMatch);
+        if ($dateMatch) {
+            $resultsDate = sprintf('%s-%s-%s',
+                str_pad($dateMatch[1], 2, '0', STR_PAD_LEFT),
+                str_pad($dateMatch[2], 2, '0', STR_PAD_LEFT),
+                $dateMatch[3]
+            );
+        }
+
+        return ['provinces' => $provinceNames, 'complete' => $complete, 'results_date' => $resultsDate];
+    }
+
+    private function parseXsmnLiveHtml(string $html): array
+    {
+        $provinces = [];
+        $complete = false;
+
+        libxml_use_internal_errors(true);
+        $dom = new \DOMDocument();
+        $dom->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_NOWARNING);
+        libxml_clear_errors();
+
+        $xpath = new \DOMXPath($dom);
+
+        // Find the XSMN table: look for table with class tbl-xsmn, or table inside a box-ketqua with id starting with MN
+        $tables = $xpath->query("//table[contains(@class, 'tbl-xsmn')]");
+        if ($tables->length === 0) {
+            // Fallback: find table inside div whose id starts with MN
+            $tables = $xpath->query("//*[starts-with(@id, 'MN')]//table");
+        }
+
+        if ($tables->length === 0) {
+            return ['provinces' => [], 'complete' => false, 'results_date' => null];
+        }
+
+        $table = $tables->item(0);
+
+        // Extract province names from header row <th> elements
+        $headerRow = $xpath->query('.//thead/tr | .//tr', $table);
+        $provinceNames = [];
+
+        if ($headerRow->length > 0) {
+            $ths = $xpath->query('.//th', $headerRow->item(0));
+            // Skip the first <th> (day/date label), rest are province names
+            for ($i = 1; $i < $ths->length; $i++) {
+                $name = trim($ths->item($i)->textContent);
+                if ($name !== '') {
+                    // Generate slug from province name
+                    $slug = \Illuminate\Support\Str::slug($name);
+                    $provinceNames[] = ['name' => $name, 'slug' => $slug];
+                }
+            }
+        }
+
+        if (empty($provinceNames)) {
+            return ['provinces' => [], 'complete' => false, 'results_date' => null];
+        }
+
+        // Initialize prizes for each province
+        foreach ($provinceNames as &$prov) {
+            $prov['prizes'] = $this->emptyXsmnPrizes();
+        }
+        unset($prov);
+
+        // Map row labels to prize keys
+        $prizeMap = [
+            'G.8' => 'prize_8',
+            'G8' => 'prize_8',
+            'G.7' => 'prize_7',
+            'G7' => 'prize_7',
+            'G.6' => 'prize_6',
+            'G6' => 'prize_6',
+            'G.5' => 'prize_5',
+            'G5' => 'prize_5',
+            'G.4' => 'prize_4',
+            'G4' => 'prize_4',
+            'G.3' => 'prize_3',
+            'G3' => 'prize_3',
+            'G.2' => 'prize_2',
+            'G2' => 'prize_2',
+            'G.1' => 'prize_1',
+            'G1' => 'prize_1',
+            'ĐB' => 'prize_special',
+            'DB' => 'prize_special',
+            'Đ.Biệt' => 'prize_special',
+        ];
+
+        // Parse rows
+        $rows = $xpath->query('.//tr', $table);
+        foreach ($rows as $row) {
+            $cells = $xpath->query('.//td', $row);
+            if ($cells->length < 2) continue;
+
+            $label = trim($cells->item(0)->textContent);
+            $prizeKey = $prizeMap[$label] ?? null;
+            if (!$prizeKey) continue;
+
+            // Each subsequent cell corresponds to a province
+            $provinceCount = count($provinceNames);
+            for ($i = 0; $i < $provinceCount; $i++) {
+                $cellIndex = $i + 1;
+                if ($cellIndex >= $cells->length) break;
+
+                $cell = $cells->item($cellIndex);
+                $innerHtml = '';
+                foreach ($cell->childNodes as $child) {
+                    $innerHtml .= $dom->saveHTML($child);
+                }
+                $cellText = trim(strip_tags(str_replace(['<br>', '<br/>', '<br />'], ' ', $innerHtml)));
+
+                $numbers = [];
+                $parts = preg_split('/[\s,;]+/', $cellText);
+                foreach ($parts as $part) {
+                    $part = trim($part);
+                    if ($part === '' || $part === '...' || $part === '---' || $part === '____') {
+                        continue;
+                    }
+                    if (preg_match('/^\d+$/', $part)) {
+                        $numbers[] = $part;
+                    }
+                }
+
+                if (!empty($numbers)) {
+                    $provinceNames[$i]['prizes'][$prizeKey] = implode(',', $numbers);
+                }
+            }
+        }
+
+        // Check completion: all prizes for all provinces must be non-null
+        $complete = true;
+        foreach ($provinceNames as $prov) {
+            foreach ($prov['prizes'] as $value) {
+                if ($value === null) {
+                    $complete = false;
+                    break 2;
+                }
+            }
+        }
+
+        // Extract XSMN result date from the link "/xsmn/ngay-D-M-YYYY"
+        $resultsDate = null;
+        preg_match('/\/xsmn\/ngay-(\d{1,2})-(\d{1,2})-(\d{4})/', $html, $dateMatch);
+        if ($dateMatch) {
+            $resultsDate = sprintf('%s-%s-%s',
+                str_pad($dateMatch[1], 2, '0', STR_PAD_LEFT),
+                str_pad($dateMatch[2], 2, '0', STR_PAD_LEFT),
+                $dateMatch[3]
+            );
+        }
+
+        return ['provinces' => $provinceNames, 'complete' => $complete, 'results_date' => $resultsDate];
     }
 }

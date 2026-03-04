@@ -16,6 +16,13 @@
         'xsmn_days' => 'Trực tiếp XSMN',
         default => 'Trực tiếp',
     };
+
+    $liveRoute = match($type) {
+        'xsmb_days' => 'xsmb.live',
+        'xsmt_days' => 'xsmt.live',
+        'xsmn_days' => 'xsmn.live',
+        default => $mainRoute,
+    };
 @endphp
 
 <li class="relative shrink-0"
@@ -57,7 +64,7 @@
             </a>
         @endforeach
         <div class="border-t border-gray-200 mt-1 pt-1">
-            <a href="{{ route($mainRoute) }}"
+            <a href="{{ route($liveRoute) }}"
                class="block px-4 py-2 text-sm text-[#ff6600] font-medium hover:bg-gray-100 transition-colors">
                 {{ $liveLabel }}
             </a>

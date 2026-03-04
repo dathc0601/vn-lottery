@@ -24,6 +24,20 @@ Route::get('/robots.txt', function () {
 // Homepage
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// Live XSMB page
+Route::get('/xsmb/truc-tiep', [LotteryController::class, 'xsmbLive'])->name('xsmb.live');
+
+// API endpoint for live results scraping
+Route::get('/api/xsmb/live-results', [LotteryController::class, 'fetchLiveResults'])->name('api.xsmb.live');
+
+// Live XSMN page
+Route::get('/xsmn/truc-tiep', [LotteryController::class, 'xsmnLive'])->name('xsmn.live');
+Route::get('/api/xsmn/live-results', [LotteryController::class, 'fetchXsmnLiveResults'])->name('api.xsmn.live');
+
+// Live XSMT page
+Route::get('/xsmt/truc-tiep', [LotteryController::class, 'xsmtLive'])->name('xsmt.live');
+Route::get('/api/xsmt/live-results', [LotteryController::class, 'fetchXsmtLiveResults'])->name('api.xsmt.live');
+
 // Regional lottery pages
 Route::get('/xsmb/{date?}', [LotteryController::class, 'xsmb'])
     ->name('xsmb')
