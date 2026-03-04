@@ -7,72 +7,135 @@
 @section('breadcrumb')
     <a href="{{ route('home') }}" class="text-[#0066cc] hover:underline">Trang chủ</a>
     <span class="mx-1">/</span>
+    <a href="{{ route('prediction.index') }}" class="text-[#0066cc] hover:underline">Dự đoán xổ số</a>
+    <span class="mx-1">/</span>
     <span class="text-gray-800 font-medium">Dự đoán {{ strtoupper($regionSlug) }}</span>
 @endsection
 
 @section('page-content')
 <div>
-    <!-- Two-Column Layout -->
+    {{-- Tab Navigation --}}
+    @include('predictions.partials.hub.tab-navigation', ['regionSlug' => $regionSlug])
+
+    {{-- H1 Title --}}
+    <div class="border border-gray-300 bg-white px-4 py-3 mb-4">
+        <h1 class="text-xl font-bold text-[#cc0000]">Dự đoán {{ strtoupper($regionSlug) }} - Soi cầu xổ số {{ $regionName }}</h1>
+    </div>
+
+    {{-- Intro paragraph --}}
+    <div class="bg-white px-4 py-3 mb-4 text-sm text-gray-700 border border-gray-200">
+        Chuyên trang <strong>soi cầu {{ strtoupper($regionSlug) }}</strong> cung cấp các dự đoán kết quả xổ số {{ $regionName }}
+        dựa trên phân tích thống kê và các thuật toán hiện đại. Dự đoán được cập nhật tự động hàng ngày vào lúc 2h sáng.
+    </div>
+
+    {{-- Two-column flex layout --}}
     <div class="flex flex-col lg:flex-row gap-4">
 
-        <!-- Main Content Column -->
+        {{-- Main Content --}}
         <div class="flex-1 min-w-0">
 
-            <!-- Page Header (Orange bar) -->
-            <div class="bg-white rounded shadow overflow-hidden mb-4">
-                <div class="bg-[#ff6600] text-white px-4 py-2 font-medium">
-                    Dự đoán {{ strtoupper($regionSlug) }} - Soi cầu xổ số {{ $regionName }}
-                </div>
+            {{-- Section header --}}
+            <div class="bg-gray-200 px-4 py-2 font-semibold text-gray-800 mb-0">
+                Danh sách dự đoán {{ strtoupper($regionSlug) }}
             </div>
 
-            <!-- Introduction -->
-            <div class="bg-white rounded shadow p-4 mb-4">
-                <p class="text-gray-700">
-                    Chuyên trang <strong>soi cầu {{ strtoupper($regionSlug) }}</strong> cung cấp các dự đoán kết quả xổ số {{ $regionName }}
-                    dựa trên phân tích thống kê và các thuật toán hiện đại. Dự đoán được cập nhật tự động hàng ngày vào lúc 2h sáng.
-                </p>
-            </div>
-
-            {{-- Predictions List --}}
-            <div class="mb-6">
-                <h2 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-[#ff6600]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                    </svg>
-                    Danh sách dự đoán {{ strtoupper($regionSlug) }}
-                </h2>
-
+            {{-- Prediction list --}}
+            <div class="bg-white border border-gray-200 border-t-0 px-4">
                 @if($predictions->count() > 0)
-                    <div class="block">
-                        @foreach($predictions as $prediction)
-                            @include('predictions.components.prediction-card', ['prediction' => $prediction])
-                        @endforeach
-                    </div>
+                    @foreach($predictions as $prediction)
+                        <div class="flex gap-4 py-4 {{ !$loop->last ? 'border-b border-gray-200' : '' }}">
+                            {{-- Thumbnail --}}
+                            <a href="{{ $prediction->url }}" class="flex-shrink-0">
+                                @include('predictions.partials.thumbnail', [
+                                    'thumbSlug' => $regionSlug,
+                                    'thumbDate' => $prediction->formatted_date,
+                                ])
+                            </a>
 
-                    {{-- Pagination --}}
-                    @if($predictions->hasPages())
-                        <div class="mt-6">
-                            {{ $predictions->links() }}
+                            {{-- Content --}}
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-base font-semibold mb-1">
+                                    <a href="{{ $prediction->url }}"
+                                       class="text-[#0066cc] hover:text-[#cc0000] transition-colors">
+                                        Soi cầu {{ strtoupper($regionSlug) }} {{ $prediction->formatted_date }}
+                                    </a>
+                                </h3>
+                                <p class="text-sm text-gray-600 line-clamp-3">
+                                    Dự đoán kết quả {{ strtoupper($regionSlug) }} ngày {{ $prediction->formatted_date }}.
+                                    Phân tích thống kê, soi cầu lô đề {{ $regionName }} chính xác nhất.
+                                    @php $loto = $prediction->predictions_data['loto_2_digit'] ?? []; @endphp
+                                    @if(!empty($loto))
+                                        Các cặp loto dự đoán: {{ implode(', ', array_slice($loto, 0, 5)) }}.
+                                    @endif
+                                </p>
+                                <a href="{{ $prediction->url }}"
+                                   class="inline-block mt-2 text-sm text-[#0066cc] hover:text-[#cc0000]">
+                                    Xem chi tiết &raquo;
+                                </a>
+                            </div>
                         </div>
-                    @endif
+                    @endforeach
                 @else
-                    <div class="bg-gray-50 border border-gray-200 rounded p-6 text-center">
-                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        <p class="text-gray-600">Chưa có dự đoán nào. Vui lòng quay lại sau.</p>
+                    <div class="py-8 text-center">
+                        <p class="text-gray-500">Chưa có dự đoán nào. Vui lòng quay lại sau.</p>
                     </div>
                 @endif
             </div>
 
+            {{-- Pagination --}}
+            @if($predictions->hasPages())
+                <div class="mt-4">
+                    {{ $predictions->links() }}
+                </div>
+            @endif
+
+            {{-- SEO Content --}}
+            <div class="bg-white border border-gray-200 px-4 py-4 mt-4">
+                <div class="text-sm text-gray-700 leading-relaxed space-y-3">
+                    <h2 class="text-lg font-bold text-gray-900">Dự đoán {{ strtoupper($regionSlug) }} - Soi cầu xổ số {{ $regionName }} chính xác</h2>
+
+                    <p>
+                        Trang <strong>dự đoán {{ strtoupper($regionSlug) }}</strong> cung cấp các dự đoán kết quả xổ số {{ $regionName }}
+                        dựa trên phân tích thống kê và các thuật toán hiện đại. Dự đoán được cập nhật tự động hàng ngày.
+                    </p>
+
+                    <h3 class="text-base font-semibold text-gray-800">Phương pháp dự đoán</h3>
+                    <p>
+                        Chúng tôi sử dụng phương pháp phân tích thống kê kết hợp với các mô hình dự đoán để đưa ra
+                        các con số có xác suất về cao nhất. Các yếu tố được phân tích bao gồm:
+                    </p>
+                    <ul class="list-disc list-inside space-y-1 pl-2">
+                        <li>Tần suất xuất hiện của các cặp số trong 30 ngày gần nhất</li>
+                        <li>Phân tích lô gan - các số lâu chưa xuất hiện</li>
+                        <li>Thống kê đầu đuôi và các quy luật xuất hiện</li>
+                        <li>Phân tích giải đặc biệt và các mối liên hệ giữa các giải</li>
+                    </ul>
+
+                    <h3 class="text-base font-semibold text-gray-800">Dự đoán các miền khác</h3>
+                    <ul class="list-disc list-inside space-y-1 pl-2">
+                        @if($regionSlug !== 'xsmb')
+                            <li><a href="{{ route('prediction.xsmb.index') }}" class="text-[#0066cc] hover:underline">Dự đoán XSMB</a> - Dự đoán kết quả xổ số Miền Bắc hàng ngày</li>
+                        @endif
+                        @if($regionSlug !== 'xsmn')
+                            <li><a href="{{ route('prediction.xsmn.index') }}" class="text-[#0066cc] hover:underline">Dự đoán XSMN</a> - Dự đoán kết quả xổ số Miền Nam hàng ngày</li>
+                        @endif
+                        @if($regionSlug !== 'xsmt')
+                            <li><a href="{{ route('prediction.xsmt.index') }}" class="text-[#0066cc] hover:underline">Dự đoán XSMT</a> - Dự đoán kết quả xổ số Miền Trung hàng ngày</li>
+                        @endif
+                    </ul>
+
+                    <p class="italic text-red-600 text-xs mt-4">
+                        * Lưu ý: Các dự đoán trên trang này chỉ mang tính chất tham khảo và giải trí.
+                        Kết quả xổ số hoàn toàn ngẫu nhiên. Chúng tôi không chịu trách nhiệm về bất kỳ quyết định nào
+                        dựa trên các dự đoán này.
+                    </p>
+                </div>
+            </div>
+
         </div>
 
-        <!-- Right Sidebar -->
-        @include('predictions.partials.sidebar', [
-            'region' => $region,
-            'regionSlug' => $regionSlug,
-            'relatedPredictions' => $relatedPredictions
-        ])
+        {{-- Sidebar --}}
+        @include('predictions.partials.hub.sidebar')
     </div>
 </div>
 @endsection

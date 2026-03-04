@@ -1,5 +1,6 @@
 @php
     $regionCode = strtoupper($regionSlug);
+    $faqDate = isset($date) ? \Carbon\Carbon::parse($date)->format('d/m/Y') : null;
     $faqs = [
         [
             'question' => "Soi cầu {$regionCode} là gì?",
@@ -39,14 +40,11 @@
 @endphp
 
 <div class="my-6">
-    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <svg class="w-5 h-5 text-[#ff6600]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        Câu hỏi thường gặp
+    <h2 class="text-xl font-bold text-gray-900 mb-4">
+        ❓ FAQ - Dự đoán {{ $regionCode }}{{ $faqDate ? ' ' . $faqDate : '' }}
     </h2>
 
-    <div class="bg-white rounded shadow overflow-hidden">
+    <div class="border border-gray-300 overflow-hidden">
         <div class="divide-y divide-gray-200">
             @foreach($faqs as $index => $faq)
             <details class="group" {{ $index === 0 ? 'open' : '' }}>

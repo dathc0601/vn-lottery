@@ -11,6 +11,7 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\TrialDrawController;
 use App\Http\Controllers\VietlottController;
+use App\Http\Controllers\OgImageController;
 use App\Http\Controllers\PredictionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -112,6 +113,11 @@ Route::prefix('xo-so-vietlott')->group(function () {
 Route::get('/api/vietlott/load-more/{gameType}/{page}', [VietlottController::class, 'loadMore'])
     ->where(['gameType' => 'mega645|power655|max3d|max3dpro', 'page' => '\d+'])
     ->name('vietlott.loadMore');
+
+// OG Image generation
+Route::get('/og-image/prediction/{regionSlug}/{date}.png', [OgImageController::class, 'prediction'])
+    ->where(['regionSlug' => 'xsmb|xsmt|xsmn', 'date' => '\d{2}-\d{2}-\d{4}'])
+    ->name('og-image.prediction');
 
 // Prediction Routes
 Route::prefix('du-doan')->group(function () {

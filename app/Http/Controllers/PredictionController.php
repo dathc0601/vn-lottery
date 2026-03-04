@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Prediction;
+use App\Models\Province;
 use App\Models\User;
 use App\Services\PredictionService;
 use Carbon\Carbon;
@@ -19,26 +20,29 @@ class PredictionController extends Controller
      */
     public function indexAll()
     {
-        $predictions = Prediction::published()
-            ->latest()
-            ->paginate(12);
-
-        // Get admin author for display
-        $author = User::where('is_admin', true)->first();
-
-        // Get latest prediction for each region
         $latestByRegion = [];
         foreach (Prediction::REGIONS as $region => $name) {
             $latestByRegion[$region] = Prediction::forRegion($region)
-                ->published()
-                ->latest()
-                ->first();
+                ->published()->latest()->first();
         }
 
+        // Province lists for sidebar
+        $northProvinces = Province::where('region', 'north')->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
+        $centralProvinces = Province::where('region', 'central')->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
+        $southProvinces = Province::where('region', 'south')->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
+
+        // Today's drawing provinces for schedule sidebar widget
+        $drawDay = now()->dayOfWeek == 0 ? 7 : now()->dayOfWeek; // DB: 1=Mon..7=Sun
+        $todayProvinces = Province::where('is_active', true)->get()
+            ->filter(fn($p) => in_array($drawDay, $p->draw_days ?? []))
+            ->sortBy('sort_order')->values();
+        $todaySchedule = $todayProvinces->groupBy('draw_time');
+
+        $author = User::where('is_admin', true)->first();
+
         return view('predictions.index-all', compact(
-            'predictions',
-            'author',
-            'latestByRegion'
+            'latestByRegion', 'todaySchedule',
+            'northProvinces', 'centralProvinces', 'southProvinces', 'author'
         ));
     }
 
@@ -109,13 +113,29 @@ class PredictionController extends Controller
         // Get related predictions from other regions
         $relatedPredictions = $this->getRelatedPredictions($region);
 
+        // Province lists for sidebar
+        $northProvinces = Province::where('region', 'north')->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
+        $centralProvinces = Province::where('region', 'central')->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
+        $southProvinces = Province::where('region', 'south')->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
+
+        // Today's drawing provinces for schedule sidebar widget
+        $drawDay = now()->dayOfWeek == 0 ? 7 : now()->dayOfWeek;
+        $todayProvinces = Province::where('is_active', true)->get()
+            ->filter(fn($p) => in_array($drawDay, $p->draw_days ?? []))
+            ->sortBy('sort_order')->values();
+        $todaySchedule = $todayProvinces->groupBy('draw_time');
+
         return view('predictions.index', compact(
             'predictions',
             'region',
             'regionSlug',
             'regionName',
             'author',
-            'relatedPredictions'
+            'relatedPredictions',
+            'northProvinces',
+            'centralProvinces',
+            'southProvinces',
+            'todaySchedule'
         ));
     }
 
@@ -184,6 +204,18 @@ class PredictionController extends Controller
             }
         }
 
+        // Province lists for sidebar
+        $northProvinces = Province::where('region', 'north')->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
+        $centralProvinces = Province::where('region', 'central')->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
+        $southProvinces = Province::where('region', 'south')->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
+
+        // Today's drawing provinces for schedule sidebar widget
+        $drawDay = now()->dayOfWeek == 0 ? 7 : now()->dayOfWeek;
+        $todayProvinces = Province::where('is_active', true)->get()
+            ->filter(fn($p) => in_array($drawDay, $p->draw_days ?? []))
+            ->sortBy('sort_order')->values();
+        $todaySchedule = $todayProvinces->groupBy('draw_time');
+
         return view('predictions.show', compact(
             'prediction',
             'region',
@@ -196,7 +228,11 @@ class PredictionController extends Controller
             'previousPrediction',
             'nextPrediction',
             'trialDrawUrl',
-            'provinces'
+            'provinces',
+            'northProvinces',
+            'centralProvinces',
+            'southProvinces',
+            'todaySchedule'
         ));
     }
 

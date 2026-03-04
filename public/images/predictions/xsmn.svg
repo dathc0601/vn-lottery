@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="160" viewBox="0 0 240 160">
+  <rect width="240" height="160" rx="4" fill="#27ae60"/>
+  <text x="120" y="60" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">DỰ ĐOÁN KQXS</text>
+  <text x="120" y="85" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">MIỀN NAM</text>
+  <text x="120" y="120" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="Arial, sans-serif" font-size="12">XSMN</text>
+</svg>

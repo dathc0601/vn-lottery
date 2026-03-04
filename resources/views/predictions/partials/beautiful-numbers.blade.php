@@ -18,7 +18,7 @@
     ];
 @endphp
 
-<div class="my-6 bg-white border border-gray-300 rounded-lg overflow-hidden">
+<div class="my-6 bg-white border border-gray-300 overflow-hidden">
     <div class="bg-gray-50 border-b border-gray-300 px-4 py-3">
         <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
             <span class="text-green-600">✅</span>
@@ -34,7 +34,7 @@
 
             @if(!empty($numbers))
             <div class="flex items-start gap-2">
-                <span class="text-amber-500 mt-0.5">☆</span>
+                <span class="text-amber-500 mt-0.5">⭐</span>
                 <div>
                     <span class="text-gray-700">{{ $section['title'] }}: </span>
                     <span class="font-bold text-red-600">{{ implode(' - ', $numbers) }}</span>
