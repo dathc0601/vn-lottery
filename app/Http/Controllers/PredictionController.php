@@ -20,11 +20,8 @@ class PredictionController extends Controller
      */
     public function indexAll()
     {
-        $latestByRegion = [];
-        foreach (Prediction::REGIONS as $region => $name) {
-            $latestByRegion[$region] = Prediction::forRegion($region)
-                ->published()->latest()->first();
-        }
+        $predictions = Prediction::published()->latest()->take(10)->get();
+        $totalCount = Prediction::published()->count();
 
         // Province lists for sidebar
         $northProvinces = Province::where('region', 'north')->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
@@ -41,9 +38,38 @@ class PredictionController extends Controller
         $author = User::where('is_admin', true)->first();
 
         return view('predictions.index-all', compact(
-            'latestByRegion', 'todaySchedule',
+            'predictions', 'totalCount', 'todaySchedule',
             'northProvinces', 'centralProvinces', 'southProvinces', 'author'
         ));
+    }
+
+    /**
+     * API: Load more predictions for the hub page.
+     */
+    public function loadMorePredictions(Request $request)
+    {
+        $offset = (int) $request->query('offset', 0);
+        $limit = 10;
+
+        $predictions = Prediction::published()
+            ->latest()
+            ->skip($offset)
+            ->take($limit)
+            ->get();
+
+        $total = Prediction::published()->count();
+        $hasMore = ($offset + $limit) < $total;
+
+        $html = '';
+        foreach ($predictions as $prediction) {
+            $html .= view('predictions.partials.hub.prediction-card-item', compact('prediction'))->render();
+        }
+
+        return response()->json([
+            'html' => $html,
+            'hasMore' => $hasMore,
+            'loaded' => $offset + $predictions->count(),
+        ]);
     }
 
     /**

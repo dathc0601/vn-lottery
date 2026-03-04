@@ -119,6 +119,10 @@ Route::get('/og-image/prediction/{regionSlug}/{date}.png', [OgImageController::c
     ->where(['regionSlug' => 'xsmb|xsmt|xsmn', 'date' => '\d{2}-\d{2}-\d{4}'])
     ->name('og-image.prediction');
 
+// Prediction API
+Route::get('/api/predictions/load-more', [PredictionController::class, 'loadMorePredictions'])
+    ->name('api.predictions.loadMore');
+
 // Prediction Routes
 Route::prefix('du-doan')->group(function () {
     // Main prediction hub page (all regions)

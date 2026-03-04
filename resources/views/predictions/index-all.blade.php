@@ -34,23 +34,16 @@
 
             {{-- Section header --}}
             <div class="bg-gray-200 px-4 py-2 font-semibold text-gray-800 mb-0">
-                Dự đoán xổ số hôm nay
+                Dự đoán xổ số mới nhất
             </div>
 
-            {{-- Prediction cards --}}
+            {{-- Prediction cards with load more --}}
             <div class="bg-white border border-gray-200 border-t-0 px-4">
                 @include('predictions.partials.hub.prediction-card-list')
             </div>
 
-            {{-- "Xem thêm" link --}}
-            <div class="text-center py-3">
-                <a href="{{ route('prediction.xsmb.index') }}" class="text-[#0066cc] hover:text-[#cc0000] text-sm font-medium">
-                    Xem thêm dự đoán &raquo;
-                </a>
-            </div>
-
             {{-- SEO Content --}}
-            <div class="bg-white border border-gray-200 px-4 py-4">
+            <div class="bg-white border border-gray-200 px-4 py-4 mt-4">
                 @include('predictions.partials.hub.seo-content')
             </div>
 
