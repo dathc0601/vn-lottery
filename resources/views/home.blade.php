@@ -18,7 +18,7 @@
             @endphp
             @if($hasPredictions)
             <div class="mb-4 border border-gray-300">
-                <div class="bg-[#FFF9E6] border-b border-gray-300 px-4 py-2 mb-3">
+                <div class="bg-[#ffe89f] border-b border-gray-300 px-4 py-2 mb-3">
                     <h2 class="font-bold text-base">
                         <a href="{{ route('prediction.index') }}" class="text-[#0066cc] hover:underline">Dự đoán xổ số ngày mai</a>
                     </h2>
