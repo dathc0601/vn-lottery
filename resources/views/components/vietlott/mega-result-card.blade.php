@@ -1,8 +1,6 @@
 @props(['result'])
 
 @php
-    use App\Helpers\LotteryHelper;
-
     $dayOfWeek = [
         0 => 'Chủ nhật',
         1 => 'Thứ 2',
@@ -16,70 +14,38 @@
     $dayName = $dayOfWeek[$drawDate->dayOfWeek];
 @endphp
 
-<div class="vietlott-result-card">
-    <!-- Header -->
-    <div class="vietlott-card-header">
-        <div class="flex items-center justify-between">
-            <div>
-                <span class="font-semibold">{{ $dayName }}, {{ $drawDate->format('d/m/Y') }}</span>
-                <span class="text-gray-500 ml-2">#{{ $result->draw_number }}</span>
-            </div>
-        </div>
+<div class="rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+    <!-- Branded Header -->
+    <div class="bg-[#eb1427] px-4 py-3">
+        <img class="w-1/2 h-2/3 mx-auto" src="{{ asset('images/vietlott-mega-645-logo-white.png') }}"  alt="Mega 6/45"/>
     </div>
 
     <!-- Content -->
-    <div class="p-4">
-        <!-- Jackpot Display -->
+    <div class="bg-white p-4">
+        <!-- Title Link -->
+        <a href="{{ route('vietlott.mega645') }}" class="text-blue-700 font-semibold underline hover:text-blue-900 text-base">
+            Kết quả xổ số Mega 6/45
+        </a>
+
+        <!-- Draw Info -->
+        <div class="text-gray-500 text-sm mt-1">
+            Kỳ quay: #{{ $result->draw_number }} - {{ $dayName }}, {{ $drawDate->format('d/m/Y') }}
+        </div>
+
+        <!-- Jackpot Amount -->
         @if($result->jackpot_amount > 0)
-            <div class="vietlott-jackpot-box mb-4">
-                <span class="text-sm">Jackpot:</span>
-                <span class="font-bold text-lg">{{ LotteryHelper::formatVietnameseCurrency($result->jackpot_amount) }}</span>
+            <div class="text-center my-4">
+                <span class="text-2xl font-bold text-gray-800">{{ number_format($result->jackpot_amount, 0, ',', '.') }} đ</span>
             </div>
         @endif
 
         <!-- Winning Numbers -->
-        <div class="flex flex-wrap justify-center gap-2 mb-4">
+        <div class="flex flex-wrap justify-center gap-2 mt-3">
             @foreach($result->winning_numbers as $number)
-                <x-vietlott.number-ball :number="$number" />
+                <div class="w-10 h-10 rounded-full text-white flex items-center justify-center font-bold text-base shadow" style="background: radial-gradient(circle at 50% 20%, #fe7e8a, red)">
+                    {{ str_pad($number, 2, '0', STR_PAD_LEFT) }}
+                </div>
             @endforeach
         </div>
-
-        <!-- Prize Table -->
-        <table class="vietlott-prize-table">
-            <thead>
-                <tr>
-                    <th>Giải</th>
-                    <th>Trúng khớp</th>
-                    <th>Số lượng</th>
-                    <th>Giá trị</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Jackpot</td>
-                    <td>6 số</td>
-                    <td>-</td>
-                    <td class="text-[#ff6600] font-bold">{{ $result->jackpot_amount > 0 ? LotteryHelper::formatVietnameseCurrency($result->jackpot_amount) : 'Tích lũy' }}</td>
-                </tr>
-                <tr>
-                    <td>Giải Nhất</td>
-                    <td>5 số</td>
-                    <td>-</td>
-                    <td>10 triệu</td>
-                </tr>
-                <tr>
-                    <td>Giải Nhì</td>
-                    <td>4 số</td>
-                    <td>-</td>
-                    <td>300k</td>
-                </tr>
-                <tr>
-                    <td>Giải Ba</td>
-                    <td>3 số</td>
-                    <td>-</td>
-                    <td>30k</td>
-                </tr>
-            </tbody>
-        </table>
     </div>
 </div>

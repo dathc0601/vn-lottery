@@ -58,8 +58,8 @@
 
     {{-- Section 3: Notes --}}
     @if(count($notes) > 0)
-    <div class="bg-white border-t border-gray-200">
-        <div class="container mx-auto px-4 py-6" style="max-width: 1040px;">
+    <div class="bg-white border-t border-gray-200 p-4">
+        <div class="container mx-auto px-4 py-6 bg-[#fff3cd] border border-[#ffe69c]" style="max-width: 1040px;">
             <h3 class="text-base font-bold text-gray-800 mb-3">Lưu ý</h3>
             <ul class="space-y-2">
                 @foreach($notes as $note)
@@ -96,11 +96,11 @@
     @endif
 
     {{-- Section 6: Copyright / Disclaimer --}}
-    <div class="bg-[#2d2d2d] text-center py-4">
+    <div class="bg-[#fff3cd] text-center py-4">
         <div class="container mx-auto px-4" style="max-width: 1040px;">
-            <p class="text-xs text-gray-400">{{ $copyrightText }}</p>
+            <p class="text-xs text-gray-800">{{ $copyrightText }}</p>
             @if($disclaimerText)
-                <p class="text-xs text-gray-500 mt-1">{{ $disclaimerText }}</p>
+                <p class="text-xs text-gray-800 mt-1">{{ $disclaimerText }}</p>
             @endif
         </div>
     </div>

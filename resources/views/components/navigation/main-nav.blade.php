@@ -7,9 +7,9 @@
     $logoUrl = $seo->imageUrl('general', 'site_logo');
 @endphp
 
-<nav class="bg-[#ff6600]" x-data="navOverflow()">
-    <div class="container mx-auto px-4" style="max-width: 1040px;">
-        <ul class="flex items-center h-10" x-ref="navList">
+<nav class="bg-[#d10000]" x-data="navOverflow()">
+    <div class="container mx-auto px-4">
+        <ul class="flex items-center justify-center h-14 w-full" x-ref="navList">
             {{-- Logo (always visible) --}}
             <li class="mr-2 shrink-0" data-logo>
                 <a href="{{ route('home') }}" class="flex items-center h-10">

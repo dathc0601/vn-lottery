@@ -23,14 +23,14 @@
 
 <div class="bg-white border border-gray-300 mb-4">
     <!-- Calendar Header -->
-    <div class="bg-gray-100 border-b border-gray-300 px-4 py-2 flex items-center justify-between">
+    <div class="bg-[#d10000] px-4 py-2 flex items-center justify-between">
         <a href="{{ route($region) }}?month={{ $date->copy()->subMonth()->month }}&year={{ $date->copy()->subMonth()->year }}"
-           class="text-gray-600 hover:text-orange-500 font-bold text-lg">&lt;</a>
-        <h3 class="font-bold text-gray-800 text-sm">
+           class="text-white font-bold text-lg">&lt;</a>
+        <h3 class="font-bold text-white text-sm">
             Tháng {{ $currentMonth }}/{{ $currentYear }}
         </h3>
         <a href="{{ route($region) }}?month={{ $date->copy()->addMonth()->month }}&year={{ $date->copy()->addMonth()->year }}"
-           class="text-gray-600 hover:text-orange-500 font-bold text-lg">&gt;</a>
+           class="text-white font-bold text-lg">&gt;</a>
     </div>
 
     <!-- Calendar Grid -->

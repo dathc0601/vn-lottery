@@ -14,10 +14,10 @@
 <div class="overflow-x-auto footer-schedule-wrapper">
     <table class="w-full border-collapse text-sm footer-schedule-table">
         <thead>
-            <tr class="bg-[#ff6600] text-white">
-                <th class="border border-[#e55a00] px-3 py-2 text-left font-semibold whitespace-nowrap">Vùng miền</th>
+            <tr>
+                <th class="border border-gray-200 px-3 py-2 text-left font-semibold whitespace-nowrap">Vùng miền</th>
                 @foreach($dayNames as $dayNum => $dayLabel)
-                    <th class="border border-[#e55a00] px-3 py-2 text-center font-semibold">{{ $dayLabel }}</th>
+                    <th class="border border-gray-200 px-3 py-2 text-center font-semibold">{{ $dayLabel }}</th>
                 @endforeach
             </tr>
         </thead>

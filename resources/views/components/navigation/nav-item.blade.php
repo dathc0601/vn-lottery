@@ -23,6 +23,6 @@
         @if($item->icon)
             <x-dynamic-component :component="'heroicon-o-' . $item->icon" class="w-4 h-4 inline mr-1" />
         @endif
-        {{ $item->title }}
+        <span class="font-bold">{{ $item->title }}</span>
     </a>
 </li>

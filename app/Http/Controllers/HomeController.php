@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\LotteryResult;
+use App\Models\Prediction;
 use App\Models\Province;
 use App\Models\VietlottResult;
 use Carbon\Carbon;
@@ -38,6 +39,12 @@ class HomeController extends Controller
             ->orderBy('name')
             ->get();
 
+        // Get latest prediction per region
+        $latestPredictions = [];
+        foreach (Prediction::REGION_SLUGS as $region => $slug) {
+            $latestPredictions[$slug] = Prediction::forRegion($region)->published()->latest()->first();
+        }
+
         // Get latest Vietlott results for each game type
         $vietlottResults = [
             'mega645' => VietlottResult::where('game_type', 'mega645')->orderBy('draw_date', 'desc')->first(),
@@ -53,7 +60,8 @@ class HomeController extends Controller
             'northProvinces',
             'centralProvinces',
             'southProvinces',
-            'vietlottResults'
+            'vietlottResults',
+            'latestPredictions'
         ));
     }
 

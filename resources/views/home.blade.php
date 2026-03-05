@@ -10,10 +10,56 @@
         <!-- Main Content (65%) -->
         <div class="flex-1 lg:w-[100% - 275px]">
 
+            <!-- Latest Predictions Section -->
+            @php
+                $predictionOrder = ['xsmn', 'xsmt', 'xsmb'];
+                $hasPredictions = collect($predictionOrder)->contains(fn($s) => !empty($latestPredictions[$s]));
+                $weekdays = [0 => 'CN', 1 => 'Thứ 2', 2 => 'Thứ 3', 3 => 'Thứ 4', 4 => 'Thứ 5', 5 => 'Thứ 6', 6 => 'Thứ 7'];
+            @endphp
+            @if($hasPredictions)
+            <div class="mb-4 border border-gray-300">
+                <div class="bg-[#FFF9E6] border-b border-gray-300 px-4 py-2 mb-3">
+                    <h2 class="font-bold text-base">
+                        <a href="{{ route('prediction.index') }}" class="text-[#0066cc] hover:underline">Dự đoán xổ số ngày mai</a>
+                    </h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 pb-4">
+                    @foreach($predictionOrder as $slug)
+                        @php $pred = $latestPredictions[$slug] ?? null; @endphp
+                        @if($pred)
+                            @php
+                                $predDate = $pred->prediction_date;
+                                $weekdayLabel = $weekdays[$predDate->dayOfWeek] ?? '';
+                                $dateLabel = $weekdayLabel . ', ' . $predDate->format('d/m/Y');
+                            @endphp
+                            <div>
+                                <a href="{{ $pred->url }}" class="block">
+                                    @include('predictions.partials.thumbnail-large', [
+                                        'thumbSlug' => $slug,
+                                        'thumbDateLine' => $dateLabel,
+                                    ])
+                                </a>
+                                <div class="mt-2">
+                                    <h3 class="font-bold text-base">
+                                        <a href="{{ $pred->url }}" class="text-[#0066cc] hover:underline">
+                                            DỰ ĐOÁN {{ strtoupper($slug) }}
+                                        </a>
+                                    </h3>
+                                    <p class="text-sm text-gray-700 mt-1">
+                                        Dự đoán {{ strtoupper($slug) }} {{ $pred->formatted_date }}, soi cầu Xổ Số {{ $pred->region_name }}
+                                    </p>
+                                </div>
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
             <!-- Quick Region Links Tabs -->
             <div class="grid md:grid-cols-3 gap-3 mb-4">
                 <!-- KQXSMB Tab -->
-                <div class="bg-[#FFF9E6] border border-gray-300 p-3">
+                <div class="border border-gray-300 p-3">
                     <h3 class="font-bold text-gray-800 mb-2 text-sm">KQXSMB - Xổ số miền Bắc</h3>
                     <ul class="space-y-1 text-xs">
                         @foreach($northProvinces->take(6) as $province)
@@ -28,7 +74,7 @@
                 </div>
 
                 <!-- KQXSMT Tab -->
-                <div class="bg-[#FFF9E6] border border-gray-300 p-3">
+                <div class="border border-gray-300 p-3">
                     <h3 class="font-bold text-gray-800 mb-2 text-sm">KQXSMT - Xổ số miền Trung</h3>
                     <ul class="space-y-1 text-xs">
                         @foreach($centralProvinces->take(6) as $province)
@@ -43,7 +89,7 @@
                 </div>
 
                 <!-- KQXSMN Tab -->
-                <div class="bg-[#FFF9E6] border border-gray-300 p-3">
+                <div class="border border-gray-300 p-3">
                     <h3 class="font-bold text-gray-800 mb-2 text-sm">KQXSMN - Xổ số miền Nam</h3>
                     <ul class="space-y-1 text-xs">
                         @foreach($southProvinces->take(6) as $province)
@@ -61,207 +107,306 @@
             <!-- XSMB Results Section -->
             @if($northResults->count() > 0)
                 @foreach($northResults as $result)
-                <div class="mb-6">
-                    <!-- Section Header -->
-                    <div class="bg-[#FFF9E6] border border-gray-300 px-4 py-2 mb-3">
-                        <h2 class="font-bold text-gray-800 text-base inline-block">
-                            KQXS MB - Kết quả xổ số Miền Bắc
+                @php
+                    $drawDate = \Carbon\Carbon::parse($result->draw_date);
+                    $formattedDate = $drawDate->format('d/m/Y');
+                    $dayOfWeek = $drawDate->isoFormat('dddd');
+                    $provinceName = $result->province->name ?? 'Hà Nội';
+
+                    // Extract all last-2-digit numbers for lô tô
+                    $allNumbers = [];
+                    foreach(['prize_special', 'prize_1', 'prize_2', 'prize_3', 'prize_4', 'prize_5', 'prize_6', 'prize_7'] as $prize) {
+                        if($result->$prize) {
+                            $numbers = explode(',', $result->$prize);
+                            foreach($numbers as $num) {
+                                $num = trim($num);
+                                if(strlen($num) >= 2) {
+                                    $allNumbers[] = substr($num, -2);
+                                }
+                            }
+                        }
+                    }
+
+                    // Group by head digit (first digit of last 2)
+                    $lotoByHead = array_fill(0, 10, []);
+                    foreach($allNumbers as $num) {
+                        $lotoByHead[intval($num[0])][] = $num;
+                    }
+
+                    // Group by tail digit (last digit of last 2)
+                    $lotoByTail = array_fill(0, 10, []);
+                    foreach($allNumbers as $num) {
+                        $lotoByTail[intval($num[1])][] = $num;
+                    }
+                @endphp
+                <div class="mb-6 border border-gray-300 bg-white rounded overflow-hidden">
+
+                    <!-- Header -->
+                    <div class="bg-[#ffe89f] px-4 py-2 border-b border-b-gray-300">
+                        <h2 class="font-bold text-gray-800 text-base">
+                            KQXSMB - SXMB - Kết quả xổ số Miền Bắc
                         </h2>
-                        <span class="text-sm text-gray-600 ml-3">
-                            {{ \Carbon\Carbon::parse($result->draw_date)->format('d/m/Y') }}
-                        </span>
-                        <div class="mt-1 text-sm">
-                            <a href="{{ route('xsmb') }}" class="text-blue-600 hover:underline">XSMB</a>
-                            <span class="mx-1">|</span>
-                            <a href="{{ route('xsmb') }}" class="text-blue-600 hover:underline">XSMB {{ \Carbon\Carbon::parse($result->draw_date)->isoFormat('dddd') }}</a>
-                            <span class="mx-1">|</span>
-                            <a href="{{ route('xsmb') }}" class="text-blue-600 hover:underline">XSMB {{ \Carbon\Carbon::parse($result->draw_date)->format('d/m/Y') }}</a>
+                        <div class="text-sm mt-1">
+                            <a href="{{ route('xsmb') }}" class="text-blue-700 hover:underline">XSMB</a>
+                            <span class="mx-1 text-gray-500">&raquo;</span>
+                            <a href="{{ route('xsmb') }}" class="text-blue-700 hover:underline">XSMB {{ $dayOfWeek }}</a>
+                            <span class="mx-1 text-gray-500">&raquo;</span>
+                            <a href="{{ route('xsmb') }}" class="text-blue-700 hover:underline">XSMB {{ $formattedDate }}</a>
                         </div>
                     </div>
 
                     <!-- Prize Table -->
-                    <div class="bg-white border border-gray-300 mb-3">
-                        <table class="w-full border-collapse">
-                            <tbody>
-                                <tr class="border-b border-gray-300">
-                                    <td class="px-4 py-3 font-bold text-gray-800 border-r border-gray-300 w-32 bg-gray-50">ĐB</td>
-                                    <td class="px-4 py-3 text-center">
-                                        <span class="text-3xl font-bold text-red-600">{{ $result->prize_special }}</span>
-                                    </td>
-                                </tr>
-                                <tr class="border-b border-gray-300">
-                                    <td class="px-4 py-2 font-bold text-gray-800 border-r border-gray-300 bg-gray-50">G1</td>
-                                    <td class="px-4 py-2 text-center text-lg font-semibold">{{ $result->prize_1 }}</td>
-                                </tr>
-                                <tr class="border-b border-gray-300">
-                                    <td class="px-4 py-2 font-bold text-gray-800 border-r border-gray-300 bg-gray-50">G2</td>
-                                    <td class="px-4 py-2 text-center">{{ str_replace(',', ' - ', $result->prize_2) }}</td>
-                                </tr>
-                                <tr class="border-b border-gray-300">
-                                    <td class="px-4 py-2 font-bold text-gray-800 border-r border-gray-300 bg-gray-50">G3</td>
-                                    <td class="px-4 py-2 text-center text-sm">{{ str_replace(',', ' - ', $result->prize_3) }}</td>
-                                </tr>
-                                <tr class="border-b border-gray-300">
-                                    <td class="px-4 py-2 font-bold text-gray-800 border-r border-gray-300 bg-gray-50">G4</td>
-                                    <td class="px-4 py-2 text-center text-sm">{{ str_replace(',', ' - ', $result->prize_4) }}</td>
-                                </tr>
-                                <tr class="border-b border-gray-300">
-                                    <td class="px-4 py-2 font-bold text-gray-800 border-r border-gray-300 bg-gray-50">G5</td>
-                                    <td class="px-4 py-2 text-center text-sm">{{ str_replace(',', ' - ', $result->prize_5) }}</td>
-                                </tr>
-                                <tr class="border-b border-gray-300">
-                                    <td class="px-4 py-2 font-bold text-gray-800 border-r border-gray-300 bg-gray-50">G6</td>
-                                    <td class="px-4 py-2 text-center text-sm">{{ str_replace(',', ' - ', $result->prize_6) }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-4 py-2 font-bold text-gray-800 border-r border-gray-300 bg-gray-50">G7</td>
-                                    <td class="px-4 py-2 text-center text-sm">{{ str_replace(',', ' - ', $result->prize_7) }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <table class="w-full border-collapse text-center">
+                        <tbody>
+                            <!-- Table header: Giải | Province -->
+                            <tr class="border-b border-gray-300 bg-gray-100">
+                                <td class="px-3 py-2 font-bold text-gray-700 border-r border-gray-300 w-20 text-sm">Giải</td>
+                                <td class="px-3 py-2 font-bold text-blue-700 text-sm">{{ $provinceName }}</td>
+                            </tr>
+                            <!-- Mã ĐB -->
+                            @if($result->turn_num)
+                            <tr class="border-b border-gray-200 bg-white">
+                                <td class="px-3 py-1.5 font-semibold text-gray-600 border-r border-gray-300 text-sm">Mã ĐB</td>
+                                <td class="px-3 py-1.5 font-bold text-orange-600 text-sm">{{ $result->turn_num }}</td>
+                            </tr>
+                            @endif
+                            <!-- G.ĐB - Special Prize -->
+                            <tr class="border-b border-gray-200 bg-red-50/40">
+                                <td class="px-3 py-2 font-bold text-gray-700 border-r border-gray-300 text-sm">G.ĐB</td>
+                                <td class="px-3 py-2">
+                                    <span class="text-4xl font-bold text-red-600">{{ $result->prize_special }}</span>
+                                </td>
+                            </tr>
+                            <!-- G.1 -->
+                            <tr class="border-b border-gray-200 bg-gray-50/50">
+                                <td class="px-3 py-2 font-bold text-gray-700 border-r border-gray-300 text-sm">G.1</td>
+                                <td class="px-3 py-2">
+                                    <span class="text-2xl font-bold">{{ $result->prize_1 }}</span>
+                                </td>
+                            </tr>
+                            <!-- G.2 - 2 numbers -->
+                            @if($result->prize_2)
+                            <tr class="border-b border-gray-200 bg-white">
+                                <td class="px-3 py-2 font-bold text-gray-700 border-r border-gray-300 text-sm">G.2</td>
+                                <td class="px-3 py-2">
+                                    <div class="grid grid-cols-2 gap-1">
+                                        @foreach(explode(',', $result->prize_2) as $num)
+                                            <span class="text-xl font-bold">{{ trim($num) }}</span>
+                                        @endforeach
+                                    </div>
+                                </td>
+                            </tr>
+                            @endif
+                            <!-- G.3 - 6 numbers in 3-col × 2-row -->
+                            @if($result->prize_3)
+                            <tr class="border-b border-gray-200 bg-gray-50/50">
+                                <td class="px-3 py-2 font-bold text-gray-700 border-r border-gray-300 text-sm">G.3</td>
+                                <td class="px-3 py-2">
+                                    <div class="grid grid-cols-3 gap-1">
+                                        @foreach(explode(',', $result->prize_3) as $num)
+                                            <span class="text-lg font-bold">{{ trim($num) }}</span>
+                                        @endforeach
+                                    </div>
+                                </td>
+                            </tr>
+                            @endif
+                            <!-- G.4 - 4 numbers -->
+                            @if($result->prize_4)
+                            <tr class="border-b border-gray-200 bg-white">
+                                <td class="px-3 py-2 font-bold text-gray-700 border-r border-gray-300 text-sm">G.4</td>
+                                <td class="px-3 py-2">
+                                    <div class="grid grid-cols-4 gap-1">
+                                        @foreach(explode(',', $result->prize_4) as $num)
+                                            <span class="text-lg font-bold">{{ trim($num) }}</span>
+                                        @endforeach
+                                    </div>
+                                </td>
+                            </tr>
+                            @endif
+                            <!-- G.5 - 6 numbers in 3-col × 2-row -->
+                            @if($result->prize_5)
+                            <tr class="border-b border-gray-200 bg-gray-50/50">
+                                <td class="px-3 py-2 font-bold text-gray-700 border-r border-gray-300 text-sm">G.5</td>
+                                <td class="px-3 py-2">
+                                    <div class="grid grid-cols-3 gap-1">
+                                        @foreach(explode(',', $result->prize_5) as $num)
+                                            <span class="text-base font-bold">{{ trim($num) }}</span>
+                                        @endforeach
+                                    </div>
+                                </td>
+                            </tr>
+                            @endif
+                            <!-- G.6 - 3 numbers -->
+                            @if($result->prize_6)
+                            <tr class="border-b border-gray-200 bg-white">
+                                <td class="px-3 py-2 font-bold text-gray-700 border-r border-gray-300 text-sm">G.6</td>
+                                <td class="px-3 py-2">
+                                    <div class="grid grid-cols-3 gap-1">
+                                        @foreach(explode(',', $result->prize_6) as $num)
+                                            <span class="text-base font-bold">{{ trim($num) }}</span>
+                                        @endforeach
+                                    </div>
+                                </td>
+                            </tr>
+                            @endif
+                            <!-- G.7 - 4 numbers in RED -->
+                            @if($result->prize_7)
+                            <tr class="bg-gray-50/50">
+                                <td class="px-3 py-2 font-bold text-gray-700 border-r border-gray-300 text-sm">G.7</td>
+                                <td class="px-3 py-2">
+                                    <div class="grid grid-cols-4 gap-1">
+                                        @foreach(explode(',', $result->prize_7) as $num)
+                                            <span class="text-2xl font-bold text-red-600">{{ trim($num) }}</span>
+                                        @endforeach
+                                    </div>
+                                </td>
+                            </tr>
+                            @endif
+                        </tbody>
+                    </table>
 
-                    <!-- Display Options -->
-                    <div class="mb-3">
-                        <div class="flex gap-4 text-sm">
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="display_mode" value="all" checked class="mr-1">
-                                <span class="text-gray-700">Tất cả</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="display_mode" value="2_digits" class="mr-1">
-                                <span class="text-gray-700">2 số cuối</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="display_mode" value="3_digits" class="mr-1">
-                                <span class="text-gray-700">3 số cuối</span>
-                            </label>
+                    <!-- Lô tô Table (4 columns) -->
+                    <div class="border-t border-gray-300">
+                        <div class="bg-gray-100 px-4 py-2 font-bold text-sm border-b border-gray-300">
+                            Lô tô {{ $provinceName }} - {{ $formattedDate }}
                         </div>
-                    </div>
-
-                    <!-- Lotto Statistics Table -->
-                    <div class="bg-[#FFF9E6] border border-gray-300 px-4 py-2 mb-2">
-                        <h3 class="font-bold text-gray-800 text-sm">
-                            Bảng loto miền Bắc / Lô XSMB {{ \Carbon\Carbon::parse($result->draw_date)->isoFormat('dddd') }}
-                        </h3>
-                    </div>
-
-                    <div class="bg-white border border-gray-300 mb-3">
                         <table class="w-full border-collapse text-sm">
                             <thead>
-                                <tr class="border-b border-gray-300">
-                                    <th class="px-2 py-2 text-left font-bold text-gray-800 border-r border-gray-300 w-16 bg-gray-50">Đầu</th>
-                                    <th class="px-2 py-2 text-left font-bold text-gray-800 bg-gray-50">Lô tô</th>
+                                <tr class="border-b border-gray-300 bg-gray-50">
+                                    <th class="px-2 py-2 font-bold text-gray-700 border-r border-gray-300 w-12">Đầu</th>
+                                    <th class="px-2 py-2 font-bold text-gray-700 border-r border-gray-300">Lô tô</th>
+                                    <th class="px-2 py-2 font-bold text-gray-700 border-r border-gray-300">Lô tô</th>
+                                    <th class="px-2 py-2 font-bold text-gray-700 w-12">Đuôi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @php
-                                    // Extract all numbers from prizes and organize by first digit
-                                    $allNumbers = [];
-                                    foreach(['prize_special', 'prize_1', 'prize_2', 'prize_3', 'prize_4', 'prize_5', 'prize_6', 'prize_7'] as $prize) {
-                                        if($result->$prize) {
-                                            $numbers = explode(',', $result->$prize);
-                                            foreach($numbers as $num) {
-                                                $num = trim($num);
-                                                if(strlen($num) >= 2) {
-                                                    $last2 = substr($num, -2);
-                                                    $allNumbers[] = $last2;
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    // Group by first digit
-                                    $lotoByHead = [];
-                                    for($i = 0; $i <= 9; $i++) {
-                                        $lotoByHead[$i] = [];
-                                    }
-                                    foreach($allNumbers as $num) {
-                                        $head = intval($num[0]);
-                                        $lotoByHead[$head][] = $num;
-                                    }
-                                @endphp
-
                                 @for($i = 0; $i <= 9; $i++)
-                                    <tr class="border-b border-gray-300">
-                                        <td class="px-2 py-2 font-bold text-gray-800 border-r border-gray-300 bg-gray-50">{{ $i }}</td>
-                                        <td class="px-2 py-2">
-                                            @if(count($lotoByHead[$i]) > 0)
-                                                {{ implode(', ', $lotoByHead[$i]) }}
-                                            @else
-                                                <span class="text-gray-400">-</span>
-                                            @endif
-                                        </td>
-                                    </tr>
+                                <tr class="border-b border-gray-200 {{ $i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50' }}">
+                                    <td class="px-2 py-1.5 text-center font-bold text-teal-600 border-r border-gray-300">{{ $i }}</td>
+                                    <td class="px-2 py-1.5 border-r border-gray-300">
+                                        @if(count($lotoByHead[$i]) > 0)
+                                            {{ implode(', ', $lotoByHead[$i]) }}
+                                        @else
+                                            <span class="text-gray-400">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-2 py-1.5 border-r border-gray-300">
+                                        @if(count($lotoByTail[$i]) > 0)
+                                            {{ implode(', ', $lotoByTail[$i]) }}
+                                        @else
+                                            <span class="text-gray-400">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-2 py-1.5 text-center font-bold text-teal-600">{{ $i }}</td>
+                                </tr>
                                 @endfor
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- Additional Statistics Links -->
-                    <div class="text-sm space-y-1 mb-4">
-                        <div class="text-blue-600 hover:underline cursor-pointer">▼ Xem thêm XSMB 60 ngày</div>
-                        <div class="text-blue-600 hover:underline cursor-pointer">▼ Trải nghiệm Quay thử xổ số miền Bắc</div>
-                        <div class="text-blue-600 hover:underline cursor-pointer">▼ Thống kê Bảng đặc biệt tuần XSMB</div>
-                        <div class="text-blue-600 hover:underline cursor-pointer">▼ Thống kê Loto gan XSMB</div>
-                    </div>
                 </div>
                 @endforeach
+
+                <!-- Tiện ích Miền Bắc -->
+                <div class="mb-6 border border-gray-300 bg-white rounded overflow-hidden">
+                    <div class="bg-[#ffe89f] px-4 py-2 border-b border-gray-300">
+                        <h3 class="font-bold text-gray-800 text-base">Tiện ích Miền Bắc</h3>
+                    </div>
+                    <div class="px-4 py-3">
+                        <ul class="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 text-sm list-disc list-inside">
+                            <li><a href="{{ route('xsmb') }}" class="text-blue-800 hover:underline">Kết quả XSMB</a></li>
+                            <li><a href="{{ route('prediction.xsmb.index') }}" class="text-blue-800 hover:underline">Dự đoán XSMB</a></li>
+                            <li><a href="{{ route('trial.xsmb') }}" class="text-blue-800 hover:underline">Quay thử XSMB</a></li>
+                            <li><a href="{{ route('statistics.quick') }}" class="text-blue-800 hover:underline">Thống kê XSMB</a></li>
+                            <li><a href="{{ route('xsmb.live') }}" class="text-blue-800 hover:underline">Trực tiếp XSMB</a></li>
+                            <li><a href="{{ route('statistics.overdue', ['province_id' => 1, 'min_gap' => 0, 'max_gap' => 100]) }}" class="text-blue-800 hover:underline">Lô gan XSMB</a></li>
+                            <li><a href="{{ route('statistics.head-tail', ['province_id' => 1, 'period' => 30]) }}" class="text-blue-800 hover:underline">Đầu đuôi XSMB</a></li>
+                        </ul>
+                    </div>
+                </div>
             @endif
 
             <!-- XSMN Results Section -->
             @if($southResults->count() > 0)
-            <div class="mb-6">
-                <!-- Section Header -->
-                <div class="bg-[#FFF9E6] border border-gray-300 px-4 py-2 mb-3">
+            @php
+                $xsmnDate = \Carbon\Carbon::parse($southResults->first()->draw_date);
+                $xsmnFormattedDate = $xsmnDate->format('d/m/Y');
+                $xsmnDayOfWeek = $xsmnDate->isoFormat('dddd');
+
+                $xsmnPrizes = [
+                    ['label' => 'G.8',  'field' => 'prize_8',       'class' => 'text-2xl font-bold text-red-600'],
+                    ['label' => 'G.7',  'field' => 'prize_7',       'class' => 'text-xl font-bold'],
+                    ['label' => 'G.6',  'field' => 'prize_6',       'class' => 'text-lg font-bold'],
+                    ['label' => 'G.5',  'field' => 'prize_5',       'class' => 'text-lg font-bold'],
+                    ['label' => 'G.4',  'field' => 'prize_4',       'class' => 'text-base font-bold'],
+                    ['label' => 'G.3',  'field' => 'prize_3',       'class' => 'text-lg font-bold'],
+                    ['label' => 'G.2',  'field' => 'prize_2',       'class' => 'text-lg font-bold'],
+                    ['label' => 'G.1',  'field' => 'prize_1',       'class' => 'text-xl font-bold'],
+                    ['label' => 'G.ĐB', 'field' => 'prize_special', 'class' => 'text-2xl font-bold text-red-600'],
+                ];
+
+                // Lô tô per province
+                $xsmnLoto = [];
+                foreach($southResults as $res) {
+                    $allNums = [];
+                    foreach(['prize_special','prize_1','prize_2','prize_3','prize_4','prize_5','prize_6','prize_7','prize_8'] as $p) {
+                        if($res->$p) {
+                            foreach(explode(',', $res->$p) as $num) {
+                                $num = trim($num);
+                                if(strlen($num) >= 2) {
+                                    $allNums[] = substr($num, -2);
+                                }
+                            }
+                        }
+                    }
+                    $byHead = array_fill(0, 10, []);
+                    foreach($allNums as $n) {
+                        $byHead[intval($n[0])][] = $n;
+                    }
+                    $xsmnLoto[$res->province->id] = $byHead;
+                }
+            @endphp
+            <div class="mb-6 border border-gray-300 bg-white rounded overflow-hidden">
+
+                <!-- Header -->
+                <div class="bg-[#ffe89f] px-4 py-2 border-b border-gray-300">
                     <h2 class="font-bold text-gray-800 text-base">
-                        KQXS MN - Kết quả xổ số Miền Nam - SXMN
+                        KQXSMN - SXMN - Kết quả xổ số Miền Nam
                     </h2>
-                    <div class="mt-1 text-sm">
-                        <a href="{{ route('xsmn') }}" class="text-blue-600 hover:underline">XSMN</a>
-                        <span class="mx-1">|</span>
-                        <a href="{{ route('xsmn') }}" class="text-blue-600 hover:underline">XSMN {{ now()->isoFormat('dddd') }}</a>
+                    <div class="text-sm mt-1">
+                        <a href="{{ route('xsmn') }}" class="text-blue-700 hover:underline">XSMN</a>
+                        <span class="mx-1 text-gray-500">&raquo;</span>
+                        <a href="{{ route('xsmn') }}" class="text-blue-700 hover:underline">XSMN {{ $xsmnDayOfWeek }}</a>
+                        <span class="mx-1 text-gray-500">&raquo;</span>
+                        <a href="{{ route('xsmn') }}" class="text-blue-700 hover:underline">XSMN {{ $xsmnFormattedDate }}</a>
                     </div>
                 </div>
 
-                <!-- Multi-Province Table -->
-                <div class="bg-white border border-gray-300 overflow-x-auto mb-3">
-                    <table class="w-full border-collapse text-sm">
-                        <thead>
-                            <tr class="border-b border-gray-300 bg-gray-50">
-                                <th class="px-2 py-2 text-left font-bold text-gray-800 border-r border-gray-300 w-16">Giải</th>
+                <!-- Prize Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse text-sm text-center">
+                        <tbody>
+                            <!-- Header row -->
+                            <tr class="border-b border-gray-300 bg-[#E8EAF6]">
+                                <td class="px-3 py-2 font-bold text-gray-700 border-r border-gray-300 w-16 text-sm">Giải</td>
                                 @foreach($southResults as $result)
-                                    <th class="px-3 py-2 text-center font-bold text-gray-800 border-r border-gray-300">
-                                        {{ $result->province->name }}<br>
-                                        <span class="font-normal text-xs text-gray-600">{{ \Carbon\Carbon::parse($result->draw_date)->format('d/m') }}</span>
-                                    </th>
+                                    <td class="px-3 py-2 font-bold text-sm border-r border-gray-300">
+                                        <a href="{{ route('province.detail', ['region' => 'xsmn', 'slug' => $result->province->slug]) }}" class="text-blue-700 underline hover:text-blue-900">{{ $result->province->name }}</a>
+                                    </td>
                                 @endforeach
                             </tr>
-                        </thead>
-                        <tbody>
-                            @php
-                                $prizes = [
-                                    'G8' => 'prize_8',
-                                    'G7' => 'prize_7',
-                                    'G6' => 'prize_6',
-                                    'G5' => 'prize_5',
-                                    'G4' => 'prize_4',
-                                    'G3' => 'prize_3',
-                                    'G2' => 'prize_2',
-                                    'G1' => 'prize_1',
-                                    'ĐB' => 'prize_special',
-                                ];
-                            @endphp
 
-                            @foreach($prizes as $label => $field)
-                                <tr class="border-b border-gray-300">
-                                    <td class="px-2 py-2 font-bold text-gray-800 border-r border-gray-300 bg-gray-50">{{ $label }}</td>
+                            @foreach($xsmnPrizes as $pi => $prize)
+                                <tr class="border-b border-gray-200 {{ $pi % 2 === 0 ? 'bg-white' : 'bg-gray-50/50' }}">
+                                    <td class="px-3 py-2 font-bold text-gray-700 border-r border-gray-300 text-sm bg-gray-50">{{ $prize['label'] }}</td>
                                     @foreach($southResults as $result)
-                                        <td class="px-3 py-2 text-center border-r border-gray-300 {{ $label === 'ĐB' ? 'bg-red-50' : '' }}">
-                                            @if(isset($result->$field) && $result->$field)
-                                                <span class="{{ $label === 'ĐB' ? 'text-red-600 font-bold text-lg' : '' }}">
-                                                    {{ str_replace(',', ', ', $result->$field) }}
-                                                </span>
+                                        <td class="px-3 py-1.5 border-r border-gray-300">
+                                            @if(isset($result->{$prize['field']}) && $result->{$prize['field']})
+                                                <div class="flex flex-col items-center gap-0.5">
+                                                    @foreach(explode(',', $result->{$prize['field']}) as $num)
+                                                        <span class="{{ $prize['class'] }}">{{ trim($num) }}</span>
+                                                    @endforeach
+                                                </div>
                                             @else
                                                 <span class="text-gray-400">-</span>
                                             @endif
@@ -272,48 +417,147 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Lô tô Table -->
+                <div class="border-t border-gray-300">
+                    <div class="bg-gray-100 px-4 py-2 font-bold text-sm border-b border-gray-300">
+                        Lô tô Miền Nam - {{ $xsmnFormattedDate }}
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse text-sm">
+                            <thead>
+                                <tr class="border-b border-gray-300 bg-gray-50">
+                                    <th class="px-2 py-2 font-bold text-gray-700 border-r border-gray-300 w-12">Đầu</th>
+                                    @foreach($southResults as $result)
+                                        <th class="px-2 py-2 font-bold border-r border-gray-300">
+                                            <a href="{{ route('province.detail', ['region' => 'xsmn', 'slug' => $result->province->slug]) }}" class="text-blue-700 underline hover:text-blue-900">{{ $result->province->name }}</a>
+                                        </th>
+                                    @endforeach
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for($i = 0; $i <= 9; $i++)
+                                <tr class="border-b border-gray-200 {{ $i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50' }}">
+                                    <td class="px-2 py-1.5 text-center font-bold text-teal-600 border-r border-gray-300">{{ $i }}</td>
+                                    @foreach($southResults as $result)
+                                        <td class="px-2 py-1.5 border-r border-gray-300">
+                                            @if(count($xsmnLoto[$result->province->id][$i]) > 0)
+                                                {{ implode(', ', $xsmnLoto[$result->province->id][$i]) }}
+                                            @else
+                                                <span class="text-gray-400">-</span>
+                                            @endif
+                                        </td>
+                                    @endforeach
+                                </tr>
+                                @endfor
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
+
+                <!-- Tiện ích Miền Nam -->
+                <div class="mb-6 border border-gray-300 bg-white rounded overflow-hidden">
+                    <div class="bg-[#ffe89f] px-4 py-2 border-b border-gray-300">
+                        <h3 class="font-bold text-gray-800 text-base">Tiện ích Miền Nam</h3>
+                    </div>
+                    <div class="px-4 py-3">
+                        <ul class="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 text-sm list-disc list-inside">
+                            <li><a href="{{ route('xsmn') }}" class="text-blue-800 hover:underline">Kết quả XSMN</a></li>
+                            <li><a href="{{ route('prediction.xsmn.index') }}" class="text-blue-800 hover:underline">Dự đoán XSMN</a></li>
+                            <li><a href="{{ route('trial.xsmn') }}" class="text-blue-800 hover:underline">Quay thử XSMN</a></li>
+                            <li><a href="{{ route('statistics.frequency') }}" class="text-blue-800 hover:underline">Thống kê XSMN</a></li>
+                            <li><a href="{{ route('xsmn.live') }}" class="text-blue-800 hover:underline">Trực tiếp XSMN</a></li>
+                            <li><a href="{{ route('statistics.overdue') }}" class="text-blue-800 hover:underline">Lô gan XSMN</a></li>
+                            <li><a href="{{ route('statistics.head-tail') }}" class="text-blue-800 hover:underline">Đầu đuôi XSMN</a></li>
+                            <li><a href="{{ route('statistics.frequency') }}" class="text-blue-800 hover:underline">Tần suất XSMN</a></li>
+                        </ul>
+                    </div>
+                </div>
             @endif
 
             <!-- XSMT Results Section -->
             @if($centralResults->count() > 0)
-            <div class="mb-6">
-                <!-- Section Header -->
-                <div class="bg-[#FFF9E6] border border-gray-300 px-4 py-2 mb-3">
+            @php
+                $xsmtDate = \Carbon\Carbon::parse($centralResults->first()->draw_date);
+                $xsmtFormattedDate = $xsmtDate->format('d/m/Y');
+                $xsmtDayOfWeek = $xsmtDate->isoFormat('dddd');
+
+                $xsmtPrizes = [
+                    ['label' => 'G.8',  'field' => 'prize_8',       'class' => 'text-2xl font-bold text-red-600'],
+                    ['label' => 'G.7',  'field' => 'prize_7',       'class' => 'text-xl font-bold'],
+                    ['label' => 'G.6',  'field' => 'prize_6',       'class' => 'text-lg font-bold'],
+                    ['label' => 'G.5',  'field' => 'prize_5',       'class' => 'text-lg font-bold'],
+                    ['label' => 'G.4',  'field' => 'prize_4',       'class' => 'text-base font-bold'],
+                    ['label' => 'G.3',  'field' => 'prize_3',       'class' => 'text-lg font-bold'],
+                    ['label' => 'G.2',  'field' => 'prize_2',       'class' => 'text-lg font-bold'],
+                    ['label' => 'G.1',  'field' => 'prize_1',       'class' => 'text-xl font-bold'],
+                    ['label' => 'G.ĐB', 'field' => 'prize_special', 'class' => 'text-2xl font-bold text-red-600'],
+                ];
+
+                // Lô tô per province
+                $xsmtLoto = [];
+                foreach($centralResults as $res) {
+                    $allNums = [];
+                    foreach(['prize_special','prize_1','prize_2','prize_3','prize_4','prize_5','prize_6','prize_7','prize_8'] as $p) {
+                        if($res->$p) {
+                            foreach(explode(',', $res->$p) as $num) {
+                                $num = trim($num);
+                                if(strlen($num) >= 2) {
+                                    $allNums[] = substr($num, -2);
+                                }
+                            }
+                        }
+                    }
+                    $byHead = array_fill(0, 10, []);
+                    foreach($allNums as $n) {
+                        $byHead[intval($n[0])][] = $n;
+                    }
+                    $xsmtLoto[$res->province->id] = $byHead;
+                }
+            @endphp
+            <div class="mb-6 border border-gray-300 bg-white rounded overflow-hidden">
+
+                <!-- Header -->
+                <div class="bg-[#ffe89f] px-4 py-2 border-b border-gray-300">
                     <h2 class="font-bold text-gray-800 text-base">
-                        KQXS MT - Kết quả xổ số Miền Trung - SXMT
+                        KQXSMT - SXMT - Kết quả xổ số Miền Trung
                     </h2>
-                    <div class="mt-1 text-sm">
-                        <a href="{{ route('xsmt') }}" class="text-blue-600 hover:underline">XSMT</a>
-                        <span class="mx-1">|</span>
-                        <a href="{{ route('xsmt') }}" class="text-blue-600 hover:underline">XSMT {{ now()->isoFormat('dddd') }}</a>
+                    <div class="text-sm mt-1">
+                        <a href="{{ route('xsmt') }}" class="text-blue-700 hover:underline">XSMT</a>
+                        <span class="mx-1 text-gray-500">&raquo;</span>
+                        <a href="{{ route('xsmt') }}" class="text-blue-700 hover:underline">XSMT {{ $xsmtDayOfWeek }}</a>
+                        <span class="mx-1 text-gray-500">&raquo;</span>
+                        <a href="{{ route('xsmt') }}" class="text-blue-700 hover:underline">XSMT {{ $xsmtFormattedDate }}</a>
                     </div>
                 </div>
 
-                <!-- Multi-Province Table -->
-                <div class="bg-white border border-gray-300 overflow-x-auto mb-3">
-                    <table class="w-full border-collapse text-sm">
-                        <thead>
-                            <tr class="border-b border-gray-300 bg-gray-50">
-                                <th class="px-2 py-2 text-left font-bold text-gray-800 border-r border-gray-300 w-16">Giải</th>
+                <!-- Prize Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse text-sm text-center">
+                        <tbody>
+                            <!-- Header row -->
+                            <tr class="border-b border-gray-300 bg-[#E8EAF6]">
+                                <td class="px-3 py-2 font-bold text-gray-700 border-r border-gray-300 w-16 text-sm">Giải</td>
                                 @foreach($centralResults as $result)
-                                    <th class="px-3 py-2 text-center font-bold text-gray-800 border-r border-gray-300">
-                                        {{ $result->province->name }}<br>
-                                        <span class="font-normal text-xs text-gray-600">{{ \Carbon\Carbon::parse($result->draw_date)->format('d/m') }}</span>
-                                    </th>
+                                    <td class="px-3 py-2 font-bold text-sm border-r border-gray-300">
+                                        <a href="{{ route('province.detail', ['region' => 'xsmt', 'slug' => $result->province->slug]) }}" class="text-blue-700 underline hover:text-blue-900">{{ $result->province->name }}</a>
+                                    </td>
                                 @endforeach
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($prizes as $label => $field)
-                                <tr class="border-b border-gray-300">
-                                    <td class="px-2 py-2 font-bold text-gray-800 border-r border-gray-300 bg-gray-50">{{ $label }}</td>
+
+                            @foreach($xsmtPrizes as $pi => $prize)
+                                <tr class="border-b border-gray-200 {{ $pi % 2 === 0 ? 'bg-white' : 'bg-gray-50/50' }}">
+                                    <td class="px-3 py-2 font-bold text-gray-700 border-r border-gray-300 text-sm bg-gray-50">{{ $prize['label'] }}</td>
                                     @foreach($centralResults as $result)
-                                        <td class="px-3 py-2 text-center border-r border-gray-300 {{ $label === 'ĐB' ? 'bg-red-50' : '' }}">
-                                            @if(isset($result->$field) && $result->$field)
-                                                <span class="{{ $label === 'ĐB' ? 'text-red-600 font-bold text-lg' : '' }}">
-                                                    {{ str_replace(',', ', ', $result->$field) }}
-                                                </span>
+                                        <td class="px-3 py-1.5 border-r border-gray-300">
+                                            @if(isset($result->{$prize['field']}) && $result->{$prize['field']})
+                                                <div class="flex flex-col items-center gap-0.5">
+                                                    @foreach(explode(',', $result->{$prize['field']}) as $num)
+                                                        <span class="{{ $prize['class'] }}">{{ trim($num) }}</span>
+                                                    @endforeach
+                                                </div>
                                             @else
                                                 <span class="text-gray-400">-</span>
                                             @endif
@@ -324,68 +568,101 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Lô tô Table -->
+                <div class="border-t border-gray-300">
+                    <div class="bg-gray-100 px-4 py-2 font-bold text-sm border-b border-gray-300">
+                        Lô tô Miền Trung - {{ $xsmtFormattedDate }}
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse text-sm">
+                            <thead>
+                                <tr class="border-b border-gray-300 bg-gray-50">
+                                    <th class="px-2 py-2 font-bold text-gray-700 border-r border-gray-300 w-12">Đầu</th>
+                                    @foreach($centralResults as $result)
+                                        <th class="px-2 py-2 font-bold border-r border-gray-300">
+                                            <a href="{{ route('province.detail', ['region' => 'xsmt', 'slug' => $result->province->slug]) }}" class="text-blue-700 underline hover:text-blue-900">{{ $result->province->name }}</a>
+                                        </th>
+                                    @endforeach
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for($i = 0; $i <= 9; $i++)
+                                <tr class="border-b border-gray-200 {{ $i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50' }}">
+                                    <td class="px-2 py-1.5 text-center font-bold text-teal-600 border-r border-gray-300">{{ $i }}</td>
+                                    @foreach($centralResults as $result)
+                                        <td class="px-2 py-1.5 border-r border-gray-300">
+                                            @if(count($xsmtLoto[$result->province->id][$i]) > 0)
+                                                {{ implode(', ', $xsmtLoto[$result->province->id][$i]) }}
+                                            @else
+                                                <span class="text-gray-400">-</span>
+                                            @endif
+                                        </td>
+                                    @endforeach
+                                </tr>
+                                @endfor
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+                <!-- Tiện ích Miền Trung -->
+                <div class="mb-6 border border-gray-300 bg-white rounded overflow-hidden">
+                    <div class="bg-[#ffe89f] px-4 py-2 border-b border-gray-300">
+                        <h3 class="font-bold text-gray-800 text-base">Tiện ích Miền Trung</h3>
+                    </div>
+                    <div class="px-4 py-3">
+                        <ul class="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 text-sm list-disc list-inside">
+                            <li><a href="{{ route('xsmt') }}" class="text-blue-800 hover:underline">Kết quả XSMT</a></li>
+                            <li><a href="{{ route('prediction.xsmt.index') }}" class="text-blue-800 hover:underline">Dự đoán XSMT</a></li>
+                            <li><a href="{{ route('trial.xsmt') }}" class="text-blue-800 hover:underline">Quay thử XSMT</a></li>
+                            <li><a href="{{ route('statistics.frequency') }}" class="text-blue-800 hover:underline">Thống kê XSMT</a></li>
+                            <li><a href="{{ route('xsmt.live') }}" class="text-blue-800 hover:underline">Trực tiếp XSMT</a></li>
+                            <li><a href="{{ route('statistics.overdue') }}" class="text-blue-800 hover:underline">Lô gan XSMT</a></li>
+                            <li><a href="{{ route('statistics.head-tail') }}" class="text-blue-800 hover:underline">Đầu đuôi XSMT</a></li>
+                            <li><a href="{{ route('statistics.frequency') }}" class="text-blue-800 hover:underline">Tần suất XSMT</a></li>
+                        </ul>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Vietlott Mega 6/45 & Power 6/55 -->
+            @if($vietlottResults['mega645'] || $vietlottResults['power655'])
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                @if($vietlottResults['mega645'])
+                    <x-vietlott.mega-result-card :result="$vietlottResults['mega645']" />
+                @endif
+                @if($vietlottResults['power655'])
+                    <x-vietlott.power-result-card :result="$vietlottResults['power655']" />
+                @endif
             </div>
             @endif
 
-            <!-- Xổ số Mega 6/45 Section -->
-            @if($vietlottResults['mega645'])
-            <div class="mb-6">
-                <div class="bg-[#FFF9E6] border border-gray-300 px-4 py-2 mb-3">
-                    <h2 class="font-bold text-gray-800 text-base inline-block">
-                        Xổ số Mega 6/45
-                    </h2>
-                    <a href="{{ route('vietlott.mega645') }}" class="text-blue-600 hover:underline text-sm ml-3">
-                        Xem thêm »
-                    </a>
-                </div>
-                <x-vietlott.mega-result-card :result="$vietlottResults['mega645']" />
+            <!-- Max 3D & Max 3D Pro Blocks -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <!-- Max 3D -->
+                <a href="{{ route('vietlott.max3d') }}" class="block rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="bg-[#C44D8B] px-4 py-3">
+                        <img class="w-1/2 h-2/3 mx-auto" src="{{ asset('images/vietlott-max-3d-logo-white.png') }}" alt="Max 3D"/>
+                    </div>
+                    <div class="bg-white p-4">
+                        <div class="font-semibold text-gray-800 text-base">Xổ Số Max 3D</div>
+                        <div class="text-gray-500 text-sm mt-1">Thứ 2 – Thứ 4 – Thứ 6</div>
+                    </div>
+                </a>
+                <!-- Max 3D Pro -->
+                <a href="{{ route('vietlott.max3dpro') }}" class="block rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="bg-[#6A4C93] px-4 py-3">
+                        <img class="w-1/2 h-2/3 mx-auto" src="{{ asset('images/vietlott-max-3d-pro-logo-white.png') }}" alt="Max 3D Pro"/>
+                    </div>
+                    <div class="bg-white p-4">
+                        <div class="font-semibold text-gray-800 text-base">Xổ Số Max 3D Pro</div>
+                        <div class="text-gray-500 text-sm mt-1">Thứ 3 – Thứ 5 – Thứ 7</div>
+                    </div>
+                </a>
             </div>
-            @endif
-
-            <!-- Xổ số Power 6/55 Section -->
-            @if($vietlottResults['power655'])
-            <div class="mb-6">
-                <div class="bg-[#FFF9E6] border border-gray-300 px-4 py-2 mb-3">
-                    <h2 class="font-bold text-gray-800 text-base inline-block">
-                        Xổ số Power 6/55
-                    </h2>
-                    <a href="{{ route('vietlott.power655') }}" class="text-blue-600 hover:underline text-sm ml-3">
-                        Xem thêm »
-                    </a>
-                </div>
-                <x-vietlott.power-result-card :result="$vietlottResults['power655']" />
-            </div>
-            @endif
-
-            <!-- Xổ số Max 3D Section -->
-            @if($vietlottResults['max3d'])
-            <div class="mb-6">
-                <div class="bg-[#FFF9E6] border border-gray-300 px-4 py-2 mb-3">
-                    <h2 class="font-bold text-gray-800 text-base inline-block">
-                        Xổ số Max 3D
-                    </h2>
-                    <a href="{{ route('vietlott.max3d') }}" class="text-blue-600 hover:underline text-sm ml-3">
-                        Xem thêm »
-                    </a>
-                </div>
-                <x-vietlott.max3d-result-card :result="$vietlottResults['max3d']" />
-            </div>
-            @endif
-
-            <!-- Xổ số Max 3D Pro Section -->
-            @if($vietlottResults['max3dpro'])
-            <div class="mb-6">
-                <div class="bg-[#FFF9E6] border border-gray-300 px-4 py-2 mb-3">
-                    <h2 class="font-bold text-gray-800 text-base inline-block">
-                        Xổ số Max 3D Pro
-                    </h2>
-                    <a href="{{ route('vietlott.max3dpro') }}" class="text-blue-600 hover:underline text-sm ml-3">
-                        Xem thêm »
-                    </a>
-                </div>
-                <x-vietlott.max3dpro-result-card :result="$vietlottResults['max3dpro']" />
-            </div>
-            @endif
 
             <!-- Information Section -->
             <div class="bg-white border border-gray-300 p-4 mb-6">
