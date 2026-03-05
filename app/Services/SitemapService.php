@@ -38,23 +38,23 @@ class SitemapService
             $xml .= $this->buildSitemapEntry("{$baseUrl}/sitemap-static.xml", $now);
 
             // Province sitemap
-            $xml .= $this->buildSitemapEntry("{$baseUrl}/sitemap-provinces.xml", $now);
+            $xml .= $this->buildSitemapEntry("{$baseUrl}/sitemap-tinh-thanh.xml", $now);
 
             // Days sitemap
-            $xml .= $this->buildSitemapEntry("{$baseUrl}/sitemap-days.xml", $now);
+            $xml .= $this->buildSitemapEntry("{$baseUrl}/sitemap-ket-qua-xo-so-theo-ngay.xml", $now);
 
             // Vietlott sitemap
             $xml .= $this->buildSitemapEntry("{$baseUrl}/sitemap-vietlott.xml", $now);
 
             // Predictions sitemap
-            $xml .= $this->buildSitemapEntry("{$baseUrl}/sitemap-predictions.xml", $now);
+            $xml .= $this->buildSitemapEntry("{$baseUrl}/sitemap-du-doan-ket-qua-xo-so.xml", $now);
 
             // Monthly results sitemaps (rolling 2 months)
             $currentMonth = Carbon::now();
             for ($i = 0; $i < 2; $i++) {
                 $month = $currentMonth->copy()->subMonths($i);
                 $yearMonth = $month->format('Y-m');
-                $xml .= $this->buildSitemapEntry("{$baseUrl}/sitemap-results-{$yearMonth}.xml", $now);
+                $xml .= $this->buildSitemapEntry("{$baseUrl}/sitemap-ket-qua-xo-so-thang-{$yearMonth}.xml", $now);
             }
 
             $xml .= '</sitemapindex>';

@@ -161,13 +161,13 @@ Route::get('/rss', [RssFeedController::class, 'index'])->name('rss.index');
 // Sitemap Routes
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap.index');
 Route::get('/sitemap-static.xml', [SitemapController::class, 'static'])->name('sitemap.static');
-Route::get('/sitemap-provinces.xml', [SitemapController::class, 'provinces'])->name('sitemap.provinces');
-Route::get('/sitemap-days.xml', [SitemapController::class, 'days'])->name('sitemap.days');
+Route::get('/sitemap-tinh-thanh.xml', [SitemapController::class, 'provinces'])->name('sitemap.provinces');
+Route::get('/sitemap-ket-qua-xo-so-theo-ngay.xml', [SitemapController::class, 'days'])->name('sitemap.days');
 Route::get('/sitemap-vietlott.xml', [SitemapController::class, 'vietlott'])->name('sitemap.vietlott');
-Route::get('/sitemap-results-{yearMonth}.xml', [SitemapController::class, 'results'])
+Route::get('/sitemap-ket-qua-xo-so-thang-{yearMonth}.xml', [SitemapController::class, 'results'])
     ->where('yearMonth', '\d{4}-\d{2}')
     ->name('sitemap.results');
-Route::get('/sitemap-predictions.xml', [SitemapController::class, 'predictions'])->name('sitemap.predictions');
+Route::get('/sitemap-du-doan-ket-qua-xo-so.xml', [SitemapController::class, 'predictions'])->name('sitemap.predictions');
 
 Route::prefix('rssfeed')->group(function () {
     Route::get('/xsmn.rss', [RssFeedController::class, 'xsmn'])->name('rssfeed.xsmn');
