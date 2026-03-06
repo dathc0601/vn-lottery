@@ -12,7 +12,7 @@
         <h3 class="text-base font-semibold mb-1">
             <a href="{{ $prediction->url }}"
                class="text-[#0066cc] hover:text-[#cc0000] transition-colors">
-                Dự đoán {{ $prediction->region_name }} - {{ $prediction->formatted_date }}
+                Soi cầu KQ{{ strtoupper($prediction->region_slug) }} {{ $prediction->formatted_date }} - Dự đoán xổ số {{ $prediction->region_name }}
             </a>
         </h3>
         <p class="text-sm text-gray-600 line-clamp-3">
