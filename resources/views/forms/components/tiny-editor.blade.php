@@ -10,6 +10,7 @@
                 }
 
                 tinymce.init({
+                    license_key: 'gpl',
                     target: this.$refs.editor,
                     id: 'tiny-editor-{{ $getStatePath() }}',
                     plugins: 'image link lists table code media wordcount',
@@ -27,7 +28,7 @@
                         fetch('/admin/tinymce/upload', {
                             method: 'POST',
                             headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name=\"csrf-token\"]').getAttribute('content'),
+                                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
                             },
                             body: formData,
                         })
