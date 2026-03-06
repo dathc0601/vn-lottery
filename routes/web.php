@@ -13,7 +13,9 @@ use App\Http\Controllers\TrialDrawController;
 use App\Http\Controllers\VietlottController;
 use App\Http\Controllers\OgImageController;
 use App\Http\Controllers\PredictionController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\TinyMceUploadController;
 use Illuminate\Support\Facades\Route;
 
 // Dynamic robots.txt
@@ -168,6 +170,7 @@ Route::get('/sitemap-ket-qua-xo-so-thang-{yearMonth}.xml', [SitemapController::c
     ->where('yearMonth', '\d{4}-\d{2}')
     ->name('sitemap.results');
 Route::get('/sitemap-du-doan-ket-qua-xo-so.xml', [SitemapController::class, 'predictions'])->name('sitemap.predictions');
+Route::get('/sitemap-pages.xml', [SitemapController::class, 'pages'])->name('sitemap.pages');
 
 Route::prefix('rssfeed')->group(function () {
     Route::get('/xsmn.rss', [RssFeedController::class, 'xsmn'])->name('rssfeed.xsmn');
@@ -177,6 +180,11 @@ Route::prefix('rssfeed')->group(function () {
         ->name('rssfeed.province')
         ->where('code', '[A-Za-z0-9]+');
 });
+
+// TinyMCE image upload (admin only)
+Route::post('/admin/tinymce/upload', [TinyMceUploadController::class, 'upload'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.tinymce.upload');
 
 // Admin authentication routes
 Route::get('/dashboard', function () {
@@ -188,5 +196,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Custom pages catch-all (MUST be last before auth routes)
+Route::get('/{slug}', [PageController::class, 'show'])
+    ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
+    ->name('page.show');
 
 require __DIR__.'/auth.php';

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'XSMB - Kết Quả Xổ Số Miền Bắc - SXMB Hôm Nay')
+@section('title', isset($dayLabel) && $dayLabel ? 'Xổ Số Miền Bắc ' . $dayLabel . ' - XSMB ' . $dayLabel . ' - Hàng Tuần' : ($isSpecificDate ? 'Kết quả xổ số Miền Bắc ngày ' . $date->format('d/m/Y') . ' - XSMB' : 'XSMB - Kết Quả Xổ Số Miền Bắc - SXMB Hôm Nay'))
 
 @section('breadcrumb')
     <a href="{{ route('home') }}" class="text-[#0066cc] hover:underline">Trang chủ</a>
@@ -19,7 +19,7 @@
             <!-- Page Header (Orange bar) -->
             <div class="bg-white rounded shadow overflow-hidden mb-4">
                 <div class="bg-[#ff6600] text-white px-4 py-2 font-medium">
-                    XSMB - Kết Quả Xổ Số Miền Bắc Hôm Nay
+                    {{ isset($dayLabel) && $dayLabel ? 'Xổ Số Miền Bắc ' . $dayLabel . ' - Hàng Tuần' : ($isSpecificDate ? 'Kết Quả Xổ Số Miền Bắc ngày ' . $date->format('d/m/Y') : 'XSMB - Kết Quả Xổ Số Miền Bắc Hôm Nay') }}
                 </div>
             </div>
 

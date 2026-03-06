@@ -33,7 +33,7 @@ class GeneratePredictionsJob implements ShouldQueue
      */
     public function handle(PredictionService $predictionService): void
     {
-        $predictionDate = $this->targetDate ?? Carbon::today();
+        $predictionDate = $this->targetDate ?? Carbon::tomorrow();
         $regions = $this->targetRegion
             ? [$this->targetRegion]
             : [Prediction::REGION_NORTH, Prediction::REGION_CENTRAL, Prediction::REGION_SOUTH];

@@ -85,6 +85,8 @@ class LotteryController extends Controller
             ->orderBy('name')
             ->get();
 
+        $dayLabel = $request->attributes->get('dayLabel');
+
         return view('xsmb', compact(
             'results',
             'date',
@@ -93,7 +95,8 @@ class LotteryController extends Controller
             'centralProvinces',
             'southProvinces',
             'nextDate',
-            'isSpecificDate'
+            'isSpecificDate',
+            'dayLabel'
         ));
     }
 
@@ -300,6 +303,8 @@ class LotteryController extends Controller
             ->orderBy('name')
             ->get();
 
+        $dayLabel = $request->attributes->get('dayLabel');
+
         return view('xsmt', compact(
             'groupedResults',
             'date',
@@ -308,7 +313,8 @@ class LotteryController extends Controller
             'centralProvinces',
             'southProvinces',
             'nextDate',
-            'isSpecificDate'
+            'isSpecificDate',
+            'dayLabel'
         ));
     }
 
@@ -376,6 +382,8 @@ class LotteryController extends Controller
             ->orderBy('name')
             ->get();
 
+        $dayLabel = $request->attributes->get('dayLabel');
+
         return view('xsmn', compact(
             'groupedResults',
             'date',
@@ -384,7 +392,8 @@ class LotteryController extends Controller
             'centralProvinces',
             'southProvinces',
             'nextDate',
-            'isSpecificDate'
+            'isSpecificDate',
+            'dayLabel'
         ));
     }
 
@@ -405,6 +414,19 @@ class LotteryController extends Controller
         if ($dayOfWeek === null) {
             abort(404);
         }
+
+        $dayLabelMap = [
+            'thu-2' => 'Thứ 2',
+            'thu-3' => 'Thứ 3',
+            'thu-4' => 'Thứ 4',
+            'thu-5' => 'Thứ 5',
+            'thu-6' => 'Thứ 6',
+            'thu-7' => 'Thứ 7',
+            'chu-nhat' => 'Chủ Nhật',
+        ];
+
+        // Store day label so the view can use it for the page title
+        request()->attributes->set('dayLabel', $dayLabelMap[$day]);
 
         // Find most recent date matching this day of week
         $date = Carbon::today();

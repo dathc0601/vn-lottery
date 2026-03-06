@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\ReplacesContentPlaceholders;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Cache;
 
 class Article extends Model
 {
+    use ReplacesContentPlaceholders;
     protected $fillable = [
         'slug',
         'title',

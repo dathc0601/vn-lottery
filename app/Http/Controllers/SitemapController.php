@@ -82,6 +82,16 @@ class SitemapController extends Controller
     }
 
     /**
+     * Custom pages sitemap
+     */
+    public function pages(): Response
+    {
+        $xml = $this->sitemapService->generatePagesSitemap();
+
+        return $this->xmlResponse($xml);
+    }
+
+    /**
      * Return XML response with proper headers
      */
     protected function xmlResponse(string $xml): Response

@@ -11,6 +11,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets;
+use Illuminate\Support\HtmlString;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -37,6 +38,8 @@ class AdminPanelProvider extends PanelProvider
             ->maxContentWidth('full')
             ->sidebarCollapsibleOnDesktop()
             ->viteTheme('resources/css/filament/admin.css')
+            ->renderHook('panels::head.start', fn () => new HtmlString('<meta name="csrf-token" content="' . csrf_token() . '">'))
+            ->renderHook('panels::head.end', fn () => new HtmlString('<script src="/js/tinymce/tinymce.min.js"></script>'))
             ->navigationGroups([
                 __('admin.nav.lottery_data'),
                 __('admin.nav.content'),

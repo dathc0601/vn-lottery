@@ -59,13 +59,15 @@
             <!-- Quick Region Links Tabs -->
             <div class="grid md:grid-cols-3 gap-3 mb-4">
                 <!-- KQXSMB Tab -->
-                <div class="border border-gray-300 p-3">
-                    <h3 class="font-bold text-gray-800 mb-2 text-sm">KQXSMB - Xổ số miền Bắc</h3>
-                    <ul class="space-y-1 text-xs">
+                <div class="sidebar-section !mb-0 rounded overflow-hidden">
+                    <div class="sidebar-header text-sm">
+                        <a href="/xsmb" class="text-white hover:underline">KQXSMB - Xổ số miền Bắc</a>
+                    </div>
+                    <ul class="grid grid-cols-2 gap-x-2 gap-y-1 p-3 text-xs">
                         @foreach($northProvinces->take(6) as $province)
                             <li>
                                 <a href="{{ route('province.detail', ['region' => 'xsmb', 'slug' => $province->slug]) }}"
-                                   class="text-blue-600 hover:underline">
+                                   class="text-[#0066cc] hover:text-[#ff6600] hover:underline">
                                     {{ $province->name }}
                                 </a>
                             </li>
@@ -74,13 +76,15 @@
                 </div>
 
                 <!-- KQXSMT Tab -->
-                <div class="border border-gray-300 p-3">
-                    <h3 class="font-bold text-gray-800 mb-2 text-sm">KQXSMT - Xổ số miền Trung</h3>
-                    <ul class="space-y-1 text-xs">
+                <div class="sidebar-section !mb-0 rounded overflow-hidden">
+                    <div class="sidebar-header text-sm">
+                        <a href="/xsmt" class="text-white hover:underline">KQXSMT - Xổ số miền Trung</a>
+                    </div>
+                    <ul class="grid grid-cols-2 gap-x-2 gap-y-1 p-3 text-xs">
                         @foreach($centralProvinces->take(6) as $province)
                             <li>
                                 <a href="{{ route('province.detail', ['region' => 'xsmt', 'slug' => $province->slug]) }}"
-                                   class="text-blue-600 hover:underline">
+                                   class="text-[#0066cc] hover:text-[#ff6600] hover:underline">
                                     {{ $province->name }}
                                 </a>
                             </li>
@@ -89,13 +93,15 @@
                 </div>
 
                 <!-- KQXSMN Tab -->
-                <div class="border border-gray-300 p-3">
-                    <h3 class="font-bold text-gray-800 mb-2 text-sm">KQXSMN - Xổ số miền Nam</h3>
-                    <ul class="space-y-1 text-xs">
+                <div class="sidebar-section !mb-0 rounded overflow-hidden">
+                    <div class="sidebar-header text-sm">
+                        <a href="/xsmn" class="text-white hover:underline">KQXSMN - Xổ số miền Nam</a>
+                    </div>
+                    <ul class="grid grid-cols-2 gap-x-2 gap-y-1 p-3 text-xs">
                         @foreach($southProvinces->take(6) as $province)
                             <li>
                                 <a href="{{ route('province.detail', ['region' => 'xsmn', 'slug' => $province->slug]) }}"
-                                   class="text-blue-600 hover:underline">
+                                   class="text-[#0066cc] hover:text-[#ff6600] hover:underline">
                                     {{ $province->name }}
                                 </a>
                             </li>

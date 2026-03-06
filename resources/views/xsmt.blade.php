@@ -1,6 +1,6 @@
 @extends('layouts.app-three-column')
 
-@section('title', 'XSMT - Kết Quả Xổ Số Miền Trung - SXMT Hôm Nay')
+@section('title', isset($dayLabel) && $dayLabel ? 'Xổ Số Miền Trung ' . $dayLabel . ' - XSMT ' . $dayLabel . ' - Hàng Tuần' : ($isSpecificDate ? 'Kết quả xổ số Miền Trung ngày ' . $date->format('d/m/Y') . ' - XSMT' : 'XSMT - Kết Quả Xổ Số Miền Trung - SXMT Hôm Nay'))
 
 @section('breadcrumb')
     <a href="{{ route('home') }}" class="text-[#0066cc] hover:underline">Trang chủ</a>

@@ -15,6 +15,12 @@
     $drawDate = $result->draw_date->format('d/m/Y');
     $dayOfWeek = LotteryHelper::getVietnameseDayOfWeek($result->draw_date);
 
+    // Day-of-week slug for URL (e.g. thu-2, chu-nhat)
+    $daySlugs = [0 => 'chu-nhat', 1 => 'thu-2', 2 => 'thu-3', 3 => 'thu-4', 4 => 'thu-5', 5 => 'thu-6', 6 => 'thu-7'];
+    $daySlug = $daySlugs[$result->draw_date->dayOfWeek];
+    // Date slug for URL (DD-MM-YYYY)
+    $dateSlug = $result->draw_date->format('d-m-Y');
+
     // Extract all last 2 digits and group by head digit for loto table
     $allNumbers = [];
     foreach(['prize_special', 'prize_1', 'prize_2', 'prize_3', 'prize_4', 'prize_5', 'prize_6', 'prize_7'] as $prize) {
@@ -45,12 +51,12 @@
     <!-- Yellow Header with Breadcrumb -->
     <div class="result-header-yellow bg-[#fff8dc] px-4 py-3 border-b border-gray-300">
         <h2 class="text-lg font-semibold text-center text-gray-800">
-            XS{{ strtoupper($region) }} {{ $dayOfWeek }}, {{ $drawDate }}
+            {{ strtoupper($region) }} {{ $dayOfWeek }}, {{ $drawDate }}
         </h2>
         <div class="text-center text-sm text-[#0066cc] mt-1">
-            <a href="/{{ $region }}" class="hover:underline">XS{{ strtoupper($region) }}</a> /
-            <a href="#" class="hover:underline">XS{{ strtoupper($region) }} {{ $dayOfWeek }}</a> /
-            <a href="#" class="hover:underline">XS{{ strtoupper($region) }} {{ $drawDate }}</a>
+            <a href="/{{ $region }}" class="hover:underline">{{ strtoupper($region) }}</a> /
+            <a href="/{{ $region }}/{{ $daySlug }}" class="hover:underline">{{ strtoupper($region) }} {{ $dayOfWeek }}</a> /
+            <a href="/{{ $region }}/{{ $dateSlug }}" class="hover:underline">{{ strtoupper($region) }} {{ $drawDate }}</a>
         </div>
     </div>
 
@@ -215,7 +221,7 @@
             <div class="text-sm mb-3">
                 <a href="#" class="text-[#0066cc] hover:underline">Bảng loto {{ $regionName }}</a>
                 <span class="text-gray-400 mx-1">/</span>
-                <a href="#" class="text-[#0066cc] hover:underline">Lô XS{{ strtoupper($region) }} {{ $dayOfWeek }}</a>
+                <a href="#" class="text-[#0066cc] hover:underline">Lô {{ strtoupper($region) }} {{ $dayOfWeek }}</a>
             </div>
 
             <!-- Loto Table (Đầu only) -->

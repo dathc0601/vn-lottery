@@ -52,13 +52,14 @@ Schedule::command('vietlott:fetch')
 // ============================================
 // Prediction Scheduler Configuration
 // ============================================
-// Predictions are generated daily at 02:00 AM
-// based on previous day's lottery results
+// Predictions are generated daily at 20:00 (8 PM)
+// using same-day lottery results (all draws finish by 18:35)
+// to produce predictions for tomorrow
 // ============================================
 
-// Generate daily predictions at 2 AM
+// Generate daily predictions at 8 PM
 Schedule::job(new GeneratePredictionsJob())
-    ->dailyAt('02:00')
+    ->dailyAt('20:00')
     ->name('generate-daily-predictions')
     ->onOneServer()
     ->withoutOverlapping();

@@ -102,7 +102,7 @@
                                 prose-li:text-gray-700 prose-li:mb-1
                                 prose-blockquote:border-l-4 prose-blockquote:border-[#ff6600] prose-blockquote:pl-4 prose-blockquote:italic
                                 prose-img:rounded prose-img:shadow">
-                        {!! $article->content !!}
+                        {!! $article->rendered_content !!}
                     </div>
 
                     {{-- Share Section --}}

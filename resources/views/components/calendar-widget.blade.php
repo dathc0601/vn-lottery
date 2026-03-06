@@ -29,8 +29,12 @@
         <h3 class="font-bold text-white text-sm">
             Tháng {{ $currentMonth }}/{{ $currentYear }}
         </h3>
-        <a href="{{ route($region) }}?month={{ $date->copy()->addMonth()->month }}&year={{ $date->copy()->addMonth()->year }}"
-           class="text-white font-bold text-lg">&gt;</a>
+        @if($date->copy()->addMonth()->startOfMonth()->lte($today))
+            <a href="{{ route($region) }}?month={{ $date->copy()->addMonth()->month }}&year={{ $date->copy()->addMonth()->year }}"
+               class="text-white font-bold text-lg">&gt;</a>
+        @else
+            <span class="text-white/30 font-bold text-lg">&gt;</span>
+        @endif
     </div>
 
     <!-- Calendar Grid -->
@@ -54,14 +58,21 @@
                 @php
                     $currentDate = \Carbon\Carbon::create($currentYear, $currentMonth, $day);
                     $isToday = $currentDate->isSameDay($today);
+                    $isFuture = $currentDate->isAfter($today);
                     $hasDrawToday = in_array($day, $drawDays);
                 @endphp
 
                 <div class="text-center relative">
-                    <a href="{{ route($region, $currentDate->format('d-m-Y')) }}"
-                       class="block py-1.5 text-sm {{ $isToday ? 'bg-orange-500 text-white font-bold' : 'text-gray-700 hover:bg-gray-100' }} transition-colors">
-                        {{ $day }}
-                    </a>
+                    @if($isFuture)
+                        <span class="block py-1.5 text-sm text-gray-300 cursor-default">
+                            {{ $day }}
+                        </span>
+                    @else
+                        <a href="{{ route($region, $currentDate->format('d-m-Y')) }}"
+                           class="block py-1.5 text-sm {{ $isToday ? 'bg-orange-500 text-white font-bold' : 'text-gray-700 hover:bg-gray-100' }} transition-colors">
+                            {{ $day }}
+                        </a>
+                    @endif
                     @if($hasDrawToday)
                         <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2">
                             <span class="inline-block w-1 h-1 bg-red-600 rounded-full"></span>

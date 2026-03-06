@@ -21,6 +21,7 @@
                 <label class="block text-sm text-gray-700 mb-1">Chọn ngày:</label>
                 <input type="date"
                        value="{{ date('Y-m-d') }}"
+                       max="{{ date('Y-m-d') }}"
                        class="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-[#ff6600]">
             </div>
             <div>

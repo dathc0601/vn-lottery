@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\LotteryResult;
+use App\Models\Page;
 use App\Models\Prediction;
 use App\Models\Province;
 use App\Models\VietlottResult;
@@ -48,6 +49,9 @@ class SitemapService
 
             // Predictions sitemap
             $xml .= $this->buildSitemapEntry("{$baseUrl}/sitemap-du-doan-ket-qua-xo-so.xml", $now);
+
+            // Custom pages sitemap
+            $xml .= $this->buildSitemapEntry("{$baseUrl}/sitemap-pages.xml", $now);
 
             // Monthly results sitemaps (rolling 2 months)
             $currentMonth = Carbon::now();
@@ -298,6 +302,31 @@ class SitemapService
     }
 
     /**
+     * Generate custom pages sitemap
+     */
+    public function generatePagesSitemap(): string
+    {
+        return Cache::remember('sitemap_pages', self::CACHE_TTL_DYNAMIC, function () {
+            $baseUrl = $this->getBaseUrl();
+            $now = Carbon::now()->toW3cString();
+
+            $pages = Page::published()->ordered()->get();
+
+            $urls = [];
+            foreach ($pages as $page) {
+                $urls[] = [
+                    'loc' => "/{$page->slug}",
+                    'priority' => '0.6',
+                    'changefreq' => 'monthly',
+                    'lastmod' => ($page->updated_at ?? $page->created_at)->toW3cString(),
+                ];
+            }
+
+            return $this->buildUrlsetXml($urls, $baseUrl, $now);
+        });
+    }
+
+    /**
      * Build URL set XML
      */
     protected function buildUrlsetXml(array $urls, string $baseUrl, string $defaultLastmod): string
@@ -343,6 +372,7 @@ class SitemapService
         Cache::forget('sitemap_days');
         Cache::forget('sitemap_vietlott');
         Cache::forget('sitemap_predictions');
+        Cache::forget('sitemap_pages');
         $this->clearResultsCaches();
     }
 

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $province->name . ' - Kết quả xổ số')
+@section('title', ($province->region == 'north' ? 'XSMB' : ($province->region == 'central' ? 'XSMT' : 'XSMN')) . ' - Kết quả xổ số ' . $province->name . ' - ' . ($province->region == 'north' ? 'Xổ Số Miền Bắc' : ($province->region == 'central' ? 'Xổ Số Miền Trung' : 'Xổ Số Miền Nam')))
 
 @section('breadcrumb')
     <a href="{{ route('home') }}" class="text-[#0066cc] hover:underline">Trang chủ</a>
