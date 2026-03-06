@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'brand_name' => 'Quản trị XSKT.VN',
+    'brand_name' => 'Quản lý website',
 
     // Navigation Groups
     'nav' => [
