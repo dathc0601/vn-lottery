@@ -12,8 +12,6 @@
     <a href="{{ route('prediction.index') }}" class="text-[#0066cc] hover:underline">Dự đoán xổ số</a>
     <span class="mx-1">/</span>
     <a href="{{ route('prediction.' . $regionSlug . '.index') }}" class="text-[#0066cc] hover:underline">Dự đoán {{ strtoupper($regionSlug) }}</a>
-    <span class="mx-1">/</span>
-    <span class="text-gray-800 font-medium">{{ $prediction->formatted_date }}</span>
 @endsection
 
 @push('head')
