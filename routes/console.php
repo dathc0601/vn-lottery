@@ -32,6 +32,7 @@ Schedule::job(new GenerateStatisticsJob())
     ->weekly()
     ->sundays()
     ->at('00:00')
+    ->timezone('Asia/Ho_Chi_Minh')
     ->name('generate-statistics-weekly')
     ->onOneServer()
     ->withoutOverlapping();
@@ -45,6 +46,7 @@ Schedule::job(new GenerateStatisticsJob())
 // Fetch Vietlott results - Daily at 19:00 (1 hour after draw completion)
 Schedule::command('vietlott:fetch')
     ->dailyAt('19:00')
+    ->timezone('Asia/Ho_Chi_Minh')
     ->name('fetch-vietlott-daily')
     ->onOneServer()
     ->withoutOverlapping();
@@ -60,6 +62,7 @@ Schedule::command('vietlott:fetch')
 // Generate daily predictions at 8 PM
 Schedule::job(new GeneratePredictionsJob())
     ->dailyAt('20:00')
+    ->timezone('Asia/Ho_Chi_Minh')
     ->name('generate-daily-predictions')
     ->onOneServer()
     ->withoutOverlapping();
