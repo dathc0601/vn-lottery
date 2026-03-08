@@ -54,9 +54,9 @@
             {{ strtoupper($region) }} {{ $dayOfWeek }}, {{ $drawDate }}
         </h2>
         <div class="text-center text-sm text-[#0066cc] mt-1">
-            <a href="/{{ $region }}" class="hover:underline">{{ strtoupper($region) }}</a> /
-            <a href="/{{ $region }}/{{ $daySlug }}" class="hover:underline">{{ strtoupper($region) }} {{ $dayOfWeek }}</a> /
-            <a href="/{{ $region }}/{{ $dateSlug }}" class="hover:underline">{{ strtoupper($region) }} {{ $drawDate }}</a>
+            <a href="{{ route($region) }}" class="hover:underline">{{ strtoupper($region) }}</a> /
+            <a href="{{ route('lottery.byDayOfWeek', ['region' => $region, 'day' => $daySlug]) }}" class="hover:underline">{{ strtoupper($region) }} {{ $dayOfWeek }}</a> /
+            <a href="{{ route($region . '.date', ['date' => $dateSlug]) }}" class="hover:underline">{{ strtoupper($region) }} {{ $drawDate }}</a>
         </div>
     </div>
 
