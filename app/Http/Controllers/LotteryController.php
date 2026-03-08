@@ -438,9 +438,12 @@ class LotteryController extends Controller
         return $this->{$region}(request(), $date->format('d-m-Y'));
     }
 
-    public function provinceDetail($region, $slug)
+    public function provinceDetail($code, $code2, $slug)
     {
-        $province = Province::where('slug', $slug)->firstOrFail();
+        $province = Province::where('slug', $slug)->where('code', $code)->firstOrFail();
+
+        $regionMap = ['north' => 'xsmb', 'central' => 'xsmt', 'south' => 'xsmn'];
+        $region = $regionMap[$province->region] ?? 'xsmn';
 
         $results = LotteryResult::where('province_id', $province->id)
             ->orderBy('draw_date', 'desc')

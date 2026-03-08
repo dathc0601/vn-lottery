@@ -555,7 +555,7 @@
                         <li>
                             <span class="font-medium">{{ $day['dayName'] }}:</span>
                             @foreach($day['provinces'] as $index => $province)
-                                <a href="{{ route('province.detail', ['region' => 'xsmt', 'slug' => $province->slug]) }}" class="text-[#0066cc] hover:text-[#ff6600]">{{ $province->name }}</a>@if($index < count($day['provinces']) - 1), @endif
+                                <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}" class="text-[#0066cc] hover:text-[#ff6600]">{{ $province->name }}</a>@if($index < count($day['provinces']) - 1), @endif
                             @endforeach
                         </li>
                     @endforeach
@@ -568,7 +568,7 @@
                         <li>
                             <span class="font-medium">{{ $day['dayName'] }}:</span>
                             @foreach($day['provinces'] as $index => $province)
-                                <a href="{{ route('province.detail', ['region' => 'xsmn', 'slug' => $province->slug]) }}" class="text-[#0066cc] hover:text-[#ff6600]">{{ $province->name }}</a>@if($index < count($day['provinces']) - 1), @endif
+                                <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}" class="text-[#0066cc] hover:text-[#ff6600]">{{ $province->name }}</a>@if($index < count($day['provinces']) - 1), @endif
                             @endforeach
                         </li>
                     @endforeach

@@ -166,13 +166,19 @@ class RssFeedService
         $siteUrl = config('app.url');
         $now = Carbon::now()->toRfc2822String();
         $regionPath = $this->getRegionPath($region);
+        $regionFullNames = [
+            'north' => 'xo-so-mien-bac',
+            'central' => 'xo-so-mien-trung',
+            'south' => 'xo-so-mien-nam',
+        ];
+        $regionFullName = $regionFullNames[$region] ?? 'xo-so-mien-nam';
 
         $xml = '<?xml version="1.0" encoding="utf-8"?>' . "\n";
         $xml .= '<rss version="2.0">' . "\n";
         $xml .= '<channel>' . "\n";
         $xml .= "  <title>Kết quả xổ số {$name}</title>\n";
         $xml .= "  <description>Kết quả xổ số {$name} hàng ngày</description>\n";
-        $xml .= "  <link>{$siteUrl}/{$regionPath}</link>\n";
+        $xml .= "  <link>{$siteUrl}/{$regionPath}-{$regionFullName}.html</link>\n";
         $xml .= "  <copyright>Copyright " . date('Y') . "</copyright>\n";
         $xml .= "  <pubDate>{$now}</pubDate>\n";
         $xml .= "  <lastBuildDate>{$now}</lastBuildDate>\n";
@@ -226,9 +232,15 @@ class RssFeedService
         $firstResult = $results->first();
         $date = Carbon::parse($firstResult->draw_date);
         $regionPath = $this->getRegionPath($region);
+        $regionFullNames = [
+            'north' => 'xo-so-mien-bac',
+            'central' => 'xo-so-mien-trung',
+            'south' => 'xo-so-mien-nam',
+        ];
+        $regionFullName = $regionFullNames[$region] ?? 'xo-so-mien-nam';
 
         $title = "KẾT QUẢ XỔ SỐ " . mb_strtoupper($regionName) . " NGÀY " . $date->format('d/m/Y');
-        $link = "{$siteUrl}/{$regionPath}/{$date->format('d-m-Y')}";
+        $link = "{$siteUrl}/{$regionPath}-{$regionFullName}-{$date->format('d-m-Y')}.html";
         $pubDate = $date->startOfDay()->toRfc2822String();
 
         // Build description with all provinces
@@ -257,9 +269,15 @@ class RssFeedService
         $province = $result->province;
         $date = Carbon::parse($result->draw_date);
         $regionPath = $this->getRegionPath($province->region);
+        $regionFullNames = [
+            'north' => 'xo-so-mien-bac',
+            'central' => 'xo-so-mien-trung',
+            'south' => 'xo-so-mien-nam',
+        ];
+        $regionFullName = $regionFullNames[$province->region] ?? 'xo-so-mien-nam';
 
         $title = "KẾT QUẢ XỔ SỐ " . mb_strtoupper($province->name) . " NGÀY " . $date->format('d/m/Y');
-        $link = "{$siteUrl}/{$regionPath}/{$date->format('d-m-Y')}";
+        $link = "{$siteUrl}/{$regionPath}-{$regionFullName}-{$date->format('d-m-Y')}.html";
         $pubDate = $date->startOfDay()->toRfc2822String();
         $description = $this->formatProvinceResult($result, $province->region);
 

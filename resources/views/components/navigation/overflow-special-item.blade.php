@@ -6,8 +6,8 @@
     @php
         $type = $item->type;
         $days = $navService->getDaysForType($type);
-        $routeBase = $navService->getRouteBaseForRegion($type);
         $mainRoute = $navService->getMainRoute($type);
+        $regionSlug = $navService->getRegionSlug($type);
 
         $liveLabel = match($type) {
             'xsmb_days' => 'Trực tiếp XSMB',
@@ -43,7 +43,7 @@
              @mouseleave="subOpen = false"
              class="pl-4 bg-gray-50 border-l-2 border-[#ff6600]">
             @foreach($days as $day)
-                <a href="{{ url($routeBase . $day['slug']) }}"
+                <a href="{{ route('lottery.byDayOfWeek', ['region' => $regionSlug, 'day' => $day['slug']]) }}"
                    class="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-[#ff6600] transition-colors">
                     {{ $day['name'] }}
                 </a>

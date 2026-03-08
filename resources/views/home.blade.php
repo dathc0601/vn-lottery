@@ -61,12 +61,12 @@
                 <!-- KQXSMB Tab -->
                 <div class="sidebar-section !mb-0 rounded overflow-hidden">
                     <div class="sidebar-header text-sm">
-                        <a href="/xsmb" class="text-white hover:underline">KQXSMB - Xổ số miền Bắc</a>
+                        <a href="{{ route('xsmb') }}" class="text-white hover:underline">KQXSMB - Xổ số miền Bắc</a>
                     </div>
                     <ul class="grid grid-cols-2 gap-x-2 gap-y-1 p-3 text-xs">
                         @foreach($northProvinces->take(6) as $province)
                             <li>
-                                <a href="{{ route('province.detail', ['region' => 'xsmb', 'slug' => $province->slug]) }}"
+                                <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}"
                                    class="text-[#0066cc] hover:text-[#ff6600] hover:underline">
                                     {{ $province->name }}
                                 </a>
@@ -78,12 +78,12 @@
                 <!-- KQXSMT Tab -->
                 <div class="sidebar-section !mb-0 rounded overflow-hidden">
                     <div class="sidebar-header text-sm">
-                        <a href="/xsmt" class="text-white hover:underline">KQXSMT - Xổ số miền Trung</a>
+                        <a href="{{ route('xsmt') }}" class="text-white hover:underline">KQXSMT - Xổ số miền Trung</a>
                     </div>
                     <ul class="grid grid-cols-2 gap-x-2 gap-y-1 p-3 text-xs">
                         @foreach($centralProvinces->take(6) as $province)
                             <li>
-                                <a href="{{ route('province.detail', ['region' => 'xsmt', 'slug' => $province->slug]) }}"
+                                <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}"
                                    class="text-[#0066cc] hover:text-[#ff6600] hover:underline">
                                     {{ $province->name }}
                                 </a>
@@ -95,12 +95,12 @@
                 <!-- KQXSMN Tab -->
                 <div class="sidebar-section !mb-0 rounded overflow-hidden">
                     <div class="sidebar-header text-sm">
-                        <a href="/xsmn" class="text-white hover:underline">KQXSMN - Xổ số miền Nam</a>
+                        <a href="{{ route('xsmn') }}" class="text-white hover:underline">KQXSMN - Xổ số miền Nam</a>
                     </div>
                     <ul class="grid grid-cols-2 gap-x-2 gap-y-1 p-3 text-xs">
                         @foreach($southProvinces->take(6) as $province)
                             <li>
-                                <a href="{{ route('province.detail', ['region' => 'xsmn', 'slug' => $province->slug]) }}"
+                                <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}"
                                    class="text-[#0066cc] hover:text-[#ff6600] hover:underline">
                                     {{ $province->name }}
                                 </a>
@@ -397,7 +397,7 @@
                                 <td class="px-3 py-2 font-bold text-gray-700 border-r border-gray-300 w-16 text-sm">Giải</td>
                                 @foreach($southResults as $result)
                                     <td class="px-3 py-2 font-bold text-sm border-r border-gray-300">
-                                        <a href="{{ route('province.detail', ['region' => 'xsmn', 'slug' => $result->province->slug]) }}" class="text-blue-700 underline hover:text-blue-900">{{ $result->province->name }}</a>
+                                        <a href="{{ route('province.detail', ['code' => $result->province->code, 'code2' => $result->province->code, 'slug' => $result->province->slug]) }}" class="text-blue-700 underline hover:text-blue-900">{{ $result->province->name }}</a>
                                     </td>
                                 @endforeach
                             </tr>
@@ -436,7 +436,7 @@
                                     <th class="px-2 py-2 font-bold text-gray-700 border-r border-gray-300 w-12">Đầu</th>
                                     @foreach($southResults as $result)
                                         <th class="px-2 py-2 font-bold border-r border-gray-300">
-                                            <a href="{{ route('province.detail', ['region' => 'xsmn', 'slug' => $result->province->slug]) }}" class="text-blue-700 underline hover:text-blue-900">{{ $result->province->name }}</a>
+                                            <a href="{{ route('province.detail', ['code' => $result->province->code, 'code2' => $result->province->code, 'slug' => $result->province->slug]) }}" class="text-blue-700 underline hover:text-blue-900">{{ $result->province->name }}</a>
                                         </th>
                                     @endforeach
                                 </tr>
@@ -548,7 +548,7 @@
                                 <td class="px-3 py-2 font-bold text-gray-700 border-r border-gray-300 w-16 text-sm">Giải</td>
                                 @foreach($centralResults as $result)
                                     <td class="px-3 py-2 font-bold text-sm border-r border-gray-300">
-                                        <a href="{{ route('province.detail', ['region' => 'xsmt', 'slug' => $result->province->slug]) }}" class="text-blue-700 underline hover:text-blue-900">{{ $result->province->name }}</a>
+                                        <a href="{{ route('province.detail', ['code' => $result->province->code, 'code2' => $result->province->code, 'slug' => $result->province->slug]) }}" class="text-blue-700 underline hover:text-blue-900">{{ $result->province->name }}</a>
                                     </td>
                                 @endforeach
                             </tr>
@@ -587,7 +587,7 @@
                                     <th class="px-2 py-2 font-bold text-gray-700 border-r border-gray-300 w-12">Đầu</th>
                                     @foreach($centralResults as $result)
                                         <th class="px-2 py-2 font-bold border-r border-gray-300">
-                                            <a href="{{ route('province.detail', ['region' => 'xsmt', 'slug' => $result->province->slug]) }}" class="text-blue-700 underline hover:text-blue-900">{{ $result->province->name }}</a>
+                                            <a href="{{ route('province.detail', ['code' => $result->province->code, 'code2' => $result->province->code, 'slug' => $result->province->slug]) }}" class="text-blue-700 underline hover:text-blue-900">{{ $result->province->name }}</a>
                                         </th>
                                     @endforeach
                                 </tr>

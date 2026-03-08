@@ -72,7 +72,7 @@
     <div class="bg-gray-100 px-4 py-2 border-b border-gray-300 text-sm">
         <span class="text-gray-600">Tỉnh: </span>
         @foreach($provinces as $index => $province)
-            <a href="{{ route('province.detail', ['region' => $region, 'slug' => $province->slug]) }}"
+            <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}"
                class="text-[#0066cc] hover:underline font-medium">{{ $province->name }}</a>@if(!$loop->last)<span class="text-gray-400 mx-1">|</span>@endif
         @endforeach
     </div>
@@ -85,7 +85,7 @@
                     <th class="border border-gray-300 py-2 px-3 text-center w-16">Giải</th>
                     @foreach($provinces as $province)
                         <th class="border border-gray-300 py-2 px-2 text-center min-w-[140px]">
-                            <a href="{{ route('province.detail', ['region' => $region, 'slug' => $province->slug]) }}"
+                            <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}"
                                class="text-[#0066cc] hover:underline">{{ $province->name }}</a>
                         </th>
                     @endforeach

@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (dateInput && dateInput.value) {
                 const parts = dateInput.value.split('-'); // Y-m-d
                 const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`; // d-m-Y
-                window.location.href = `{{ route('xsmt') }}/${formattedDate}`;
+                window.location.href = `{{ route('xsmt.date', ['date' => '__DATE__']) }}`.replace('__DATE__', formattedDate);
             } else {
                 window.location.href = `{{ route('xsmt') }}`;
             }

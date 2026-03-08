@@ -133,15 +133,15 @@ class NavigationService
     }
 
     /**
-     * Get route base for region
+     * Get region slug for route generation
      */
-    public function getRouteBaseForRegion(string $type): string
+    public function getRegionSlug(string $type): string
     {
         return match ($type) {
-            'xsmb_days' => '/xsmb/',
-            'xsmt_days' => '/xsmt/',
-            'xsmn_days' => '/xsmn/',
-            default => '/',
+            'xsmb_days' => 'xsmb',
+            'xsmt_days' => 'xsmt',
+            'xsmn_days' => 'xsmn',
+            default => 'xsmb',
         };
     }
 

@@ -5,8 +5,8 @@
 @php
     $type = $item->type;
     $days = $navService->getDaysForType($type);
-    $routeBase = $navService->getRouteBaseForRegion($type);
     $mainRoute = $navService->getMainRoute($type);
+    $regionSlug = $navService->getRegionSlug($type);
     $activePattern = $navService->getActivePattern($type);
     $isActive = request()->routeIs($activePattern);
 
@@ -58,7 +58,7 @@
          class="absolute left-0 top-full bg-white shadow-lg rounded-b-md z-50 min-w-[160px] py-1"
          style="display: none;">
         @foreach($days as $day)
-            <a href="{{ url($routeBase . $day['slug']) }}"
+            <a href="{{ route('lottery.byDayOfWeek', ['region' => $regionSlug, 'day' => $day['slug']]) }}"
                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#ff6600] transition-colors">
                 {{ $day['name'] }}
             </a>

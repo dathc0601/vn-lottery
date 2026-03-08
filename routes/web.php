@@ -27,52 +27,53 @@ Route::get('/robots.txt', function () {
 // Homepage
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Live XSMB page
-Route::get('/xsmb/truc-tiep', [LotteryController::class, 'xsmbLive'])->name('xsmb.live');
+// Live pages (flat SEO URLs)
+Route::get('/xo-so-truc-tiep-mien-bac.html', [LotteryController::class, 'xsmbLive'])->name('xsmb.live');
+Route::get('/xo-so-truc-tiep-mien-trung.html', [LotteryController::class, 'xsmtLive'])->name('xsmt.live');
+Route::get('/xo-so-truc-tiep-mien-nam.html', [LotteryController::class, 'xsmnLive'])->name('xsmn.live');
 
-// API endpoint for live results scraping
+// API endpoints for live results scraping (unchanged)
 Route::get('/api/xsmb/live-results', [LotteryController::class, 'fetchLiveResults'])->name('api.xsmb.live');
-
-// Live XSMN page
-Route::get('/xsmn/truc-tiep', [LotteryController::class, 'xsmnLive'])->name('xsmn.live');
 Route::get('/api/xsmn/live-results', [LotteryController::class, 'fetchXsmnLiveResults'])->name('api.xsmn.live');
-
-// Live XSMT page
-Route::get('/xsmt/truc-tiep', [LotteryController::class, 'xsmtLive'])->name('xsmt.live');
 Route::get('/api/xsmt/live-results', [LotteryController::class, 'fetchXsmtLiveResults'])->name('api.xsmt.live');
 
-// Regional lottery pages
-Route::get('/xsmb/{date?}', [LotteryController::class, 'xsmb'])
-    ->name('xsmb')
-    ->where('date', '\d{2}-\d{2}-\d{4}');
-Route::get('/xsmt/{date?}', [LotteryController::class, 'xsmt'])
-    ->name('xsmt')
-    ->where('date', '\d{2}-\d{2}-\d{4}');
-Route::get('/xsmn/{date?}', [LotteryController::class, 'xsmn'])
-    ->name('xsmn')
-    ->where('date', '\d{2}-\d{2}-\d{4}');
+// Regional lottery pages (flat SEO URLs with .html)
+Route::get('/xsmb-xo-so-mien-bac.html', [LotteryController::class, 'xsmb'])->name('xsmb');
+Route::get('/xsmb-xo-so-mien-bac-{date}.html', [LotteryController::class, 'xsmb'])
+    ->where('date', '\d{2}-\d{2}-\d{4}')
+    ->name('xsmb.date');
 
-// Load more results API
+Route::get('/xsmt-xo-so-mien-trung.html', [LotteryController::class, 'xsmt'])->name('xsmt');
+Route::get('/xsmt-xo-so-mien-trung-{date}.html', [LotteryController::class, 'xsmt'])
+    ->where('date', '\d{2}-\d{2}-\d{4}')
+    ->name('xsmt.date');
+
+Route::get('/xsmn-xo-so-mien-nam.html', [LotteryController::class, 'xsmn'])->name('xsmn');
+Route::get('/xsmn-xo-so-mien-nam-{date}.html', [LotteryController::class, 'xsmn'])
+    ->where('date', '\d{2}-\d{2}-\d{4}')
+    ->name('xsmn.date');
+
+// Load more results API (unchanged)
 Route::get('/api/load-more/{region}/{date}', [LotteryController::class, 'loadMoreResults'])
     ->where(['region' => 'xsmb|xsmt|xsmn', 'date' => '\d{2}-\d{2}-\d{4}'])
     ->name('lottery.loadMore');
 
-// Load more province results API
+// Load more province results API (unchanged)
 Route::get('/api/load-more-province/{region}/{slug}/{page}', [LotteryController::class, 'loadMoreProvinceResults'])
     ->where(['region' => 'xsmb|xsmt|xsmn', 'page' => '\d+'])
     ->name('province.loadMore');
 
-// Day of week routes (must be before province routes)
-Route::get('/{region}/{day}', [LotteryController::class, 'resultsByDayOfWeek'])
+// Day of week routes (flat SEO URLs)
+Route::get('/{region}-{day}.html', [LotteryController::class, 'resultsByDayOfWeek'])
     ->where([
         'region' => 'xsmb|xsmt|xsmn',
         'day' => 'thu-2|thu-3|thu-4|thu-5|thu-6|thu-7|chu-nhat'
     ])
     ->name('lottery.byDayOfWeek');
 
-// Individual province pages
-Route::get('/{region}/{slug}', [LotteryController::class, 'provinceDetail'])
-    ->where(['region' => 'xsmb|xsmt|xsmn'])
+// Individual province pages (flat SEO URLs)
+Route::get('/xs{code}-sx{code2}-xo-so-{slug}.html', [LotteryController::class, 'provinceDetail'])
+    ->where(['code' => '[a-z0-9]+', 'code2' => '[a-z0-9]+', 'slug' => '[a-z0-9\-]+'])
     ->name('province.detail');
 
 // Other pages
@@ -111,7 +112,7 @@ Route::prefix('xo-so-vietlott')->group(function () {
     Route::get('/max-3d-pro', [VietlottController::class, 'max3dpro'])->name('vietlott.max3dpro');
 });
 
-// Vietlott load more API
+// Vietlott load more API (unchanged)
 Route::get('/api/vietlott/load-more/{gameType}/{page}', [VietlottController::class, 'loadMore'])
     ->where(['gameType' => 'mega645|power655|max3d|max3dpro', 'page' => '\d+'])
     ->name('vietlott.loadMore');
@@ -121,32 +122,26 @@ Route::get('/og-image/prediction/{regionSlug}/{date}.png', [OgImageController::c
     ->where(['regionSlug' => 'xsmb|xsmt|xsmn', 'date' => '\d{2}-\d{2}-\d{4}'])
     ->name('og-image.prediction');
 
-// Prediction API
+// Prediction API (unchanged)
 Route::get('/api/predictions/load-more', [PredictionController::class, 'loadMorePredictions'])
     ->name('api.predictions.loadMore');
 
-// Prediction Routes
-Route::prefix('du-doan')->group(function () {
-    // Main prediction hub page (all regions)
-    Route::get('/', [PredictionController::class, 'indexAll'])->name('prediction.index');
+// Prediction Routes (flat SEO URLs)
+Route::get('/du-doan.html', [PredictionController::class, 'indexAll'])->name('prediction.index');
+Route::get('/du-doan-xsmb.html', [PredictionController::class, 'indexXsmb'])->name('prediction.xsmb.index');
+Route::get('/du-doan-xsmt.html', [PredictionController::class, 'indexXsmt'])->name('prediction.xsmt.index');
+Route::get('/du-doan-xsmn.html', [PredictionController::class, 'indexXsmn'])->name('prediction.xsmn.index');
 
-    // List pages (paginated list of all predictions per region)
-    Route::get('/xsmb', [PredictionController::class, 'indexXsmb'])->name('prediction.xsmb.index');
-    Route::get('/xsmt', [PredictionController::class, 'indexXsmt'])->name('prediction.xsmt.index');
-    Route::get('/xsmn', [PredictionController::class, 'indexXsmn'])->name('prediction.xsmn.index');
-
-    // Detail pages (individual prediction article)
-    // URL format: du-doan-xsmb-{date}-soi-cau-xo-so-mien-bac-{date}.html
-    Route::get('/du-doan-xsmb-{date}-soi-cau-xo-so-mien-bac-{date2}.html', [PredictionController::class, 'showXsmb'])
-        ->where(['date' => '\d{2}-\d{2}-\d{4}', 'date2' => '\d{2}-\d{2}-\d{4}'])
-        ->name('prediction.xsmb.show');
-    Route::get('/du-doan-xsmt-{date}-soi-cau-xo-so-mien-trung-{date2}.html', [PredictionController::class, 'showXsmt'])
-        ->where(['date' => '\d{2}-\d{2}-\d{4}', 'date2' => '\d{2}-\d{2}-\d{4}'])
-        ->name('prediction.xsmt.show');
-    Route::get('/du-doan-xsmn-{date}-soi-cau-xo-so-mien-nam-{date2}.html', [PredictionController::class, 'showXsmn'])
-        ->where(['date' => '\d{2}-\d{2}-\d{4}', 'date2' => '\d{2}-\d{2}-\d{4}'])
-        ->name('prediction.xsmn.show');
-});
+// Prediction detail pages (flat, no du-doan prefix group)
+Route::get('/du-doan-xsmb-{date}-soi-cau-xo-so-mien-bac-{date2}.html', [PredictionController::class, 'showXsmb'])
+    ->where(['date' => '\d{2}-\d{2}-\d{4}', 'date2' => '\d{2}-\d{2}-\d{4}'])
+    ->name('prediction.xsmb.show');
+Route::get('/du-doan-xsmt-{date}-soi-cau-xo-so-mien-trung-{date2}.html', [PredictionController::class, 'showXsmt'])
+    ->where(['date' => '\d{2}-\d{2}-\d{4}', 'date2' => '\d{2}-\d{2}-\d{4}'])
+    ->name('prediction.xsmt.show');
+Route::get('/du-doan-xsmn-{date}-soi-cau-xo-so-mien-nam-{date2}.html', [PredictionController::class, 'showXsmn'])
+    ->where(['date' => '\d{2}-\d{2}-\d{4}', 'date2' => '\d{2}-\d{2}-\d{4}'])
+    ->name('prediction.xsmn.show');
 
 // News/Articles Routes
 Route::get('/tin-tuc', [NewsController::class, 'index'])->name('news.index');

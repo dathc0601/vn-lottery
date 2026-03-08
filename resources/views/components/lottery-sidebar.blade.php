@@ -89,7 +89,7 @@
             <ul class="text-sm">
                 @foreach($northProvinces as $province)
                     <li class="border-b border-gray-200">
-                        <a href="{{ route('province.detail', ['region' => 'xsmb', 'slug' => $province->slug]) }}"
+                        <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}"
                            class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors flex justify-between items-center">
                             {{ $province->name }}
                             @if($province->draw_days && in_array(now()->dayOfWeek, $province->draw_days))
@@ -144,7 +144,7 @@
             <ul class="text-sm">
                 @foreach($southProvinces as $province)
                     <li class="border-b border-gray-200">
-                        <a href="{{ route('province.detail', ['region' => 'xsmn', 'slug' => $province->slug]) }}"
+                        <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}"
                            class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors flex justify-between items-center">
                             {{ $province->name }}
                             @if($province->draw_days && in_array(now()->dayOfWeek, $province->draw_days))
@@ -164,7 +164,7 @@
             <ul class="text-sm">
                 @foreach($centralProvinces as $province)
                     <li class="border-b border-gray-200">
-                        <a href="{{ route('province.detail', ['region' => 'xsmt', 'slug' => $province->slug]) }}"
+                        <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}"
                            class="block py-2 px-3 text-[#0066cc] hover:text-[#ff6600] hover:bg-gray-50 transition-colors flex justify-between items-center">
                             {{ $province->name }}
                             @if($province->draw_days && in_array(now()->dayOfWeek, $province->draw_days))

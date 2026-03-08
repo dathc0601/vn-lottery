@@ -4,7 +4,7 @@
     <div class="p-3">
         <div class="grid grid-cols-2 gap-x-2 gap-y-0.5 text-sm">
             @foreach($southProvinces as $province)
-                <a href="{{ route('province.detail', ['region' => 'xsmn', 'slug' => $province->slug]) }}"
+                <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}"
                    class="text-[#0066cc] hover:text-[#cc0000] py-0.5 flex items-center gap-1">
                     <span class="text-gray-400 text-xs">&bull;</span> {{ $province->name }}
                 </a>
@@ -19,7 +19,7 @@
     <div class="p-3">
         <div class="grid grid-cols-2 gap-x-2 gap-y-0.5 text-sm">
             @foreach($centralProvinces as $province)
-                <a href="{{ route('province.detail', ['region' => 'xsmt', 'slug' => $province->slug]) }}"
+                <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}"
                    class="text-[#0066cc] hover:text-[#cc0000] py-0.5 flex items-center gap-1">
                     <span class="text-gray-400 text-xs">&bull;</span> {{ $province->name }}
                 </a>
@@ -34,7 +34,7 @@
     <div class="p-3">
         <div class="text-sm space-y-0.5">
             @foreach($northProvinces as $province)
-                <a href="{{ route('province.detail', ['region' => 'xsmb', 'slug' => $province->slug]) }}"
+                <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}"
                    class="text-[#0066cc] hover:text-[#cc0000] py-0.5 flex items-center gap-1">
                     <span class="text-gray-400 text-xs">&bull;</span> {{ $province->name }}
                 </a>

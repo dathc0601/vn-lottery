@@ -61,7 +61,7 @@
                                 <td class="px-4 py-3 border-r border-gray-300">
                                     @if(count($regions['north']) > 0)
                                         @foreach($regions['north'] as $index => $province)
-                                            <a href="{{ route('province.detail', ['region' => 'xsmb', 'slug' => $province->slug]) }}"
+                                            <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}"
                                                class="text-blue-600 hover:underline text-sm">{{ $province->name }}</a>@if($index < count($regions['north']) - 1),@endif
                                         @endforeach
                                     @else
@@ -71,7 +71,7 @@
                                 <td class="px-4 py-3 border-r border-gray-300">
                                     @if(count($regions['central']) > 0)
                                         @foreach($regions['central'] as $index => $province)
-                                            <a href="{{ route('province.detail', ['region' => 'xsmt', 'slug' => $province->slug]) }}"
+                                            <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}"
                                                class="text-blue-600 hover:underline text-sm">{{ $province->name }}</a>@if($index < count($regions['central']) - 1),@endif
                                         @endforeach
                                     @else
@@ -81,7 +81,7 @@
                                 <td class="px-4 py-3">
                                     @if(count($regions['south']) > 0)
                                         @foreach($regions['south'] as $index => $province)
-                                            <a href="{{ route('province.detail', ['region' => 'xsmn', 'slug' => $province->slug]) }}"
+                                            <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}"
                                                class="text-blue-600 hover:underline text-sm">{{ $province->name }}</a>@if($index < count($regions['south']) - 1),@endif
                                         @endforeach
                                     @else

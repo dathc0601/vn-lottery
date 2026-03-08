@@ -89,9 +89,9 @@ class SitemapService
                 ['loc' => '/', 'priority' => '1.0', 'changefreq' => 'daily'],
 
                 // Regional pages
-                ['loc' => '/xsmb', 'priority' => '0.9', 'changefreq' => 'daily'],
-                ['loc' => '/xsmt', 'priority' => '0.9', 'changefreq' => 'daily'],
-                ['loc' => '/xsmn', 'priority' => '0.9', 'changefreq' => 'daily'],
+                ['loc' => '/xsmb-xo-so-mien-bac.html', 'priority' => '0.9', 'changefreq' => 'daily'],
+                ['loc' => '/xsmt-xo-so-mien-trung.html', 'priority' => '0.9', 'changefreq' => 'daily'],
+                ['loc' => '/xsmn-xo-so-mien-nam.html', 'priority' => '0.9', 'changefreq' => 'daily'],
 
                 // Results book
                 ['loc' => '/so-ket-qua', 'priority' => '0.8', 'changefreq' => 'daily'],
@@ -125,10 +125,10 @@ class SitemapService
                 ['loc' => '/rss', 'priority' => '0.3', 'changefreq' => 'weekly'],
 
                 // Prediction pages
-                ['loc' => '/du-doan', 'priority' => '0.8', 'changefreq' => 'daily'],
-                ['loc' => '/du-doan/xsmb', 'priority' => '0.8', 'changefreq' => 'daily'],
-                ['loc' => '/du-doan/xsmt', 'priority' => '0.8', 'changefreq' => 'daily'],
-                ['loc' => '/du-doan/xsmn', 'priority' => '0.8', 'changefreq' => 'daily'],
+                ['loc' => '/du-doan.html', 'priority' => '0.8', 'changefreq' => 'daily'],
+                ['loc' => '/du-doan-xsmb.html', 'priority' => '0.8', 'changefreq' => 'daily'],
+                ['loc' => '/du-doan-xsmt.html', 'priority' => '0.8', 'changefreq' => 'daily'],
+                ['loc' => '/du-doan-xsmn.html', 'priority' => '0.8', 'changefreq' => 'daily'],
             ];
 
             return $this->buildUrlsetXml($urls, $baseUrl, $now);
@@ -162,7 +162,7 @@ class SitemapService
                 $regionFullSlug = $regionSlugs[$regionSlug] ?? $regionSlug;
 
                 $urls[] = [
-                    'loc' => "/du-doan/du-doan-{$regionSlug}-{$dateSlug}-soi-cau-xo-so-{$regionFullSlug}-{$dateSlug}.html",
+                    'loc' => "/du-doan-{$regionSlug}-{$dateSlug}-soi-cau-xo-so-{$regionFullSlug}-{$dateSlug}.html",
                     'priority' => '0.7',
                     'changefreq' => 'never',
                     'lastmod' => $prediction->published_at?->toW3cString() ?? $now,
@@ -189,9 +189,9 @@ class SitemapService
 
             $urls = [];
             foreach ($provinces as $province) {
-                $regionPath = $this->getRegionPath($province->region);
+                $code = $province->code;
                 $urls[] = [
-                    'loc' => "/{$regionPath}/{$province->slug}",
+                    'loc' => "/xs{$code}-sx{$code}-xo-so-{$province->slug}.html",
                     'priority' => '0.8',
                     'changefreq' => 'daily',
                 ];
@@ -217,7 +217,7 @@ class SitemapService
             foreach ($regions as $region) {
                 foreach ($days as $day) {
                     $urls[] = [
-                        'loc' => "/{$region}/{$day}",
+                        'loc' => "/{$region}-{$day}.html",
                         'priority' => '0.7',
                         'changefreq' => 'weekly',
                     ];
@@ -281,15 +281,22 @@ class SitemapService
             $urls = [];
             $processedDates = [];
 
+            $regionFullNames = [
+                'north' => 'xo-so-mien-bac',
+                'central' => 'xo-so-mien-trung',
+                'south' => 'xo-so-mien-nam',
+            ];
+
             foreach ($results as $result) {
                 $regionPath = $this->getRegionPath($result->province->region);
+                $regionFullName = $regionFullNames[$result->province->region] ?? 'xo-so-mien-nam';
                 $dateStr = $result->draw_date->format('d-m-Y');
                 $key = "{$regionPath}_{$dateStr}";
 
                 if (!isset($processedDates[$key])) {
                     $processedDates[$key] = true;
                     $urls[] = [
-                        'loc' => "/{$regionPath}/{$dateStr}",
+                        'loc' => "/{$regionPath}-{$regionFullName}-{$dateStr}.html",
                         'priority' => '0.6',
                         'changefreq' => 'never',
                         'lastmod' => $result->updated_at?->toW3cString() ?? $now,

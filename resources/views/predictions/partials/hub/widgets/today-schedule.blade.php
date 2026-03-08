@@ -19,7 +19,7 @@
                     @if(isset($todaySchedule[$time]))
                         @foreach($todaySchedule[$time] as $province)
                             <div class="text-xs text-gray-600 text-center mt-0.5">
-                                <a href="{{ route('province.detail', ['region' => \App\Models\Prediction::REGION_SLUGS[$province->region] ?? 'xsmb', 'slug' => $province->slug]) }}"
+                                <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}"
                                    class="text-[#0066cc] hover:underline">
                                     {{ $province->name }}
                                 </a>
