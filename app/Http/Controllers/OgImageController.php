@@ -21,6 +21,11 @@ class OgImageController extends Controller
         'xsmn' => 'MIỀN NAM',
     ];
 
+    private const VIETNAMESE_DAYS = [
+        0 => 'Chủ Nhật', 1 => 'Thứ 2', 2 => 'Thứ 3',
+        3 => 'Thứ 4', 4 => 'Thứ 5', 5 => 'Thứ 6', 6 => 'Thứ 7',
+    ];
+
     public function prediction(string $regionSlug, string $date)
     {
         if (!in_array($regionSlug, ['xsmb', 'xsmt', 'xsmn'])) {
@@ -44,6 +49,118 @@ class OgImageController extends Controller
     }
 
     private function generatePredictionImage(string $regionSlug, string $date): string
+    {
+        $bg = $this->loadBackground($regionSlug);
+
+        if ($bg === null) {
+            return $this->generateFallbackPredictionImage($regionSlug, $date);
+        }
+
+        $img = imagecreatetruecolor(self::WIDTH, self::HEIGHT);
+        imagealphablending($img, true);
+        imagesavealpha($img, true);
+
+        // Resize and crop background onto canvas
+        $resized = $this->resizeAndCropBackground($bg, self::WIDTH, self::HEIGHT);
+        imagecopy($img, $resized, 0, 0, 0, 0, self::WIDTH, self::HEIGHT);
+        imagedestroy($resized);
+        imagedestroy($bg);
+
+        $fontBold = $this->findFont('bold');
+        $fontRegular = $this->findFont('regular');
+
+        $gold = imagecolorallocate($img, 255, 215, 0); // #FFD700
+        $white = imagecolorallocate($img, 255, 255, 255);
+
+        $regionName = self::REGION_NAMES[$regionSlug] ?? strtoupper($regionSlug);
+        $vietnameseDate = $this->formatVietnameseDate($date);
+
+        // Line 1: "Dự Đoán KQXS"
+        $this->drawCenteredTextWithShadow($img, 'Dự Đoán KQXS', $fontBold, 36, $gold, 230);
+
+        // Line 2: Region name (large)
+        $this->drawCenteredTextWithShadow($img, $regionName, $fontBold, 64, $white, 320);
+
+        // Line 3: Vietnamese date
+        $this->drawCenteredTextWithShadow($img, $vietnameseDate, $fontRegular, 32, $white, 400);
+
+        ob_start();
+        imagepng($img, null, 6);
+        $png = ob_get_clean();
+
+        imagedestroy($img);
+
+        return $png;
+    }
+
+    private function formatVietnameseDate(string $date): string
+    {
+        // $date format: dd-mm-yyyy
+        $parts = explode('-', $date);
+        $timestamp = mktime(0, 0, 0, (int)$parts[1], (int)$parts[0], (int)$parts[2]);
+        $dayOfWeek = (int)date('w', $timestamp);
+        $dayName = self::VIETNAMESE_DAYS[$dayOfWeek];
+
+        return $dayName . ', ' . $parts[0] . '/' . $parts[1] . '/' . $parts[2];
+    }
+
+    private function loadBackground(string $regionSlug): ?\GdImage
+    {
+        $path = public_path("images/predictions/{$regionSlug}-background.png");
+
+        if (!file_exists($path)) {
+            return null;
+        }
+
+        $img = imagecreatefrompng($path);
+
+        return $img !== false ? $img : null;
+    }
+
+    private function resizeAndCropBackground(\GdImage $bg, int $targetW, int $targetH): \GdImage
+    {
+        $srcW = imagesx($bg);
+        $srcH = imagesy($bg);
+
+        // Cover scale: find scale factor so image covers target dimensions
+        $scale = max($targetW / $srcW, $targetH / $srcH);
+        $scaledW = (int)ceil($srcW * $scale);
+        $scaledH = (int)ceil($srcH * $scale);
+
+        // Top-biased crop: offset ~15% from top to preserve header branding
+        $cropX = (int)(($scaledW - $targetW) / 2);
+        $cropY = (int)(($scaledH - $targetH) * 0.15);
+
+        $canvas = imagecreatetruecolor($targetW, $targetH);
+        imagealphablending($canvas, true);
+        imagesavealpha($canvas, true);
+
+        imagecopyresampled(
+            $canvas, $bg,
+            0, 0,
+            (int)($cropX / $scale), (int)($cropY / $scale),
+            $targetW, $targetH,
+            (int)($targetW / $scale), (int)($targetH / $scale)
+        );
+
+        return $canvas;
+    }
+
+    private function drawCenteredTextWithShadow($img, string $text, string $font, int $size, $color, int $y): void
+    {
+        $shadowColor = imagecolorallocate($img, 0, 0, 0);
+        $shadowOffset = 2;
+
+        // Draw shadow
+        $bbox = imagettfbbox($size, 0, $font, $text);
+        $textWidth = $bbox[2] - $bbox[0];
+        $x = (self::WIDTH - $textWidth) / 2;
+
+        imagettftext($img, $size, 0, (int)$x + $shadowOffset, $y + $shadowOffset, $shadowColor, $font, $text);
+        imagettftext($img, $size, 0, (int)$x, $y, $color, $font, $text);
+    }
+
+    private function generateFallbackPredictionImage(string $regionSlug, string $date): string
     {
         $img = imagecreatetruecolor(self::WIDTH, self::HEIGHT);
         imagealphablending($img, true);
@@ -152,7 +269,6 @@ class OgImageController extends Controller
             }
         }
 
-        // Last resort: return first candidate (will error if missing, but better than silent failure)
         return $candidates[0];
     }
 }
