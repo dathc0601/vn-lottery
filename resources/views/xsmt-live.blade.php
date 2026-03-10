@@ -130,7 +130,7 @@
                                 <template x-for="(prov, pi) in provinces" :key="'g6-'+pi">
                                     <td class="border border-gray-300 py-2 px-2 text-center">
                                         <template x-if="prov.prizes.prize_6">
-                                            <div class="flex flex-wrap justify-center gap-1">
+                                            <div class="flex flex-col items-center">
                                                 <template x-for="(num, i) in prov.prizes.prize_6.split(',')" :key="'g6-'+pi+'-'+i">
                                                     <span class="number" x-text="num.trim()"></span>
                                                 </template>
@@ -174,7 +174,7 @@
                                 <template x-for="(prov, pi) in provinces" :key="'g4-'+pi">
                                     <td class="border border-gray-300 py-2 px-2 text-center">
                                         <template x-if="prov.prizes.prize_4">
-                                            <div class="flex flex-wrap justify-center gap-1">
+                                            <div class="flex flex-col items-center">
                                                 <template x-for="(num, i) in prov.prizes.prize_4.split(',')" :key="'g4-'+pi+'-'+i">
                                                     <span class="number" x-text="num.trim()"></span>
                                                 </template>
@@ -198,7 +198,7 @@
                                 <template x-for="(prov, pi) in provinces" :key="'g3-'+pi">
                                     <td class="border border-gray-300 py-2 px-2 text-center">
                                         <template x-if="prov.prizes.prize_3">
-                                            <div class="flex flex-wrap justify-center gap-1">
+                                            <div class="flex flex-col items-center">
                                                 <template x-for="(num, i) in prov.prizes.prize_3.split(',')" :key="'g3-'+pi+'-'+i">
                                                     <span class="number" x-text="num.trim()"></span>
                                                 </template>
@@ -290,6 +290,37 @@
                 </div>
             </div>
 
+            <!-- Lô Tô Table -->
+            <template x-if="provinces.length > 0">
+                <div class="result-card border border-gray-300 bg-white mb-5">
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="border border-gray-300 py-2 px-3 text-center" rowspan="2">Đầu</th>
+                                    <th class="border border-gray-300 py-2 px-3 text-center text-[#333399]" :colspan="provinces.length">Lô tô XSMT trực tiếp</th>
+                                </tr>
+                                <tr class="bg-gray-100">
+                                    <template x-for="(prov, pi) in provinces" :key="'loto-th-'+pi">
+                                        <th class="border border-gray-300 py-2 px-3 text-center text-[#333399] min-w-[140px]" x-text="'XS' + prov.name.split(' ').map(w => w[0]).join('').toUpperCase()"></th>
+                                    </template>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="dau in [0,1,2,3,4,5,6,7,8,9]" :key="'loto-'+dau">
+                                    <tr>
+                                        <td class="border border-gray-300 py-2 px-3 text-center font-bold text-red-600 bg-gray-50 w-16" x-text="dau"></td>
+                                        <template x-for="(prov, pi) in provinces" :key="'loto-'+dau+'-'+pi">
+                                            <td class="border border-gray-300 py-2 px-3 text-left text-base" x-text="getLotoForProvince(prov, dau)"></td>
+                                        </template>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </template>
+
             <!-- Info Section -->
             <div class="sidebar-section mt-4">
                 <div class="sidebar-header">Thông tin trực tiếp XSMT</div>
@@ -356,6 +387,25 @@ function liveXsmt() {
                 }
             }
             return html;
+        },
+
+        getLotoForProvince(prov, dau) {
+            const allNumbers = [];
+            const prizeKeys = ['prize_8', 'prize_7', 'prize_6', 'prize_5', 'prize_4', 'prize_3', 'prize_2', 'prize_1', 'prize_special'];
+            prizeKeys.forEach(key => {
+                if (prov.prizes[key]) {
+                    prov.prizes[key].split(',').forEach(num => {
+                        const trimmed = num.trim();
+                        if (trimmed.length >= 2) {
+                            allNumbers.push(trimmed.slice(-2));
+                        }
+                    });
+                }
+            });
+            const digits = allNumbers
+                .filter(n => parseInt(n[0]) === dau)
+                .map(n => n[1]);
+            return digits.length > 0 ? digits.join(', ') : '';
         },
 
         async fetchResults() {

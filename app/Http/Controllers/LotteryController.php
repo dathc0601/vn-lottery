@@ -1203,8 +1203,8 @@ class LotteryController extends Controller
 
         $xpath = new \DOMXPath($dom);
 
-        // Find the XSMN table: look for table with class tbl-xsmn, or table inside a box-ketqua with id starting with MN
-        $tables = $xpath->query("//table[contains(@class, 'tbl-xsmn')]");
+        // Find the XSMN table by ID starting with MN
+        $tables = $xpath->query("//table[starts-with(@id, 'MN')]");
         if ($tables->length === 0) {
             // Fallback: find table inside div whose id starts with MN
             $tables = $xpath->query("//*[starts-with(@id, 'MN')]//table");
