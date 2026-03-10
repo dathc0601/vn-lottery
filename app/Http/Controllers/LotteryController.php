@@ -12,6 +12,12 @@ use Illuminate\Support\Facades\Log;
 
 class LotteryController extends Controller
 {
+    private const LIVE_WINDOWS = [
+        'xsmn' => ['start' => 975, 'end' => 1010],   // 16:15 – 16:50
+        'xsmt' => ['start' => 1035, 'end' => 1070],   // 17:15 – 17:50
+        'xsmb' => ['start' => 1095, 'end' => 1130],   // 18:15 – 18:50
+    ];
+
     public function xsmb(Request $request, $date = null)
     {
         $isSpecificDate = false;
@@ -645,63 +651,90 @@ class LotteryController extends Controller
         ));
     }
 
+    private function getLiveCacheTtl(string $region, bool $isComplete): int
+    {
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+        $currentMinutes = $now->hour * 60 + $now->minute;
+        $window = self::LIVE_WINDOWS[$region];
+
+        // Before live window: cache until it starts
+        if ($currentMinutes < $window['start']) {
+            return max(($window['start'] - $currentMinutes) * 60, 30);
+        }
+
+        // During or after live window: check completion
+        if ($isComplete) {
+            return 6 * 3600; // 6 hours — results are final
+        }
+
+        // In progress (during live or draw running late)
+        return 30;
+    }
+
     public function fetchLiveResults()
     {
         $now = Carbon::now('Asia/Ho_Chi_Minh');
         $date = $now->format('Y-m-d');
         $cacheKey = 'xsmb_live_results_' . $date;
 
-        $data = Cache::remember($cacheKey, 30, function () use ($now) {
+        $data = Cache::get($cacheKey);
+
+        if ($data === null) {
             try {
                 $response = Http::timeout(10)->get('https://xskt.com.vn/hom-nay/');
 
                 if (!$response->successful()) {
-                    return [
+                    $data = [
                         'status' => 'error',
                         'prizes' => $this->emptyPrizes(),
                         'timestamp' => $now->toIso8601String(),
                         'is_previous_day' => false,
                     ];
+                    Cache::put($cacheKey, $data, 30);
+                } else {
+                    $parsed = $this->parseXsmbLiveHtml($response->body());
+
+                    $todayStr = $now->format('d-m-Y');
+                    $resultsDate = $parsed['results_date']; // dd-mm-yyyy
+                    $isPreviousDay = $resultsDate && $resultsDate !== $todayStr;
+
+                    // Build display strings for the frontend note
+                    $resultsDateDisplay = null;
+                    $todayDateDisplay = null;
+                    if ($isPreviousDay && $resultsDate) {
+                        $resultsCarbon = Carbon::createFromFormat('d-m-Y', $resultsDate, 'Asia/Ho_Chi_Minh');
+                        $todayCarbon = $now->copy();
+
+                        $dayNames = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+                        $resultsDateDisplay = $dayNames[$resultsCarbon->dayOfWeek] . ' ngày ' . $resultsCarbon->format('d/m');
+                        $todayDateDisplay = $dayNames[$todayCarbon->dayOfWeek] . ' ngày ' . $todayCarbon->format('d/m');
+                    }
+
+                    $data = [
+                        'status' => $parsed['complete'] ? 'complete' : 'in_progress',
+                        'prizes' => $parsed['prizes'],
+                        'timestamp' => $now->toIso8601String(),
+                        'results_date' => $resultsDate,
+                        'is_previous_day' => $isPreviousDay,
+                        'results_date_display' => $resultsDateDisplay,
+                        'today_date_display' => $todayDateDisplay,
+                    ];
+
+                    $ttl = $this->getLiveCacheTtl('xsmb', $parsed['complete']);
+                    Cache::put($cacheKey, $data, $ttl);
                 }
-
-                $parsed = $this->parseXsmbLiveHtml($response->body());
-
-                $todayStr = $now->format('d-m-Y');
-                $resultsDate = $parsed['results_date']; // dd-mm-yyyy
-                $isPreviousDay = $resultsDate && $resultsDate !== $todayStr;
-
-                // Build display strings for the frontend note
-                $resultsDateDisplay = null;
-                $todayDateDisplay = null;
-                if ($isPreviousDay && $resultsDate) {
-                    $resultsCarbon = Carbon::createFromFormat('d-m-Y', $resultsDate, 'Asia/Ho_Chi_Minh');
-                    $todayCarbon = $now->copy();
-
-                    $dayNames = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-                    $resultsDateDisplay = $dayNames[$resultsCarbon->dayOfWeek] . ' ngày ' . $resultsCarbon->format('d/m');
-                    $todayDateDisplay = $dayNames[$todayCarbon->dayOfWeek] . ' ngày ' . $todayCarbon->format('d/m');
-                }
-
-                return [
-                    'status' => $parsed['complete'] ? 'complete' : 'in_progress',
-                    'prizes' => $parsed['prizes'],
-                    'timestamp' => $now->toIso8601String(),
-                    'results_date' => $resultsDate,
-                    'is_previous_day' => $isPreviousDay,
-                    'results_date_display' => $resultsDateDisplay,
-                    'today_date_display' => $todayDateDisplay,
-                ];
             } catch (\Exception $e) {
                 Log::warning('Live XSMB scrape failed: ' . $e->getMessage());
 
-                return [
+                $data = [
                     'status' => 'error',
                     'prizes' => $this->emptyPrizes(),
                     'timestamp' => $now->toIso8601String(),
                     'is_previous_day' => false,
                 ];
+                Cache::put($cacheKey, $data, 30);
             }
-        });
+        }
 
         return response()->json($data);
     }
@@ -897,56 +930,63 @@ class LotteryController extends Controller
         $date = $now->format('Y-m-d');
         $cacheKey = 'xsmn_live_results_' . $date;
 
-        $data = Cache::remember($cacheKey, 30, function () use ($now) {
+        $data = Cache::get($cacheKey);
+
+        if ($data === null) {
             try {
                 $response = Http::timeout(10)->get('https://xskt.com.vn/hom-nay/');
 
                 if (!$response->successful()) {
-                    return [
+                    $data = [
                         'status' => 'error',
                         'provinces' => [],
                         'timestamp' => $now->toIso8601String(),
                         'is_previous_day' => false,
                     ];
+                    Cache::put($cacheKey, $data, 30);
+                } else {
+                    $parsed = $this->parseXsmnLiveHtml($response->body());
+
+                    $todayStr = $now->format('d-m-Y');
+                    $resultsDate = $parsed['results_date'];
+                    $isPreviousDay = $resultsDate && $resultsDate !== $todayStr;
+
+                    $resultsDateDisplay = null;
+                    $todayDateDisplay = null;
+                    if ($isPreviousDay && $resultsDate) {
+                        $resultsCarbon = Carbon::createFromFormat('d-m-Y', $resultsDate, 'Asia/Ho_Chi_Minh');
+                        $todayCarbon = $now->copy();
+
+                        $dayNames = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+                        $resultsDateDisplay = $dayNames[$resultsCarbon->dayOfWeek] . ' ngày ' . $resultsCarbon->format('d/m');
+                        $todayDateDisplay = $dayNames[$todayCarbon->dayOfWeek] . ' ngày ' . $todayCarbon->format('d/m');
+                    }
+
+                    $data = [
+                        'status' => $parsed['complete'] ? 'complete' : 'in_progress',
+                        'provinces' => $parsed['provinces'],
+                        'timestamp' => $now->toIso8601String(),
+                        'results_date' => $resultsDate,
+                        'is_previous_day' => $isPreviousDay,
+                        'results_date_display' => $resultsDateDisplay,
+                        'today_date_display' => $todayDateDisplay,
+                    ];
+
+                    $ttl = $this->getLiveCacheTtl('xsmn', $parsed['complete']);
+                    Cache::put($cacheKey, $data, $ttl);
                 }
-
-                $parsed = $this->parseXsmnLiveHtml($response->body());
-
-                $todayStr = $now->format('d-m-Y');
-                $resultsDate = $parsed['results_date'];
-                $isPreviousDay = $resultsDate && $resultsDate !== $todayStr;
-
-                $resultsDateDisplay = null;
-                $todayDateDisplay = null;
-                if ($isPreviousDay && $resultsDate) {
-                    $resultsCarbon = Carbon::createFromFormat('d-m-Y', $resultsDate, 'Asia/Ho_Chi_Minh');
-                    $todayCarbon = $now->copy();
-
-                    $dayNames = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-                    $resultsDateDisplay = $dayNames[$resultsCarbon->dayOfWeek] . ' ngày ' . $resultsCarbon->format('d/m');
-                    $todayDateDisplay = $dayNames[$todayCarbon->dayOfWeek] . ' ngày ' . $todayCarbon->format('d/m');
-                }
-
-                return [
-                    'status' => $parsed['complete'] ? 'complete' : 'in_progress',
-                    'provinces' => $parsed['provinces'],
-                    'timestamp' => $now->toIso8601String(),
-                    'results_date' => $resultsDate,
-                    'is_previous_day' => $isPreviousDay,
-                    'results_date_display' => $resultsDateDisplay,
-                    'today_date_display' => $todayDateDisplay,
-                ];
             } catch (\Exception $e) {
                 Log::warning('Live XSMN scrape failed: ' . $e->getMessage());
 
-                return [
+                $data = [
                     'status' => 'error',
                     'provinces' => [],
                     'timestamp' => $now->toIso8601String(),
                     'is_previous_day' => false,
                 ];
+                Cache::put($cacheKey, $data, 30);
             }
-        });
+        }
 
         return response()->json($data);
     }
@@ -997,56 +1037,63 @@ class LotteryController extends Controller
         $date = $now->format('Y-m-d');
         $cacheKey = 'xsmt_live_results_' . $date;
 
-        $data = Cache::remember($cacheKey, 30, function () use ($now) {
+        $data = Cache::get($cacheKey);
+
+        if ($data === null) {
             try {
                 $response = Http::timeout(10)->get('https://xskt.com.vn/hom-nay/');
 
                 if (!$response->successful()) {
-                    return [
+                    $data = [
                         'status' => 'error',
                         'provinces' => [],
                         'timestamp' => $now->toIso8601String(),
                         'is_previous_day' => false,
                     ];
+                    Cache::put($cacheKey, $data, 30);
+                } else {
+                    $parsed = $this->parseXsmtLiveHtml($response->body());
+
+                    $todayStr = $now->format('d-m-Y');
+                    $resultsDate = $parsed['results_date'];
+                    $isPreviousDay = $resultsDate && $resultsDate !== $todayStr;
+
+                    $resultsDateDisplay = null;
+                    $todayDateDisplay = null;
+                    if ($isPreviousDay && $resultsDate) {
+                        $resultsCarbon = Carbon::createFromFormat('d-m-Y', $resultsDate, 'Asia/Ho_Chi_Minh');
+                        $todayCarbon = $now->copy();
+
+                        $dayNames = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+                        $resultsDateDisplay = $dayNames[$resultsCarbon->dayOfWeek] . ' ngày ' . $resultsCarbon->format('d/m');
+                        $todayDateDisplay = $dayNames[$todayCarbon->dayOfWeek] . ' ngày ' . $todayCarbon->format('d/m');
+                    }
+
+                    $data = [
+                        'status' => $parsed['complete'] ? 'complete' : 'in_progress',
+                        'provinces' => $parsed['provinces'],
+                        'timestamp' => $now->toIso8601String(),
+                        'results_date' => $resultsDate,
+                        'is_previous_day' => $isPreviousDay,
+                        'results_date_display' => $resultsDateDisplay,
+                        'today_date_display' => $todayDateDisplay,
+                    ];
+
+                    $ttl = $this->getLiveCacheTtl('xsmt', $parsed['complete']);
+                    Cache::put($cacheKey, $data, $ttl);
                 }
-
-                $parsed = $this->parseXsmtLiveHtml($response->body());
-
-                $todayStr = $now->format('d-m-Y');
-                $resultsDate = $parsed['results_date'];
-                $isPreviousDay = $resultsDate && $resultsDate !== $todayStr;
-
-                $resultsDateDisplay = null;
-                $todayDateDisplay = null;
-                if ($isPreviousDay && $resultsDate) {
-                    $resultsCarbon = Carbon::createFromFormat('d-m-Y', $resultsDate, 'Asia/Ho_Chi_Minh');
-                    $todayCarbon = $now->copy();
-
-                    $dayNames = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-                    $resultsDateDisplay = $dayNames[$resultsCarbon->dayOfWeek] . ' ngày ' . $resultsCarbon->format('d/m');
-                    $todayDateDisplay = $dayNames[$todayCarbon->dayOfWeek] . ' ngày ' . $todayCarbon->format('d/m');
-                }
-
-                return [
-                    'status' => $parsed['complete'] ? 'complete' : 'in_progress',
-                    'provinces' => $parsed['provinces'],
-                    'timestamp' => $now->toIso8601String(),
-                    'results_date' => $resultsDate,
-                    'is_previous_day' => $isPreviousDay,
-                    'results_date_display' => $resultsDateDisplay,
-                    'today_date_display' => $todayDateDisplay,
-                ];
             } catch (\Exception $e) {
                 Log::warning('Live XSMT scrape failed: ' . $e->getMessage());
 
-                return [
+                $data = [
                     'status' => 'error',
                     'provinces' => [],
                     'timestamp' => $now->toIso8601String(),
                     'is_previous_day' => false,
                 ];
+                Cache::put($cacheKey, $data, 30);
             }
-        });
+        }
 
         return response()->json($data);
     }
