@@ -45,8 +45,8 @@ class FetchLotteryResultsJob implements ShouldQueue
             return;
         }
 
-        // XSMB (miba): use GitHub CSV source
-        if ($this->province->code === 'miba') {
+        // XSMB (hn): use GitHub CSV source
+        if ($this->province->code === 'hn') {
             $stored = $apiService->fetchAndStoreXSMBResults($this->province, $this->limitNum);
             Log::info("✓ Fetched {$stored} XSMB results from GitHub: {$this->province->name}");
         } elseif ($this->province->region === 'central') {

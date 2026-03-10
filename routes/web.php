@@ -72,8 +72,8 @@ Route::get('/{region}-{day}.html', [LotteryController::class, 'resultsByDayOfWee
     ->name('lottery.byDayOfWeek');
 
 // Individual province pages (flat SEO URLs)
-Route::get('/xs{code}-sx{code2}-xo-so-{slug}.html', [LotteryController::class, 'provinceDetail'])
-    ->where(['code' => '[a-z0-9]+', 'code2' => '[a-z0-9]+', 'slug' => '[a-z0-9\-]+'])
+Route::get('/xs{code}-xo-so-{slug}.html', [LotteryController::class, 'provinceDetail'])
+    ->where(['code' => '[a-z0-9]+', 'slug' => '[a-z0-9\-]+'])
     ->name('province.detail');
 
 // Other pages

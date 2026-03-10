@@ -27,10 +27,10 @@ class FetchXSMBTodayCommand extends Command
      */
     public function handle(LotteryApiService $service): int
     {
-        $province = Province::where('code', 'miba')->first();
+        $province = Province::where('code', 'hn')->first();
 
         if (!$province) {
-            $this->error('XSMB Hà Nội province not found (code: miba)');
+            $this->error('XSMB Hà Nội province not found (code: hn)');
             return self::FAILURE;
         }
 

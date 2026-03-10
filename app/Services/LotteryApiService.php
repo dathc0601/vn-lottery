@@ -18,44 +18,44 @@ class LotteryApiService
     protected int $timeout = 30; // seconds
 
     protected const XSMT_PROVINCE_MAP = [
-        'Phú Yên'           => 'phye',
-        'Thừa Thiên Huế'    => 'thth',
-        'Khánh Hòa'         => 'khho',
-        'Kon Tum'            => 'kotu',
-        'Đà Nẵng'           => 'dana',
-        'Đắk Nông'          => 'dano',
-        'Quảng Ngãi'         => 'qung',
-        'Bình Định'          => 'bidi',
-        'Quảng Bình'         => 'qubi',
-        'Quảng Trị'          => 'qutr',
-        'Quảng Nam'           => 'quna',
-        'Đắk Lắk'           => 'dalak',
-        'Ninh Thuận'         => 'nith',
-        'Gia Lai'            => 'gila',
+        'Phú Yên'           => 'py',
+        'Thừa Thiên Huế'    => 'th',
+        'Khánh Hòa'         => 'kh',
+        'Kon Tum'            => 'kt',
+        'Đà Nẵng'           => 'dna',
+        'Đắk Nông'          => 'dno',
+        'Quảng Ngãi'         => 'qng',
+        'Bình Định'          => 'bdi',
+        'Quảng Bình'         => 'qb',
+        'Quảng Trị'          => 'qt',
+        'Quảng Nam'           => 'qna',
+        'Đắk Lắk'           => 'dl',
+        'Ninh Thuận'         => 'nt',
+        'Gia Lai'            => 'gl',
     ];
 
     protected const XSMN_PROVINCE_MAP = [
-        'Hậu Giang'     => 'hagi',
+        'Hậu Giang'     => 'hg',
         'Hồ Chí Minh'   => 'tphc',
-        'Bình Phước'     => 'biph',
-        'Long An'        => 'loan',
-        'Bình Dương'     => 'bidu',
-        'Trà Vinh'       => 'trvi',
-        'Vĩnh Long'      => 'vilo',
+        'Bình Phước'     => 'bp',
+        'Long An'        => 'la',
+        'Bình Dương'     => 'bdu',
+        'Trà Vinh'       => 'tv',
+        'Vĩnh Long'      => 'vl',
         'Bình Thuận'     => 'bith',
-        'Tây Ninh'       => 'tani',
-        'An Giang'       => 'angi',
-        'Sóc Trăng'      => 'sotr',
-        'Đồng Nai'       => 'dona',
-        'Cần Thơ'        => 'cath',
-        'Vũng Tàu'       => 'vuta',
-        'Bạc Liêu'       => 'bali',
-        'Bến Tre'        => 'betre',
-        'Cà Mau'         => 'cama',
-        'Đồng Tháp'      => 'doth',
+        'Tây Ninh'       => 'tn',
+        'An Giang'       => 'ag',
+        'Sóc Trăng'      => 'st',
+        'Đồng Nai'       => 'dni',
+        'Cần Thơ'        => 'ct',
+        'Vũng Tàu'       => 'vt',
+        'Bạc Liêu'       => 'bl',
+        'Bến Tre'        => 'bt',
+        'Cà Mau'         => 'cm',
+        'Đồng Tháp'      => 'dt',
         'Lâm Đồng'       => 'dalat',   // DB name: "Đà Lạt"
-        'Tiền Giang'     => 'tigi',
-        'Kiên Giang'     => 'kigi',
+        'Tiền Giang'     => 'tg',
+        'Kiên Giang'     => 'kg',
     ];
 
     /**
@@ -570,7 +570,7 @@ class LotteryApiService
      */
     public function fetchAndStoreXSMBResults(Province $province, int $limitNum = 1): int
     {
-        if ($province->code !== 'miba') {
+        if ($province->code !== 'hn') {
             Log::warning('fetchAndStoreXSMBResults called with non-XSMB province', [
                 'province_code' => $province->code,
             ]);
@@ -587,7 +587,7 @@ class LotteryApiService
             if (!$response->successful()) {
                 $this->logApiRequest(
                     $this->xsmbGithubUrl,
-                    'miba',
+                    'hn',
                     $response->status(),
                     $responseTime,
                     'GitHub CSV fetch failed',
@@ -630,7 +630,7 @@ class LotteryApiService
 
             $this->logApiRequest(
                 $this->xsmbGithubUrl,
-                'miba',
+                'hn',
                 $response->status(),
                 $responseTime,
                 null,
@@ -649,7 +649,7 @@ class LotteryApiService
 
             $this->logApiRequest(
                 $this->xsmbGithubUrl,
-                'miba',
+                'hn',
                 0,
                 $responseTime,
                 $e->getMessage(),
@@ -799,7 +799,7 @@ class LotteryApiService
      */
     public function fetchMissingXSMBFromGitHub(Province $province, array $missingDates): int
     {
-        if ($province->code !== 'miba' || empty($missingDates)) {
+        if ($province->code !== 'hn' || empty($missingDates)) {
             return 0;
         }
 
@@ -894,7 +894,7 @@ class LotteryApiService
         ]);
 
         // 4. For XSMB (miba): use GitHub CSV directly
-        if ($province->code === 'miba') {
+        if ($province->code === 'hn') {
             return $this->fetchMissingXSMBFromGitHub($province, $missingDates);
         }
 

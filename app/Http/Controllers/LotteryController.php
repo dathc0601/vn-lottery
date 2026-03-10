@@ -438,7 +438,7 @@ class LotteryController extends Controller
         return $this->{$region}(request(), $date->format('d-m-Y'));
     }
 
-    public function provinceDetail($code, $code2, $slug)
+    public function provinceDetail($code, $slug)
     {
         $province = Province::where('slug', $slug)->where('code', $code)->firstOrFail();
 

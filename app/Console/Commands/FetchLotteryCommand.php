@@ -58,7 +58,7 @@ class FetchLotteryCommand extends Command
         $this->info("Limit: {$limit} results");
 
         // Fetch and store results with source routing
-        if ($province->code === 'miba') {
+        if ($province->code === 'hn') {
             $stored = $apiService->fetchAndStoreXSMBResults($province, $limit);
         } elseif ($province->region === 'central') {
             $stored = $apiService->fetchAndStoreXSMTResults($province, $limit);

@@ -6,7 +6,7 @@
     <ul class="text-sm">
         @forelse($northProvinces as $province)
         <li class="border-b border-gray-200">
-            <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}"
+            <a href="{{ route('province.detail', ['code' => $province->code, 'slug' => $province->slug]) }}"
                class="block py-2 px-3 hover:text-[#ff6600] hover:bg-gray-50 transition-colors">
                 {{ $province->name }}
             </a>
@@ -39,7 +39,7 @@
     <ul class="text-sm">
         @forelse($centralProvinces as $province)
         <li class="border-b border-gray-200">
-            <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}"
+            <a href="{{ route('province.detail', ['code' => $province->code, 'slug' => $province->slug]) }}"
                class="block py-2 px-3 hover:text-[#ff6600] hover:bg-gray-50 transition-colors">
                 {{ $province->name }}
             </a>
@@ -62,7 +62,7 @@
     <ul class="text-sm">
         @forelse($southProvinces as $province)
         <li class="border-b border-gray-200">
-            <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}"
+            <a href="{{ route('province.detail', ['code' => $province->code, 'slug' => $province->slug]) }}"
                class="block py-2 px-3 hover:text-[#ff6600] hover:bg-gray-50 transition-colors">
                 {{ $province->name }}
             </a>

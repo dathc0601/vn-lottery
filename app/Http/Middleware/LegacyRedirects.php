@@ -44,6 +44,53 @@ class LegacyRedirects
         'xsmn' => 'south',
     ];
 
+    /**
+     * Old province codes mapped to their slug (for redirecting old URLs)
+     */
+    protected array $oldCodeToSlug = [
+        // Miền Bắc
+        'miba' => 'ha-noi',
+        'quni' => 'quang-ninh',
+        'bani' => 'bac-ninh',
+        'haph' => 'hai-phong',
+        'nadi' => 'nam-dinh',
+        'thbi' => 'thai-binh',
+        // Miền Trung
+        'bidi' => 'binh-dinh',
+        'dana' => 'da-nang',
+        'dalak' => 'dak-lak',
+        'dano' => 'dak-nong',
+        'gila' => 'gia-lai',
+        'khho' => 'khanh-hoa',
+        'kotu' => 'kon-tum',
+        'nith' => 'ninh-thuan',
+        'phye' => 'phu-yen',
+        'qubi' => 'quang-binh',
+        'quna' => 'quang-nam',
+        'qung' => 'quang-ngai',
+        'qutr' => 'quang-tri',
+        'thth' => 'thua-thien-hue',
+        // Miền Nam
+        'angi' => 'an-giang',
+        'bali' => 'bac-lieu',
+        'betre' => 'ben-tre',
+        'bidu' => 'binh-duong',
+        'biph' => 'binh-phuoc',
+        'cama' => 'ca-mau',
+        'cath' => 'can-tho',
+        'dona' => 'dong-nai',
+        'doth' => 'dong-thap',
+        'hagi' => 'hau-giang',
+        'kigi' => 'kien-giang',
+        'loan' => 'long-an',
+        'sotr' => 'soc-trang',
+        'tani' => 'tay-ninh',
+        'tigi' => 'tien-giang',
+        'trvi' => 'tra-vinh',
+        'vilo' => 'vinh-long',
+        'vuta' => 'vung-tau',
+    ];
+
     public function handle(Request $request, Closure $next): Response
     {
         $path = '/' . ltrim($request->path(), '/');
@@ -68,7 +115,7 @@ class LegacyRedirects
             return redirect("/{$m[1]}-{$m[2]}.html", 301);
         }
 
-        // Province: /xsmn/an-giang → /xs{code}-sx{code}-xo-so-an-giang.html
+        // Province: /xsmn/an-giang → /xs{code}-xo-so-an-giang.html
         if (preg_match('#^/(xsmb|xsmt|xsmn)/([a-z0-9]+(?:-[a-z0-9]+)*)$#', $path, $m)) {
             $region = $m[1];
             $slug = $m[2];
@@ -78,8 +125,29 @@ class LegacyRedirects
                 $province = $this->getProvinceBySlug($slug);
                 if ($province && $province->region === $dbRegion) {
                     $code = $province->code;
-                    return redirect("/xs{$code}-sx{$code}-xo-so-{$slug}.html", 301);
+                    return redirect("/xs{$code}-xo-so-{$slug}.html", 301);
                 }
+            }
+        }
+
+        // Old province URL format: /xs{oldCode}-sx{oldCode}-xo-so-{slug}.html → /xs{newCode}-xo-so-{slug}.html
+        if (preg_match('#^/xs([a-z0-9]+)-sx[a-z0-9]+-xo-so-([a-z0-9\-]+)\.html$#', $path, $m)) {
+            $oldCode = $m[1];
+            $slug = $m[2];
+
+            // Check if this is an old code that needs redirecting
+            if (isset($this->oldCodeToSlug[$oldCode])) {
+                $province = $this->getProvinceBySlug($slug);
+                if ($province) {
+                    $newCode = $province->code;
+                    return redirect("/xs{$newCode}-xo-so-{$slug}.html", 301);
+                }
+            }
+
+            // Also handle current codes in old URL format (xs{code}-sx{code}-xo-so-...)
+            $province = $this->getProvinceBySlug($slug);
+            if ($province && $province->code === $oldCode) {
+                return redirect("/xs{$oldCode}-xo-so-{$slug}.html", 301);
             }
         }
 

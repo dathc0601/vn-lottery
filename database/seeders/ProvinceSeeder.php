@@ -15,10 +15,10 @@ class ProvinceSeeder extends Seeder
         $provinces = [
             // North Region (XSMB) - 6 provinces
             [
-                'name' => 'Miền Bắc',
-                'code' => 'miba',
+                'name' => 'Hà Nội',
+                'code' => 'hn',
                 'region' => 'north',
-                'slug' => 'mien-bac',
+                'slug' => 'ha-noi',
                 'draw_days' => [1, 2, 3, 4, 5, 6, 7], // Daily
                 'draw_time' => '18:15:00',
                 'sort_order' => 1,
@@ -26,7 +26,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Quảng Ninh',
-                'code' => 'quni',
+                'code' => 'qni',
                 'region' => 'north',
                 'slug' => 'quang-ninh',
                 'draw_days' => [2], // Tuesday
@@ -36,7 +36,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Bắc Ninh',
-                'code' => 'bani',
+                'code' => 'bni',
                 'region' => 'north',
                 'slug' => 'bac-ninh',
                 'draw_days' => [3], // Wednesday
@@ -46,7 +46,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Hải Phòng',
-                'code' => 'haph',
+                'code' => 'hp',
                 'region' => 'north',
                 'slug' => 'hai-phong',
                 'draw_days' => [5], // Friday
@@ -56,7 +56,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Nam Định',
-                'code' => 'nadi',
+                'code' => 'nd',
                 'region' => 'north',
                 'slug' => 'nam-dinh',
                 'draw_days' => [6], // Saturday
@@ -66,7 +66,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Thái Bình',
-                'code' => 'thbi',
+                'code' => 'tb',
                 'region' => 'north',
                 'slug' => 'thai-binh',
                 'draw_days' => [7], // Sunday
@@ -78,7 +78,7 @@ class ProvinceSeeder extends Seeder
             // Central Region (XSMT) - 14 provinces
             [
                 'name' => 'Quảng Ngãi',
-                'code' => 'qung',
+                'code' => 'qng',
                 'region' => 'central',
                 'slug' => 'quang-ngai',
                 'draw_days' => [6], // Saturday
@@ -88,7 +88,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Đà Nẵng',
-                'code' => 'dana',
+                'code' => 'dna',
                 'region' => 'central',
                 'slug' => 'da-nang',
                 'draw_days' => [3, 6], // Wednesday, Saturday
@@ -98,7 +98,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Đắk Nông',
-                'code' => 'dano',
+                'code' => 'dno',
                 'region' => 'central',
                 'slug' => 'dak-nong',
                 'draw_days' => [6], // Saturday
@@ -108,7 +108,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Ninh Thuận',
-                'code' => 'nith',
+                'code' => 'nt',
                 'region' => 'central',
                 'slug' => 'ninh-thuan',
                 'draw_days' => [5], // Friday
@@ -118,7 +118,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Gia Lai',
-                'code' => 'gila',
+                'code' => 'gl',
                 'region' => 'central',
                 'slug' => 'gia-lai',
                 'draw_days' => [5], // Friday
@@ -128,7 +128,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Quảng Trị',
-                'code' => 'qutr',
+                'code' => 'qt',
                 'region' => 'central',
                 'slug' => 'quang-tri',
                 'draw_days' => [4], // Thursday
@@ -138,7 +138,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Quảng Bình',
-                'code' => 'qubi',
+                'code' => 'qb',
                 'region' => 'central',
                 'slug' => 'quang-binh',
                 'draw_days' => [4], // Thursday
@@ -148,7 +148,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Bình Định',
-                'code' => 'bidi',
+                'code' => 'bdi',
                 'region' => 'central',
                 'slug' => 'binh-dinh',
                 'draw_days' => [4], // Thursday
@@ -158,7 +158,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Khánh Hoà',
-                'code' => 'khho',
+                'code' => 'kh',
                 'region' => 'central',
                 'slug' => 'khanh-hoa',
                 'draw_days' => [3, 7], // Wednesday, Sunday
@@ -168,7 +168,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Quảng Nam',
-                'code' => 'quna',
+                'code' => 'qna',
                 'region' => 'central',
                 'slug' => 'quang-nam',
                 'draw_days' => [2], // Tuesday
@@ -178,7 +178,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Đắk Lắk',
-                'code' => 'dalak',
+                'code' => 'dl',
                 'region' => 'central',
                 'slug' => 'dak-lak',
                 'draw_days' => [2], // Tuesday
@@ -188,7 +188,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Thừa Thiên Huế',
-                'code' => 'thth',
+                'code' => 'th',
                 'region' => 'central',
                 'slug' => 'thua-thien-hue',
                 'draw_days' => [1, 7], // Monday, Sunday
@@ -198,7 +198,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Phú Yên',
-                'code' => 'phye',
+                'code' => 'py',
                 'region' => 'central',
                 'slug' => 'phu-yen',
                 'draw_days' => [1], // Monday
@@ -208,7 +208,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Kon Tum',
-                'code' => 'kotu',
+                'code' => 'kt',
                 'region' => 'central',
                 'slug' => 'kon-tum',
                 'draw_days' => [7], // Sunday
@@ -220,7 +220,7 @@ class ProvinceSeeder extends Seeder
             // South Region (XSMN) - 21 provinces
             [
                 'name' => 'Hậu Giang',
-                'code' => 'hagi',
+                'code' => 'hg',
                 'region' => 'south',
                 'slug' => 'hau-giang',
                 'draw_days' => [6], // Saturday
@@ -240,7 +240,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Bình Phước',
-                'code' => 'biph',
+                'code' => 'bp',
                 'region' => 'south',
                 'slug' => 'binh-phuoc',
                 'draw_days' => [6], // Saturday
@@ -250,7 +250,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Long An',
-                'code' => 'loan',
+                'code' => 'la',
                 'region' => 'south',
                 'slug' => 'long-an',
                 'draw_days' => [6], // Saturday
@@ -260,7 +260,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Bình Dương',
-                'code' => 'bidu',
+                'code' => 'bdu',
                 'region' => 'south',
                 'slug' => 'binh-duong',
                 'draw_days' => [5], // Friday
@@ -270,7 +270,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Trà Vinh',
-                'code' => 'trvi',
+                'code' => 'tv',
                 'region' => 'south',
                 'slug' => 'tra-vinh',
                 'draw_days' => [5], // Friday
@@ -280,7 +280,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Vĩnh Long',
-                'code' => 'vilo',
+                'code' => 'vl',
                 'region' => 'south',
                 'slug' => 'vinh-long',
                 'draw_days' => [5], // Friday
@@ -300,7 +300,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Tây Ninh',
-                'code' => 'tani',
+                'code' => 'tn',
                 'region' => 'south',
                 'slug' => 'tay-ninh',
                 'draw_days' => [4], // Thursday
@@ -310,7 +310,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'An Giang',
-                'code' => 'angi',
+                'code' => 'ag',
                 'region' => 'south',
                 'slug' => 'an-giang',
                 'draw_days' => [4], // Thursday
@@ -320,7 +320,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Sóc Trăng',
-                'code' => 'sotr',
+                'code' => 'st',
                 'region' => 'south',
                 'slug' => 'soc-trang',
                 'draw_days' => [3], // Wednesday
@@ -330,7 +330,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Đồng Nai',
-                'code' => 'dona',
+                'code' => 'dni',
                 'region' => 'south',
                 'slug' => 'dong-nai',
                 'draw_days' => [3], // Wednesday
@@ -340,7 +340,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Cần Thơ',
-                'code' => 'cath',
+                'code' => 'ct',
                 'region' => 'south',
                 'slug' => 'can-tho',
                 'draw_days' => [3], // Wednesday
@@ -350,7 +350,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Vũng Tàu',
-                'code' => 'vuta',
+                'code' => 'vt',
                 'region' => 'south',
                 'slug' => 'vung-tau',
                 'draw_days' => [2], // Tuesday
@@ -360,7 +360,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Bạc Liêu',
-                'code' => 'bali',
+                'code' => 'bl',
                 'region' => 'south',
                 'slug' => 'bac-lieu',
                 'draw_days' => [2], // Tuesday
@@ -370,7 +370,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Bến Tre',
-                'code' => 'betre',
+                'code' => 'bt',
                 'region' => 'south',
                 'slug' => 'ben-tre',
                 'draw_days' => [2], // Tuesday
@@ -380,7 +380,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Cà Mau',
-                'code' => 'cama',
+                'code' => 'cm',
                 'region' => 'south',
                 'slug' => 'ca-mau',
                 'draw_days' => [1], // Monday
@@ -390,7 +390,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Đồng Tháp',
-                'code' => 'doth',
+                'code' => 'dt',
                 'region' => 'south',
                 'slug' => 'dong-thap',
                 'draw_days' => [1], // Monday
@@ -410,7 +410,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Tiền Giang',
-                'code' => 'tigi',
+                'code' => 'tg',
                 'region' => 'south',
                 'slug' => 'tien-giang',
                 'draw_days' => [7], // Sunday
@@ -420,7 +420,7 @@ class ProvinceSeeder extends Seeder
             ],
             [
                 'name' => 'Kiên Giang',
-                'code' => 'kigi',
+                'code' => 'kg',
                 'region' => 'south',
                 'slug' => 'kien-giang',
                 'draw_days' => [7], // Sunday
@@ -432,7 +432,7 @@ class ProvinceSeeder extends Seeder
 
         foreach ($provinces as $province) {
             Province::updateOrCreate(
-                ['code' => $province['code']], // Find by code
+                ['slug' => $province['slug']], // Find by slug
                 $province // Update or create with these values
             );
         }

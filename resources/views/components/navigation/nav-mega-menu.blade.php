@@ -40,7 +40,7 @@
                     <div class="text-xs font-semibold text-gray-500 mb-2 pb-1 border-b border-gray-200">{{ $dayName }}</div>
                     @if(isset($provincesByDay[$dayNum]))
                         @foreach($provincesByDay[$dayNum] as $province)
-                            <a href="{{ route('province.detail', ['code' => $province->code, 'code2' => $province->code, 'slug' => $province->slug]) }}"
+                            <a href="{{ route('province.detail', ['code' => $province->code, 'slug' => $province->slug]) }}"
                                class="block text-xs py-1 text-gray-700 hover:text-[#ff6600] transition-colors whitespace-nowrap">
                                 {{ $province->name }}
                             </a>

@@ -191,7 +191,7 @@ class SitemapService
             foreach ($provinces as $province) {
                 $code = $province->code;
                 $urls[] = [
-                    'loc' => "/xs{$code}-sx{$code}-xo-so-{$province->slug}.html",
+                    'loc' => "/xs{$code}-xo-so-{$province->slug}.html",
                     'priority' => '0.8',
                     'changefreq' => 'daily',
                 ];
