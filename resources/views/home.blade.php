@@ -12,6 +12,9 @@
             gap: 1rem;
             transform: none !important;
         }
+        #predictions-swiper .swiper-slide {
+            width: auto !important;
+        }
         #predictions-swiper .swiper-pagination {
             display: none;
         }
