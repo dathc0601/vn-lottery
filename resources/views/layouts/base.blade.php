@@ -20,6 +20,7 @@
     <x-seo-head />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('styles')
 </head>
 <body class="bg-white text-gray-800 antialiased">
     <x-seo-body-open />

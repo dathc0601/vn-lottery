@@ -2,6 +2,23 @@
 
 @section('title', 'Kết quả xổ số hôm nay - XSKT.VN')
 
+@push('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<style>
+    @media (min-width: 768px) {
+        #predictions-swiper .swiper-wrapper {
+            display: grid !important;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+            transform: none !important;
+        }
+        #predictions-swiper .swiper-pagination {
+            display: none;
+        }
+    }
+</style>
+@endpush
+
 @section('page-content')
 <div>
     <!-- Two-Column Layout -->
@@ -9,6 +26,8 @@
 
         <!-- Main Content (65%) -->
         <div class="flex-1 lg:w-[100% - 275px]">
+
+            <h1 class="text-xl font-bold text-gray-800 mb-4">Kết Quả Xổ Số Hôm Nay - Trực Tiếp XSMB, XSMT, XSMN Nhanh Nhất</h1>
 
             <!-- Latest Predictions Section -->
             @php
@@ -23,35 +42,38 @@
                         <a href="{{ route('prediction.index') }}" class="text-[#0066cc] hover:underline">Dự đoán xổ số ngày mai</a>
                     </h2>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 pb-4">
-                    @foreach($predictionOrder as $slug)
-                        @php $pred = $latestPredictions[$slug] ?? null; @endphp
-                        @if($pred)
-                            @php
-                                $predDate = $pred->prediction_date;
-                                $weekdayLabel = $weekdays[$predDate->dayOfWeek] ?? '';
-                                $dateLabel = $weekdayLabel . ', ' . $predDate->format('d/m/Y');
-                            @endphp
-                            <div>
-                                <a href="{{ $pred->url }}" class="block">
-                                    @include('predictions.partials.thumbnail-large', [
-                                        'thumbSlug' => $slug,
-                                        'thumbDateLine' => $dateLabel,
-                                    ])
-                                </a>
-                                <div class="mt-2">
-                                    <h3 class="font-bold text-base">
-                                        <a href="{{ $pred->url }}" class="text-[#0066cc] hover:underline">
-                                            DỰ ĐOÁN {{ strtoupper($slug) }}
-                                        </a>
-                                    </h3>
-                                    <p class="text-sm text-gray-700 mt-1">
-                                        Dự đoán {{ strtoupper($slug) }} {{ $pred->formatted_date }}, soi cầu Xổ Số {{ $pred->region_name }}
-                                    </p>
+                <div id="predictions-swiper" class="swiper px-4 pb-4">
+                    <div class="swiper-wrapper">
+                        @foreach($predictionOrder as $slug)
+                            @php $pred = $latestPredictions[$slug] ?? null; @endphp
+                            @if($pred)
+                                @php
+                                    $predDate = $pred->prediction_date;
+                                    $weekdayLabel = $weekdays[$predDate->dayOfWeek] ?? '';
+                                    $dateLabel = $weekdayLabel . ', ' . $predDate->format('d/m/Y');
+                                @endphp
+                                <div class="swiper-slide">
+                                    <a href="{{ $pred->url }}" class="block">
+                                        @include('predictions.partials.thumbnail-large', [
+                                            'thumbSlug' => $slug,
+                                            'thumbDateLine' => $dateLabel,
+                                        ])
+                                    </a>
+                                    <div class="mt-2">
+                                        <h3 class="font-bold text-base">
+                                            <a href="{{ $pred->url }}" class="text-[#0066cc] hover:underline">
+                                                DỰ ĐOÁN {{ strtoupper($slug) }}
+                                            </a>
+                                        </h3>
+                                        <p class="text-sm text-gray-700 mt-1">
+                                            Dự đoán {{ strtoupper($slug) }} {{ $pred->formatted_date }}, soi cầu Xổ Số {{ $pred->region_name }}
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
-                        @endif
-                    @endforeach
+                            @endif
+                        @endforeach
+                    </div>
+                    <div class="swiper-pagination mt-3"></div>
                 </div>
             </div>
             @endif
@@ -786,3 +808,23 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (!document.getElementById('predictions-swiper')) return;
+    new Swiper('#predictions-swiper', {
+        slidesPerView: 1,
+        spaceBetween: 16,
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+        breakpoints: {
+            768: { enabled: false }
+        },
+    });
+});
+</script>
+@endpush
