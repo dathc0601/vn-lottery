@@ -19,8 +19,8 @@
                 <!-- Main Content Card -->
                 <div class="bg-white rounded shadow overflow-hidden">
                     <!-- Orange Header -->
-                    <div class="bg-[#ff6600] text-white px-4 py-2 font-medium">
-                        Giới thiệu tính năng Thống Kê
+                    <div class="bg-[#ff6600] text-white px-4 py-2">
+                        <h1 class="text-lg font-bold">Thống Kê Xổ Số</h1>
                     </div>
 
                     <!-- Content -->

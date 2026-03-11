@@ -92,6 +92,16 @@ class SitemapController extends Controller
     }
 
     /**
+     * News/Articles sitemap
+     */
+    public function news(): Response
+    {
+        $xml = $this->sitemapService->generateNewsSitemap();
+
+        return $this->xmlResponse($xml);
+    }
+
+    /**
      * Return XML response with proper headers
      */
     protected function xmlResponse(string $xml): Response

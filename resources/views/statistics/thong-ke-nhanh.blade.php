@@ -20,8 +20,8 @@
             <div class="space-y-4">
                 <!-- Header -->
                 <div class="bg-white rounded shadow overflow-hidden">
-                    <div class="bg-[#ff6600] text-white px-4 py-2 font-medium">
-                        Thống kê nhanh
+                    <div class="bg-[#ff6600] text-white px-4 py-2">
+                        <h1 class="text-lg font-bold">Thống kê nhanh</h1>
                     </div>
 
                     <div class="p-4">

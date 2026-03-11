@@ -166,6 +166,7 @@ Route::get('/sitemap-ket-qua-xo-so-thang-{yearMonth}.xml', [SitemapController::c
     ->name('sitemap.results');
 Route::get('/sitemap-du-doan-ket-qua-xo-so.xml', [SitemapController::class, 'predictions'])->name('sitemap.predictions');
 Route::get('/sitemap-pages.xml', [SitemapController::class, 'pages'])->name('sitemap.pages');
+Route::get('/sitemap-tin-tuc.xml', [SitemapController::class, 'news'])->name('sitemap.news');
 
 Route::prefix('rssfeed')->group(function () {
     Route::get('/xsmn.rss', [RssFeedController::class, 'xsmn'])->name('rssfeed.xsmn');

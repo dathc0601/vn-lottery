@@ -22,8 +22,8 @@
 
             <!-- Page Header (Orange bar) -->
             <div class="bg-white rounded shadow overflow-hidden mb-4">
-                <div class="bg-[#ff6600] text-white px-4 py-2 font-medium">
-                    {{ $category->name }}
+                <div class="bg-[#ff6600] text-white px-4 py-2">
+                    <h1 class="text-lg font-bold">{{ $category->name }}</h1>
                 </div>
                 @if($category->description)
                     <div class="px-4 py-3 text-sm text-gray-600 border-b">

@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Article;
+use App\Models\ArticleCategory;
 use App\Models\LotteryResult;
 use App\Models\Page;
 use App\Models\Prediction;
@@ -52,6 +54,9 @@ class SitemapService
 
             // Custom pages sitemap
             $xml .= $this->buildSitemapEntry("{$baseUrl}/sitemap-pages.xml", $now);
+
+            // News/Articles sitemap
+            $xml .= $this->buildSitemapEntry("{$baseUrl}/sitemap-tin-tuc.xml", $now);
 
             // Monthly results sitemaps (rolling 2 months)
             $currentMonth = Carbon::now();
@@ -334,6 +339,55 @@ class SitemapService
     }
 
     /**
+     * Generate news/articles sitemap
+     */
+    public function generateNewsSitemap(): string
+    {
+        return Cache::remember('sitemap_news', self::CACHE_TTL_DYNAMIC, function () {
+            $baseUrl = $this->getBaseUrl();
+            $now = Carbon::now()->toW3cString();
+
+            $urls = [];
+
+            // News index page
+            $urls[] = [
+                'loc' => '/tin-tuc',
+                'priority' => '0.7',
+                'changefreq' => 'daily',
+            ];
+
+            // Category pages
+            $categories = ArticleCategory::where('is_active', true)
+                ->orderBy('sort_order')
+                ->get();
+
+            foreach ($categories as $category) {
+                $urls[] = [
+                    'loc' => "/tin-tuc/{$category->slug}",
+                    'priority' => '0.6',
+                    'changefreq' => 'daily',
+                ];
+            }
+
+            // Individual articles
+            $articles = Article::published()
+                ->latest()
+                ->get();
+
+            foreach ($articles as $article) {
+                $urls[] = [
+                    'loc' => "/tin-tuc/{$article->slug}.html",
+                    'priority' => '0.6',
+                    'changefreq' => 'monthly',
+                    'lastmod' => ($article->updated_at ?? $article->published_at)->toW3cString(),
+                ];
+            }
+
+            return $this->buildUrlsetXml($urls, $baseUrl, $now);
+        });
+    }
+
+    /**
      * Build URL set XML
      */
     protected function buildUrlsetXml(array $urls, string $baseUrl, string $defaultLastmod): string
@@ -380,6 +434,7 @@ class SitemapService
         Cache::forget('sitemap_vietlott');
         Cache::forget('sitemap_predictions');
         Cache::forget('sitemap_pages');
+        Cache::forget('sitemap_news');
         $this->clearResultsCaches();
     }
 

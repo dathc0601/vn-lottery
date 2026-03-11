@@ -13,6 +13,10 @@
 @endsection
 
 @section('page-content')
+    <h1 class="text-xl font-bold text-gray-800 mb-4">
+        {{ isset($dayLabel) && $dayLabel ? 'Xổ Số Miền Trung ' . $dayLabel . ' - Hàng Tuần' : ($isSpecificDate ? 'Kết Quả Xổ Số Miền Trung ngày ' . $date->format('d/m/Y') : 'XSMT - Kết Quả Xổ Số Miền Trung Hôm Nay') }}
+    </h1>
+
     <!-- Date Selector -->
     <div class="sidebar-section mb-4">
         <div class="sidebar-header">Chọn ngày xem kết quả</div>

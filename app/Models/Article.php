@@ -44,10 +44,14 @@ class Article extends Model
 
         static::saved(function ($article) {
             static::clearCache($article->slug);
+            Cache::forget('sitemap_news');
+            Cache::forget('sitemap_index');
         });
 
         static::deleted(function ($article) {
             static::clearCache($article->slug);
+            Cache::forget('sitemap_news');
+            Cache::forget('sitemap_index');
         });
     }
 

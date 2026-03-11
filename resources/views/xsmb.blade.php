@@ -18,8 +18,8 @@
 
             <!-- Page Header (Orange bar) -->
             <div class="bg-white rounded shadow overflow-hidden mb-4">
-                <div class="bg-[#ff6600] text-white px-4 py-2 font-medium">
-                    {{ isset($dayLabel) && $dayLabel ? 'Xổ Số Miền Bắc ' . $dayLabel . ' - Hàng Tuần' : ($isSpecificDate ? 'Kết Quả Xổ Số Miền Bắc ngày ' . $date->format('d/m/Y') : 'XSMB - Kết Quả Xổ Số Miền Bắc Hôm Nay') }}
+                <div class="bg-[#ff6600] text-white px-4 py-2">
+                    <h1 class="text-lg font-bold">{{ isset($dayLabel) && $dayLabel ? 'Xổ Số Miền Bắc ' . $dayLabel . ' - Hàng Tuần' : ($isSpecificDate ? 'Kết Quả Xổ Số Miền Bắc ngày ' . $date->format('d/m/Y') : 'XSMB - Kết Quả Xổ Số Miền Bắc Hôm Nay') }}</h1>
                 </div>
             </div>
 

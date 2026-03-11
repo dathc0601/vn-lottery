@@ -26,7 +26,8 @@
 
             <!-- Page Header (Orange bar) -->
             <div class="bg-white rounded shadow overflow-hidden mb-4">
-                <div class="bg-[#ff6600] text-white px-4 py-2 font-medium">
+                <div class="bg-[#ff6600] text-white px-4 py-2">
+                    <h1 class="text-lg font-bold">
                     @if($province->region == 'north')
                         XSMB - Kết quả xổ số {{ $province->name }} - Xổ Số Miền Bắc
                     @elseif($province->region == 'central')
@@ -34,6 +35,7 @@
                     @else
                         XSMN - Kết quả xổ số {{ $province->name }} - Xổ Số Miền Nam
                     @endif
+                    </h1>
                 </div>
             </div>
 

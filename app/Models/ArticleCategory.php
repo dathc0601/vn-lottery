@@ -32,10 +32,14 @@ class ArticleCategory extends Model
 
         static::saved(function () {
             static::clearCache();
+            Cache::forget('sitemap_news');
+            Cache::forget('sitemap_index');
         });
 
         static::deleted(function () {
             static::clearCache();
+            Cache::forget('sitemap_news');
+            Cache::forget('sitemap_index');
         });
     }
 

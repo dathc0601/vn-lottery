@@ -18,8 +18,8 @@
             <!-- Filter Section -->
             <div class="mb-6">
                 <!-- Orange Header -->
-                <div class="bg-[#ff6600] text-white px-4 py-3 font-semibold text-lg">
-                    Sổ kết quả
+                <div class="bg-[#ff6600] text-white px-4 py-3">
+                    <h1 class="text-lg font-bold">Sổ kết quả</h1>
                 </div>
 
                 <!-- Filter Form -->

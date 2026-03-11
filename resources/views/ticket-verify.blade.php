@@ -107,8 +107,8 @@
 
 @section('page-content')
     <!-- Page Header -->
-    <div class="bg-[#ff6600] text-white px-4 py-3 font-bold">
-        Dò vé số - Tra cứu kết quả xổ số
+    <div class="bg-[#ff6600] text-white px-4 py-3">
+        <h1 class="text-lg font-bold">Dò vé số - Tra cứu kết quả xổ số</h1>
     </div>
 
     <!-- Main Verification Form -->
